@@ -1,0 +1,325 @@
+[
+  {
+    "kinopoiskId": 404900,
+    "imdbId": "tt0903747",
+    "nameRu": "Во все тяжкие",
+    "nameEn": null,
+    "nameOriginal": "Breaking Bad",
+    "countries": [
+      {
+        "country": "США"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "триллер"
+      },
+      {
+        "genre": "драма"
+      },
+      {
+        "genre": "криминал"
+      }
+    ],
+    "ratingKinopoisk": 8.9,
+    "ratingImdb": 9.5,
+    "year": 2008,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/404900.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/404900.jpg"
+  },
+  {
+    "kinopoiskId": 89540,
+    "imdbId": "tt0069628",
+    "nameRu": "Семнадцать мгновений весны",
+    "nameEn": null,
+    "nameOriginal": null,
+    "countries": [
+      {
+        "country": "СССР"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "драма"
+      },
+      {
+        "genre": "приключения"
+      },
+      {
+        "genre": "военный"
+      },
+      {
+        "genre": "история"
+      }
+    ],
+    "ratingKinopoisk": 8.9,
+    "ratingImdb": 8.8,
+    "year": 1973,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/89540.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/89540.jpg"
+  },
+  {
+    "kinopoiskId": 464963,
+    "imdbId": "tt0944947",
+    "nameRu": "Игра престолов",
+    "nameEn": null,
+    "nameOriginal": "Game of Thrones",
+    "countries": [
+      {
+        "country": "США"
+      },
+      {
+        "country": "Великобритания"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "драма"
+      },
+      {
+        "genre": "мелодрама"
+      },
+      {
+        "genre": "приключения"
+      },
+      {
+        "genre": "боевик"
+      },
+      {
+        "genre": "фэнтези"
+      }
+    ],
+    "ratingKinopoisk": 9,
+    "ratingImdb": 9.2,
+    "year": 2011,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/464963.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/464963.jpg"
+  },
+  {
+    "kinopoiskId": 253245,
+    "imdbId": "tt0386676",
+    "nameRu": "Офис",
+    "nameEn": null,
+    "nameOriginal": "The Office",
+    "countries": [
+      {
+        "country": "США"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "комедия"
+      }
+    ],
+    "ratingKinopoisk": 8.6,
+    "ratingImdb": 9,
+    "year": 2005,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/253245.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/253245.jpg"
+  },
+  {
+    "kinopoiskId": 79848,
+    "imdbId": "tt0141842",
+    "nameRu": "Сопрано",
+    "nameEn": null,
+    "nameOriginal": "The Sopranos",
+    "countries": [
+      {
+        "country": "США"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "драма"
+      },
+      {
+        "genre": "криминал"
+      }
+    ],
+    "ratingKinopoisk": 8.8,
+    "ratingImdb": 9.2,
+    "year": 1999,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/79848.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/79848.jpg"
+  },
+  {
+    "kinopoiskId": 77044,
+    "imdbId": "tt0108778",
+    "nameRu": "Друзья",
+    "nameEn": null,
+    "nameOriginal": "Friends",
+    "countries": [
+      {
+        "country": "США"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "мелодрама"
+      },
+      {
+        "genre": "комедия"
+      }
+    ],
+    "ratingKinopoisk": 9.2,
+    "ratingImdb": 8.9,
+    "year": 1994,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/77044.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/77044.jpg"
+  },
+  {
+    "kinopoiskId": 591929,
+    "imdbId": "tt1865718",
+    "nameRu": "Гравити Фолз",
+    "nameEn": null,
+    "nameOriginal": "Gravity Falls",
+    "countries": [
+      {
+        "country": "США"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "детектив"
+      },
+      {
+        "genre": "фантастика"
+      },
+      {
+        "genre": "приключения"
+      },
+      {
+        "genre": "комедия"
+      },
+      {
+        "genre": "мультфильм"
+      },
+      {
+        "genre": "семейный"
+      }
+    ],
+    "ratingKinopoisk": 9,
+    "ratingImdb": 8.9,
+    "year": 2012,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/591929.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/591929.jpg"
+  },
+  {
+    "kinopoiskId": 401152,
+    "imdbId": null,
+    "nameRu": "Аватар: Легенда об Аанге",
+    "nameEn": null,
+    "nameOriginal": "Avatar: The Last Airbender",
+    "countries": [
+      {
+        "country": "США"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "приключения"
+      },
+      {
+        "genre": "боевик"
+      },
+      {
+        "genre": "фэнтези"
+      },
+      {
+        "genre": "мультфильм"
+      },
+      {
+        "genre": "семейный"
+      }
+    ],
+    "ratingKinopoisk": 8.7,
+    "ratingImdb": 9.3,
+    "year": 2004,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/401152.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/401152.jpg"
+  },
+  {
+    "kinopoiskId": 749374,
+    "imdbId": "tt2560140",
+    "nameRu": "Атака титанов",
+    "nameEn": null,
+    "nameOriginal": "Shingeki no kyojin",
+    "countries": [
+      {
+        "country": "Япония"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "драма"
+      },
+      {
+        "genre": "фантастика"
+      },
+      {
+        "genre": "боевик"
+      },
+      {
+        "genre": "фэнтези"
+      },
+      {
+        "genre": "мультфильм"
+      },
+      {
+        "genre": "аниме"
+      }
+    ],
+    "ratingKinopoisk": 8.7,
+    "ratingImdb": 9.1,
+    "year": 2013,
+    "type": "TV_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/749374.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/749374.jpg"
+  },
+  {
+    "kinopoiskId": 5416975,
+    "imdbId": null,
+    "nameRu": "Атака Титанов: Финал. Расширенная версия",
+    "nameEn": null,
+    "nameOriginal": "Shingeki no Kyojin: The Final Season - Kanketsu-hen",
+    "countries": [
+      {
+        "country": "Япония"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "драма"
+      },
+      {
+        "genre": "фантастика"
+      },
+      {
+        "genre": "боевик"
+      },
+      {
+        "genre": "фэнтези"
+      },
+      {
+        "genre": "мультфильм"
+      },
+      {
+        "genre": "аниме"
+      }
+    ],
+    "ratingKinopoisk": null,
+    "ratingImdb": null,
+    "year": 2023,
+    "type": "MINI_SERIES",
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/5416975.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/5416975.jpg"
+  }
+]
