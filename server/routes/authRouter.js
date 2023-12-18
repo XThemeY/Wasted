@@ -1,26 +1,22 @@
-const Router = require("express");
+import Router from "express";
 const router = new Router();
-const controller = require("../controllers/authController");
-const { check } = require("express-validator");
-const roleMiddleware = require("../middleware/roleMiddleware");
+import { authController } from "../controllers/controllers.js";
+import { check } from "express-validator";
 
 router.post(
   "/registration",
   [
     check("username", "Имя пользователя не может быть пустым").notEmpty(),
-    check("password", "Пароль должен содержать минимум 6 символов")
+    check("password", "Пароль должен содержать минимум 8 символов")
       .notEmpty()
       .isLength({ min: 8, max: 15 }),
-    check("login", "Логин не может быть пустым").notEmpty(),
-    check("mail", "Почта не может быть пустым").notEmpty().isEmail(),
+    check("login", "Логин не может быть пустым, максимум 25 символов")
+      .notEmpty()
+      .isLength({ max: 25 }),
+    check("email", "Почта не может быть пустой").notEmpty().isEmail(),
   ],
-  controller.registration
+  authController.registration
 );
-router.post("/login", controller.login);
-router.get(
-  "/users",
-  roleMiddleware(["Admin", "Moderator"]),
-  controller.getUsers
-);
+router.post("/login", authController.login);
 
-module.exports = router;
+export default router;

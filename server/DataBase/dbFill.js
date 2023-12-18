@@ -1,51 +1,9 @@
 const Game = require("../models/Game");
 const Movie = require("../models/Movie");
-const TVShow = require("../models/TVShow");
+const TVShow = require("../models/TVShow").default;
 const fs = require("fs");
 
 class dbController {
-  async getMovie(req, res) {
-    try {
-      const id = req.url.slice(1);
-      const movie = await Movie.findOne({ id: id });
-
-      if (!movie) {
-        return res.status(400).json({
-          message: `Неправильный адрес`,
-        });
-      }
-      res.json(movie);
-    } catch (e) {}
-  }
-
-  async getGame(req, res) {
-    try {      
-      const id = req.url.slice(1);
-      const game = await Game.findOne({ id: id });
-
-      if (!game) {
-        return res.status(400).json({
-          message: `Неправильный адрес`,
-        });
-      }
-      res.json(game);
-    } catch (e) {}
-  }
-
-  async getTVShow(req, res) {
-    try {      
-      const id = req.url.slice(1);
-      const tvShow = await TVShow.findOne({ id: id });
-
-      if (!tvShow) {
-        return res.status(400).json({
-          message: `Неправильный адрес`,
-        });
-      }
-      res.json(tvShow);
-    } catch (e) {}
-  }
-
   async addMovie(id) {
     try {
       const file = JSON.parse(fs.readFileSync("../movies.json", "utf8"));
@@ -109,8 +67,6 @@ class dbController {
 
   async updateItem() {}
 }
-
-module.exports = new dbController();
 
 // const tvShow = new TVShow({
 //   username: username,

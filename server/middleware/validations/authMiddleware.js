@@ -1,6 +1,7 @@
-const jwt = require("jsonwebtoken");
-const { secret } = require("../config");
-module.exports = function (req, res, next) {
+import jwt from "jsonwebtoken";
+import { secret } from "../../config.js";
+
+export default function (req, res, next) {
   if (req.method === "OPTIONS") {
     next();
   }
@@ -21,4 +22,4 @@ module.exports = function (req, res, next) {
       message: `Пользователь не авторизован`,
     });
   }
-};
+}

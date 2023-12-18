@@ -1,3 +1,1 @@
-module.exports = {
-  secret: "SECRET_KEY_RANDOM",
-};
+export const secret = "SECRET_KEY_RANDOM";

@@ -1,9 +1,14 @@
-const Router = require("express");
+import Router from "express";
 const router = new Router();
-const controller = require("../controllers/dbController");
+import { gameController } from "../controllers/controllers.js";
 
-// controller.addItem(897087);
+// controller.addMovie(1);
 
-router.get("/\\d*", controller.getGame);
+router.get("/", gameController.getGameAll);
+router.get("/:id", gameController.getGame);
+// router.get("/:id", controller.getMovie);
+// router.get("/:id", controller.getMovie);
+// router.get("/:id", controller.getMovie);
+// router.get("/:id", controller.getMovie);
 
-module.exports = router;
+export default router;

@@ -1,9 +1,14 @@
-const Router = require("express");
+import Router from "express";
 const router = new Router();
-const controller = require("../controllers/dbController");
+import { movieController } from "../controllers/controllers.js";
 
 // controller.addMovie(1);
 
-router.get("/\\d*", controller.getMovie);
+router.get("/", movieController.getMovieAll);
+router.get("/:id", movieController.getMovie);
+// router.get("/:id", controller.getMovie);
+// router.get("/:id", controller.getMovie);
+// router.get("/:id", controller.getMovie);
+// router.get("/:id", controller.getMovie);
 
-module.exports = router;
+export default router;
