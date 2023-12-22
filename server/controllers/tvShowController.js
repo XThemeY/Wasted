@@ -1,4 +1,4 @@
-import { TVShow } from "../models/models.js";
+import { TVShow } from "../models/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";

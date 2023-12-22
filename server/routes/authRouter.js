@@ -1,6 +1,6 @@
 import Router from "express";
 const router = new Router();
-import { authController } from "../controllers/controllers.js";
+import { authController } from "../controllers/index.js";
 import { check } from "express-validator";
 
 router.post(

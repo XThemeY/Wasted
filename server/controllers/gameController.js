@@ -1,4 +1,4 @@
-import { Game } from "../models/models.js";
+import { Game } from "../models/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";

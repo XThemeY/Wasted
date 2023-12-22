@@ -1,4 +1,4 @@
-import { User, Role, Movie } from "../models/models.js";
+import { User, Role, Movie } from "../models/index.js";
 
 const excludeFields = "-_id -__v -password -email";
 

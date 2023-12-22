@@ -1,6 +1,6 @@
 import Router from "express";
 const router = new Router();
-import { tvShowController } from "../controllers/controllers.js";
+import { tvShowController } from "../controllers/index.js";
 
 router.get("/", tvShowController.getTVShowAll);
 router.get("/:id", tvShowController.getTVShow);

@@ -1,4 +1,4 @@
-import { Movie } from "../models/models.js";
+import { Movie } from "../models/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";

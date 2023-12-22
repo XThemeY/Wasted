@@ -7,7 +7,7 @@ import {
   movieRouter,
   tvshowRouter,
   gameRouter,
-} from "./routes/routes.js";
+} from "./routes/index.js";
 import cors from "cors";
 
 const PORT = process.env.PORT || 3000;
