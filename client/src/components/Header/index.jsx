@@ -1,9 +1,14 @@
-import React from "react";
+import { React, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./Header.module.scss";
 import { ReactComponent as ArrowDownIcon } from "../../assets/icons/chevron-down-outline.svg";
 
 function Header() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  console.log(activeIndex);
+  const onClickNav = (index) => {
+    setActiveIndex(index);
+  };
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -14,16 +19,40 @@ function Header() {
         </div>
         <nav className={""}>
           <ul className={styles.nav}>
-            <li className={`${styles.nav__item} ${styles.active}`} key={""}>
+            <li
+              onClick={() => onClickNav(0)}
+              className={`${styles.nav__item} ${
+                activeIndex === 0 ? styles.active : ""
+              }`}
+              key={""}
+            >
               <Link to="/">Главная</Link>
             </li>
-            <li className={styles.nav__item} key={""}>
+            <li
+              onClick={() => onClickNav(1)}
+              className={`${styles.nav__item} ${
+                activeIndex === 1 ? styles.active : ""
+              }`}
+              key={""}
+            >
               <Link to="/movie">Фильмы</Link>
             </li>
-            <li className={styles.nav__item} key={""}>
+            <li
+              onClick={() => onClickNav(2)}
+              className={`${styles.nav__item} ${
+                activeIndex === 2 ? styles.active : ""
+              }`}
+              key={""}
+            >
               <Link to="/tvshow">Шоу</Link>
             </li>
-            <li className={styles.nav__item} key={""}>
+            <li
+              onClick={() => onClickNav(3)}
+              className={`${styles.nav__item} ${
+                activeIndex === 3 ? styles.active : ""
+              }`}
+              key={""}
+            >
               <Link to="/game">Игры</Link>
             </li>
           </ul>
@@ -39,7 +68,12 @@ function Header() {
             />
           </label>
         </form>
-        <div className={styles.profile}>
+        <div
+          onClick={() => onClickNav(4)}
+          className={`${styles.profile} ${
+            activeIndex === 4 ? styles.active : ""
+          }`}
+        >
           <div className={styles.avatar}>
             <Link to="/profile">
               <img
@@ -48,14 +82,14 @@ function Header() {
                 srcSet={""}
               />
             </Link>
-          </div>{" "}
+          </div>
           <Link to="/profile">
             <ArrowDownIcon
               className="icon--arrow-down"
               fill={"none"}
               stroke={"black"}
               width={"20px"}
-            />{" "}
+            />
           </Link>
         </div>
       </div>

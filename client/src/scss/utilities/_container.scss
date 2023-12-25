@@ -1,6 +1,26 @@
 @use "../abstracts" as *;
 .container {
-  max-width: $max-width;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 15px;
+  padding: 100px 15px 15px;
+
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
+}
+
+.main__container {
+  background-color: #f5f5dc;
+}
+.movies__container {
+  background-color: #f5f5dc;
+  display: flex;
+  gap: 10px;
+
+  flex-direction: column;
+}
+.shows__container {
+  background-color: #f5f5dc;
+}
+.games__container {
+  background-color: #f5f5dc;
 }
