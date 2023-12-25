@@ -1,0 +1,233 @@
+@use "../../scss/abstracts" as *;
+.header {
+  width: 100%;
+  position: fixed;
+}
+.container {
+  max-width: 1200px;
+
+  height: 65px;
+  margin: 0 auto;
+  display: flex;
+  padding: 0 30px;
+  gap: 30px;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f5dc;
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
+}
+.logo {
+  width: 70px;
+  background-color: $bg-color;
+  padding: 5px;
+  border-radius: 20px;
+}
+
+.nav {
+  display: flex;
+  font-size: 1.5rem;
+  gap: 50px;
+  height: 35px;
+
+  a {
+    font-weight: 400;
+    letter-spacing: 0.05rem;
+    user-select: none;
+  }
+}
+
+.nav__item {
+  height: 50px;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+
+  position: relative;
+  a {
+    padding: 0 10px 10px 10px;
+  }
+  &:hover,
+  &:active {
+    background-color: $bg-color;
+
+    a {
+      color: white;
+    }
+    &:after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: -20px;
+      width: 20px;
+      height: 20px;
+      background-color: transparent;
+      border-bottom-right-radius: 20px;
+      box-shadow: 5px 5px 0 5px $bg-color;
+    }
+    &:before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      right: -20px;
+      width: 20px;
+      height: 20px;
+      background-color: transparent;
+      border-bottom-left-radius: 20px;
+      box-shadow: -5px 5px 0 5px $bg-color;
+    }
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 1;
+  }
+}
+
+.active {
+  background-color: $bg-color;
+
+  a {
+    color: white;
+  }
+  &:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: -20px;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border-bottom-right-radius: 20px;
+    box-shadow: 5px 5px 0 5px $bg-color;
+  }
+  &:before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: -20px;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border-bottom-left-radius: 20px;
+    box-shadow: -5px 5px 0 5px $bg-color;
+  }
+}
+
+.searchForm {
+  label {
+    position: relative;
+  }
+
+  label:before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: url("../../assets/icons/search-outline.svg") center / contain
+      no-repeat;
+  }
+}
+
+.search {
+  width: 300px;
+  padding-left: 30px;
+  padding-right: 2px;
+  height: 30px;
+
+  outline: 0;
+  border: none;
+  border-radius: 5px;
+  background-color: #f5deb3;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: white;
+    padding-left: 28px;
+    padding-right: 0;
+    border: 2px solid #696969;
+  }
+
+  &:focus {
+    padding-left: 28px;
+    padding-right: 0;
+    border: 2px solid #696969;
+    background-color: white;
+  }
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 3px 10px;
+
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  a {
+    display: flex;
+    align-items: center;
+  }
+
+  &:hover,
+  &:active {
+    background-color: $bg-color;
+    &:after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: -20px;
+      width: 20px;
+      height: 20px;
+      background-color: transparent;
+      border-bottom-right-radius: 20px;
+      box-shadow: 5px 5px 0 5px $bg-color;
+    }
+    &:before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      right: -20px;
+      width: 20px;
+      height: 20px;
+      background-color: transparent;
+      border-bottom-left-radius: 20px;
+      box-shadow: -5px 5px 0 5px $bg-color;
+    }
+  }
+
+  &:hover {
+    opacity: 0.8;
+    position: relative;
+  }
+  &:active {
+    opacity: 1;
+  }
+}
+#icon__search-outline:hover {
+  stroke: black;
+  fill: blue;
+}
+.avatar {
+  width: 50px;
+
+  img {
+    border-radius: 50%; /* Радиус скругления */
+    border: 1px solid $main-color; /* Параметры рамки */
+  }
+}
+
+.username {
+  display: inline-block;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.icon--arrow-down {
+  width: 10px;
+  height: 10px;
+}

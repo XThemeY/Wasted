@@ -1,6 +1,6 @@
 import React from "react";
 
 const Movie = function () {
-  return <div>Поапапа</div>;
+  return <div>Movie</div>;
 };
 export default Movie;
