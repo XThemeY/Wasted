@@ -1,11 +1,9 @@
 import React from "react";
 
-function MainPage() {
+export default function MainPage() {
   return (
     <main className="main">
       <div className="container main__container"></div>
     </main>
   );
 }
-
-export default MainPage;

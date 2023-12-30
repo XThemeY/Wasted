@@ -1,0 +1,167 @@
+@use "../../../scss/abstracts" as *;
+
+.section__comment {
+  display: flex;
+
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  position: relative;
+  &:last-child {
+    .comment__branch {
+      border-left: none;
+      .comment__branch_angle {
+        left: 0;
+      }
+    }
+  }
+}
+
+// .comment__branch[data-branch-id="10"] {
+//   border-left: 2px solid #6d6d6d;
+// }
+
+// .comment__branch[data-branch-id="10"] {
+//   & .comment__branch_angle {
+//     border-left: 2px solid #6d6d6d;
+//     border-bottom: 2px solid #6d6d6d;
+//     left: -2px;
+//   }
+// }
+
+.comment__branch {
+  position: absolute;
+  width: 40px;
+  height: 100%;
+  left: -40px;
+  cursor: pointer;
+  border-left: 1px solid lightgray;
+}
+
+.comment__branch_angle {
+  position: absolute;
+  width: 40px;
+  top: -20px;
+  left: -1px;
+  height: 40px;
+  cursor: pointer;
+  border-left: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  border-bottom-left-radius: 15px;
+}
+.section__replies {
+  margin-top: 15px;
+  margin-left: 5%;
+}
+
+.comment {
+  &__user {
+    display: flex;
+    font-size: 1rem;
+    gap: 10px;
+    line-height: 1.2rem;
+    align-items: center;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  &__createdAt {
+    font-size: 0.8rem;
+    color: #808080;
+    a {
+      display: inline-block;
+    }
+  }
+  &__link {
+    color: #4682b4;
+  }
+
+  &__body {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.2rem;
+  }
+
+  &__reply {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    ul {
+      display: flex;
+      gap: 5px;
+      flex-grow: 1;
+      flex-direction: row-reverse;
+      li {
+        display: flex;
+        gap: 3px;
+        padding: 2px 3px;
+        border-radius: 10px;
+        color: $main-color;
+        font-size: 0.8rem;
+        line-height: 1.6rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+
+        &:hover {
+          background-color: #ff6347;
+        }
+
+        &:active {
+          background-color: #ff2600;
+        }
+        button {
+          width: 20px;
+          height: 20px;
+          align-self: center;
+          border: none;
+          background: none;
+          padding: 0;
+        }
+      }
+    }
+  }
+}
+
+.options_btn {
+  border: none;
+  font-size: 1.3rem;
+  font-weight: bold;
+  background: none;
+  padding: 0;
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.smile_btn {
+  width: 25px;
+  border: none;
+  background: none;
+  padding: 0;
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.reply_btn {
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.user__wrapper {
+  display: flex;
+  flex-direction: column;
+  line-height: 0.9rem;
+}

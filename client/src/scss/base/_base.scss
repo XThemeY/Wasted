@@ -18,6 +18,9 @@ button {
 a {
   font-family: $font-family, sans-serif;
   color: $link-color;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 input[type="search"]::-webkit-search-decoration:hover,

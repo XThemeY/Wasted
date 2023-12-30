@@ -1,0 +1,55 @@
+@use "../../scss/abstracts" as *;
+
+.grid_view {
+  display: none;
+
+  grid-template-columns: repeat(auto-fill, 220px);
+  justify-content: space-evenly;
+  gap: 5px;
+  &.active {
+    display: grid;
+  }
+}
+.content__wrapper {
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  background-color: white;
+  padding: 10px;
+}
+
+.view__controls {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.view__switcher {
+  display: flex;
+  gap: 5px;
+}
+.swithcher__btn {
+  width: 30px;
+  border: none;
+  background: none;
+  padding: 5px;
+  &:hover {
+    background: lightgray;
+    border-radius: 10px;
+  }
+
+  &.active {
+    background: lightgray;
+    border-radius: 10px;
+  }
+}
+
+.list_view {
+  display: none;
+  width: 100%;
+
+  &.active {
+    display: block;
+  }
+}

@@ -3,24 +3,23 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 100px 15px 15px;
-
-  border-top-right-radius: 20px;
-  border-top-left-radius: 20px;
+  background-color: white;
 }
 
-.main__container {
-  background-color: #f5f5dc;
-}
-.movies__container {
-  background-color: #f5f5dc;
+.content__wrapper {
+  width: 100%;
   display: flex;
   gap: 10px;
-
   flex-direction: column;
 }
-.shows__container {
-  background-color: #f5f5dc;
+
+.movies__container {
+  display: flex;
+  gap: 10px;
 }
-.games__container {
-  background-color: #f5f5dc;
+
+.movie__container {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
 }

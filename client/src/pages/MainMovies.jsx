@@ -1,23 +1,14 @@
 import React from "react";
-import MovieCard from "../components/MovieCard";
+import Layout from "../components/PageItem/";
+import AsideBlock from "../components/AsideBlock";
 
-function MainMovies() {
+export default function MainMovies() {
   return (
-    <main className="movies">
+    <main className="wrapper">
       <div className="container movies__container">
-        <MovieCard />
-        <MovieCard />
-        <MovieCard />
-        <MovieCard />
-        <MovieCard />
-        <MovieCard />
-        <MovieCard />
-        <MovieCard />
-        <MovieCard />
-        <MovieCard />
+        <AsideBlock />
+        <Layout />
       </div>
     </main>
   );
 }
-
-export default MainMovies;

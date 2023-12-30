@@ -1,0 +1,25 @@
+@use "../../../scss/abstracts" as *;
+
+.block {
+  display: flex;
+}
+
+.option {
+  background-color: transparent;
+  border: none;
+  position: relative;
+  &:hover {
+    .img {
+      filter: none;
+    }
+  }
+}
+.active {
+  .img {
+    filter: none;
+  }
+}
+.img {
+  filter: invert(25%) sepia(13%) saturate(20%) hue-rotate(353deg)
+    brightness(93%) contrast(85%);
+}

@@ -1,0 +1,19 @@
+@use "../../../scss/abstracts" as *;
+
+.watch_Status {
+  margin: 0 auto;
+
+  width: 50px;
+  button {
+    padding: 0;
+    border: none;
+    background: none;
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+  &:hover {
+    opacity: 0.5;
+  }
+}
