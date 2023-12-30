@@ -1,46 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./Layout.module.scss";
-import MovieCard from "./Movie";
-import listSvg from "../../assets/icons/list.svg";
-import gridSvg from "../../assets/icons/grid.svg";
+import ListView from "./Movie/ViewTemplate/ListView";
+import GridView from "./Movie/ViewTemplate/GridView";
+import ViewSwitcher from "../Controls/ViewSwitcher";
 
 export default function Layout() {
-  return (
-    <div className={styles.content__wrapper}>
-      <div className={styles.view__controls}>
-        <div className="view__sorter">
-          <ul>Сортировать по: Рейтингу</ul>
-        </div>
-        <div className={styles.view__switcher}>
-          <button type="button" className={styles.swithcher__btn}>
-            <img src={listSvg} alt="list" />
-          </button>
-          <button
-            type="button"
-            className={`${styles.swithcher__btn} ${styles.active}`}
-          >
-            <img src={gridSvg} alt="grid" />
-          </button>
-        </div>
-      </div>
+  const [isList, setIsList] = useState(true);
+  const movieCard = [
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  ];
+  const isListChange = (isList) => {
+    setIsList(isList);
+  };
 
-      <div className={`${styles.grid_view} ${styles.active}`}>
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
-        <MovieCard grid={true} />
+  return (
+    <div className={styles.wrapper}>
+      <ViewSwitcher onChange={isListChange} isList={isList} />
+      <div className={`${styles.list_view} ${isList ? styles.active : ""}`}>
+        {isList
+          ? movieCard.map(({}, index) => {
+              return <ListView key={index} isList={isList} />;
+            })
+          : ""}
       </div>
-      <div className={`${styles.list_view}`}></div>
+      <div className={`${styles.grid_view} ${!isList ? styles.active : ""}`}>
+        {!isList
+          ? movieCard.map(({}, index) => {
+              return <GridView key={index} isList={isList} />;
+            })
+          : ""}
+      </div>
     </div>
   );
 }

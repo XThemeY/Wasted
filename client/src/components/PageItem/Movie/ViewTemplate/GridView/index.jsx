@@ -1,25 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import styles from "./Movie.module.scss";
+import styles from "./GridView.module.scss";
+import Raiting from "../../../../Controls/Raiting";
+import CheckWatch from "../../../../Controls/CheckWatch";
 
-import Raiting from "../../Controls/Raiting";
-import CheckWatch from "../../Controls/CheckWatch";
-
-export default function MovieCard(props) {
+export default function GridView() {
   return (
     <div className={styles.card}>
       <div className={styles.poster}>
         <Link to="1">
-          <img src="https://placehold.co/600x900" alt="poster" />
+          <img src="https://nichosee.com/posters/tt15257160.jpg" alt="poster" />
         </Link>
       </div>
-      <div className={`${styles.overlay} `}>
+      <div className={styles.overlay}>
         <div className={styles.content}>
           <div className={styles.title__block}>
             <Link to=":id" className={styles.title}>
               Голодные игры: Баллада о змеях и певчих птицах
             </Link>
-
             <span className={styles.original_title}>
               The Hunger Games: The Ballad of Songbirds & Snakes
             </span>

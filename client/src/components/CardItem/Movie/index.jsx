@@ -1,11 +1,12 @@
 import { useParams } from "react-router-dom";
 import { React } from "react";
 import { Link } from "react-router-dom";
-import styles from "./MovieCard.module.scss";
-import Favorite from "../../../assets/icons/raiting/favorite.svg";
-import Controls from "../../Controls";
+import styles from "./Movie.module.scss";
+import MainRaiting from "../MainRaiting";
+import Controls from "../../Controls/WatchStatus";
 import Comments from "../../Comments";
 import Raiting from "../../Controls/Raiting";
+import BugReport from "../../Controls/BugReport";
 
 export default function Movie() {
   const { id } = useParams();
@@ -21,16 +22,16 @@ export default function Movie() {
           </Link>
         </div>
         <div className={styles.content__block}>
-          <div className={`${styles.wasted_raiting}`} data-content={"11000"}>
-            <img src={Favorite} alt="Favorite" title="Запало в душу" />
-          </div>
-          <div className={styles.title__block}>
-            <h2 className={styles.movie__title}>
-              Голодные игры: Баллада о змеях и певчих птицах
-            </h2>
-            <span className={styles.movie__original_title}>
-              The Hunger Games: The Ballad of Songbirds & Snakes
-            </span>
+          <div className={styles.header__block}>
+            <div className={styles.title__block}>
+              <h2 className={styles.movie__title}>
+                Голодные игры: Баллада о змеях и певчих птицах
+              </h2>
+              <span className={styles.movie__original_title}>
+                The Hunger Games: The Ballad of Songbirds & Snakes
+              </span>
+            </div>
+            <MainRaiting />
           </div>
 
           <div className={styles.info__block}>
@@ -168,6 +169,7 @@ export default function Movie() {
           <Raiting />
         </div>
       </section>
+      <BugReport />
       <Comments />
     </div>
   );

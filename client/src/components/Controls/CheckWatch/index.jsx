@@ -18,6 +18,7 @@ export default function CheckWatch() {
         }}
         className={!check ? styles.active : ""}
         type="button"
+        title="Не смотрел"
       >
         <img src={EyeClosed} alt="Not Watch" />
       </button>
@@ -27,6 +28,7 @@ export default function CheckWatch() {
         }}
         className={check ? styles.active : ""}
         type="button"
+        title="Посмотрел"
       >
         <img src={EyeOpen} alt="Watched" />
       </button>

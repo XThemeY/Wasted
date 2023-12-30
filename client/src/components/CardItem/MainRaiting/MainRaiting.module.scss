@@ -1,0 +1,19 @@
+@use "../../../scss/abstracts" as *;
+
+.main_raiting {
+  position: relative;
+
+  font-weight: 600;
+  width: 100px;
+  text-align: center;
+
+  &::after {
+    content: attr(data-content);
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 90px;
+    font-size: 0.8rem;
+    color: #808080;
+  }
+}

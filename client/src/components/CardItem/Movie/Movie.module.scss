@@ -4,7 +4,6 @@
   width: 100%;
   position: relative;
   display: grid;
-
   grid-template-columns: 300px 1fr;
   grid-template-rows: 1fr max-content max-content;
   gap: 0px 10px;
@@ -46,6 +45,14 @@
 
 .title__block {
   line-height: 1.5rem;
+}
+
+.header__block {
+  //Сделать рефакторинг кода
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: -50px;
+  padding-right: 10px;
 }
 
 .content__block {
@@ -90,26 +97,6 @@
   &_list {
     display: flex;
     flex-wrap: wrap;
-  }
-}
-
-.wasted_raiting {
-  position: absolute;
-  right: 30px;
-  font-weight: 600;
-
-  width: 100px;
-  text-align: center;
-
-  &::after {
-    content: attr(data-content);
-    display: block;
-    position: absolute;
-    top: 0px;
-    left: 80px;
-
-    font-size: 0.8rem;
-    color: #808080;
   }
 }
 
