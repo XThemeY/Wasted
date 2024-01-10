@@ -1,7 +1,7 @@
 import "dotenv/config.js";
 import express from "express";
 import mongoose from "mongoose";
-import Movie from "./models/Movie.js";
+import Movie from "./models/movie/Movie.js";
 import {
   authRouter,
   userRouter,
@@ -10,6 +10,13 @@ import {
   gameRouter,
 } from "./routes/index.js";
 import cors from "cors";
+
+// import DBfill, { fillEpisodesDB } from "./DataBase/dbFill.js";
+// const dbfill = new DBfill();
+// dbfill.fillMovieDB();
+// dbfill.filltvShowDB();
+// dbfill.fillGameDB();
+// fillEpisodesDB();
 
 const PORT = process.env.PORT || 3000;
 const app = express();

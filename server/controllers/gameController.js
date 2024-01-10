@@ -23,15 +23,18 @@ class gameController {
 
   async getGameAll(req, res) {
     try {
-      const game = await Game.find({}).select(excludeFieldsStr);
-
-      if (!game) {
+      const games = await Game.find({}).select(excludeFieldsStr);
+      const totalCount = await Game.countDocuments({});
+      if (!games) {
         return res.status(400).json({
           message: `Неправильный адрес`,
         });
       }
-      res.json(game);
-    } catch (e) {}
+      const response = { items: games, total_items: totalCount };
+      res.json(response);
+    } catch (e) {
+      res.status(500).send(e);
+    }
   }
 }
 

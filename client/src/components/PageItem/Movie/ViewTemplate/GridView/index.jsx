@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styles from "./GridView.module.scss";
-import Raiting from "../../../../Controls/Raiting";
+import MainRaiting from "../../../../Controls/MainRaiting";
 import CheckWatch from "../../../../Controls/CheckWatch";
 
 export default function GridView() {
@@ -67,8 +67,14 @@ export default function GridView() {
               Длительность: <span>100 мин.</span>
             </div>
           </div>
-          <CheckWatch />
-          <Raiting />
+          <div className={styles.info}>
+            <div className={styles.watch_status}>
+              <CheckWatch />
+            </div>
+            <div className={styles.raiting}>
+              <MainRaiting voteCount={false} />
+            </div>
+          </div>
         </div>
       </div>
     </div>

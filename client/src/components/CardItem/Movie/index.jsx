@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { React } from "react";
 import { Link } from "react-router-dom";
 import styles from "./Movie.module.scss";
-import MainRaiting from "../MainRaiting";
+import MainRaiting from "../../Controls/MainRaiting";
 import Controls from "../../Controls/WatchStatus";
 import Comments from "../../Comments";
 import Raiting from "../../Controls/Raiting";
@@ -31,7 +31,9 @@ export default function Movie() {
                 The Hunger Games: The Ballad of Songbirds & Snakes
               </span>
             </div>
-            <MainRaiting />
+            <div className={styles.main_raiting}>
+              <MainRaiting />
+            </div>
           </div>
 
           <div className={styles.info__block}>

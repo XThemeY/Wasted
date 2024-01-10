@@ -23,15 +23,20 @@ class movieController {
 
   async getMovieAll(req, res) {
     try {
-      const movie = await Movie.find({}).select(excludeFieldsStr);
+      const movies = await Movie.find({}).select(excludeFieldsStr);
+      const totalCount = await Movie.countDocuments({});
 
-      if (!movie) {
+      if (!movies) {
         return res.status(400).json({
           message: `Неправильный адрес`,
         });
       }
-      res.json(movie);
-    } catch (e) {}
+
+      const response = { items: movies, total_items: totalCount };
+      res.json(response);
+    } catch (e) {
+      res.status(500).send(e);
+    }
   }
 }
 

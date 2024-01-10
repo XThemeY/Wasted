@@ -8,10 +8,9 @@ import Favorite from "../../../assets/icons/raiting/favorite.svg";
 
 const viewCounts = [1, 1, 1, 33, 7500];
 
-export default function MainRaiting(props) {
+export default function MainRaiting({ voteCount = true }) {
   function renderSwitch(param) {
     const maxViews = Math.max(...param);
-    console.log(maxViews);
     switch (true) {
       case maxViews >= 8000:
         return <img src={Favorite} alt="Favorite" title="Запало в душу" />;
@@ -26,14 +25,14 @@ export default function MainRaiting(props) {
       case maxViews <= 1999:
         return <img src={Poop} alt="Poop" title="Дерьмо" />;
       default:
-        return "1111";
+        return "0";
     }
   }
 
   return (
     <div
       className={`${styles.main_raiting}`}
-      data-content={Math.max(...viewCounts)}
+      data-content={voteCount ? Math.max(...viewCounts) : ""}
     >
       {renderSwitch(viewCounts)}
     </div>

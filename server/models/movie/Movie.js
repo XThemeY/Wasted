@@ -1,35 +1,28 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, mongoose } from "mongoose";
+const db = mongoose.connection;
 
 const movieSchema = new Schema(
   {
-    id: { type: Number, unique: true, required: true },
+    id: { type: Number, unique: true, immutable: true },
     title: { type: String, required: true },
     originalTitle: { type: String, required: true },
-    poster: { type: String, required: true },
-    runtime: { type: Number, required: true },
-    releaseDate: { type: String },
+    posterUrl: { type: String, required: true },
+    releaseDate: { type: Date, required: true },
+    genres: [{ type: String }],
+    countries: [{ type: String }],
+    director: [{ type: String }],
+    cast: [{ type: String }],
+    watchCount: { type: Number, default: 0 },
     description: { type: String },
-    genres: [{ genre: { type: String } }],
-    countries: [{ country: { type: String } }],
-    director: { type: String },
-    actors: [{ type: String }],
-    status: {
-      type: String,
-      enum: [
-        "Watched",
-        "Planning",
-        "Dropped",
-        "InProgress",
-        "WatchedMultipleTimes",
-        "OnHold",
-      ],
-    },
+    tags: [{ type: String }],
+    duration: { type: Number },
     ratings: {
       wasted: { type: Number, default: 0 },
       imdb: { type: Number, default: 0 },
       rottenTomatoes: { type: Number, default: 0 },
       kinopoisk: { type: Number, default: 0 },
     },
+    comments: [{ type: Schema.Types.ObjectId, ref: "CommentMovie" }],
   },
   {
     timestamps: true,

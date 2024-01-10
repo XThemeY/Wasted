@@ -60,20 +60,17 @@
 }
 
 .watch_status {
-  display: flex;
-  margin: auto 0;
 }
 
 .raiting {
-  width: 300px;
-  margin: auto auto 0 auto;
+  width: 50px;
 }
 
 .controls {
-  margin: auto 0;
+  width: 300px;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .title__block {

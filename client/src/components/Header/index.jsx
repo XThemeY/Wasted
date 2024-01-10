@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import styles from "./Header.module.scss";
 import Profile from "../Profile";
 import Navigation from "./Navigation";
+import LogoImg from "../../assets/logo.png";
 
 export default function Header() {
   return (
@@ -10,10 +11,7 @@ export default function Header() {
       <div className={`container ${styles.header__container}`}>
         <div className={styles.logo}>
           <Link to="/" className={""}>
-            <img
-              src="https://psv4.userapi.com/c909218/u10028980/docs/d37/a6d6c5635d76/logo.png"
-              alt="Logo"
-            />
+            <img src={LogoImg} alt="Logo" />
           </Link>
         </div>
         <Navigation />

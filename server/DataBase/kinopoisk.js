@@ -1,5 +1,5 @@
-const axios = require("axios");
-const fs = require("fs");
+import { get } from "axios";
+import { writeFileSync } from "fs";
 
 const apiKey = "3e222cdc-d99a-4040-9694-714b71501f07";
 const baseUrl = "https://kinopoiskapiunofficial.tech/api/v2.2";
@@ -9,7 +9,7 @@ let allShows = [];
 async function fetchAllMovies() {
   try {
     while (page < 2) {
-      const response = await axios.get(
+      const response = await get(
         `${baseUrl}/films/collections?type=TOP_250_TV_SHOWS&page=${page}`,
         {
           headers: {
@@ -26,7 +26,7 @@ async function fetchAllMovies() {
       console.log("MoviePage = ", page);
     }
 
-    fs.writeFileSync("../tv-shows.json", JSON.stringify(allShows, null, 2));
+    writeFileSync("../tv-shows.json", JSON.stringify(allShows, null, 2));
     console.log("База сериалов скачана");
   } catch (error) {
     console.error("Error fetching all movies:", error.message);
@@ -34,4 +34,4 @@ async function fetchAllMovies() {
 }
 
 // Вызови функцию для получения всех фильмов
-module.exports = fetchAllMovies;
+export default fetchAllMovies;

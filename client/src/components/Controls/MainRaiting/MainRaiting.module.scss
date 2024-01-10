@@ -2,17 +2,14 @@
 
 .main_raiting {
   position: relative;
-
   font-weight: 600;
-  width: 100px;
   text-align: center;
-
   &::after {
     content: attr(data-content);
     display: block;
     position: absolute;
     top: 0px;
-    left: 90px;
+    left: 90%;
     font-size: 0.8rem;
     color: #808080;
   }

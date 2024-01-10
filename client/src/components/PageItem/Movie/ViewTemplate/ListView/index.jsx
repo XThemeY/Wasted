@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styles from "./ListView.module.scss";
-import Raiting from "../../../../Controls/Raiting";
+import MainRaiting from "../../../../Controls/MainRaiting";
 import CheckWatch from "../../../../Controls/CheckWatch";
 
 export default function ListView() {
@@ -68,12 +68,11 @@ export default function ListView() {
         </div>
       </div>
       <div className={styles.controls}>
-        <div className={styles.watch_status}>
+        <div className={styles.watchStatus}>
           <CheckWatch />
         </div>
-
         <div className={styles.raiting}>
-          <Raiting disabled={true} />
+          <MainRaiting voteCount={false} />
         </div>
       </div>
     </div>

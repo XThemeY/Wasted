@@ -1,5 +1,5 @@
-const axios = require("axios");
-const fs = require("fs");
+import { get } from "axios";
+import { writeFileSync } from "fs";
 
 const apiKey = "56dc624a6e2e49d1bd29144a5c1e7af7";
 const baseUrl = "https://api.rawg.io/api";
@@ -10,7 +10,7 @@ let allGames = [];
 async function fetchAllGames() {
   try {
     while (page < 6) {
-      const response = await axios.get(`${baseUrl}/games`, {
+      const response = await get(`${baseUrl}/games`, {
         params: {
           key: apiKey,
           page: page,
@@ -27,7 +27,7 @@ async function fetchAllGames() {
       console.log("GamePage = ", page);
     }
 
-    fs.writeFileSync("../games.json", JSON.stringify(allGames, null, 2));
+    writeFileSync("../games.json", JSON.stringify(allGames, null, 2));
     console.log("База игр скачана");
   } catch (error) {
     console.error("Error fetching all games:", error.message);
@@ -35,4 +35,4 @@ async function fetchAllGames() {
 }
 
 // Вызови функцию для получения всех фильмов
-module.exports = fetchAllGames;
+export default fetchAllGames;

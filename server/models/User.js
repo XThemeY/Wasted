@@ -5,7 +5,6 @@ const UserSchema = new Schema(
   {
     id: {
       type: Number,
-      required: true,
       unique: true,
       immutable: true,
       default: 0,
@@ -24,63 +23,87 @@ const UserSchema = new Schema(
     roles: [{ type: Schema.Types.ObjectId, ref: "Role", required: true }],
     favorites: {
       movies: [{ type: Schema.Types.ObjectId, ref: "Movie" }],
-      tvShows: [{ type: Schema.Types.ObjectId, ref: "tvShow" }],
+      tvShows: [{ type: Schema.Types.ObjectId, ref: "TVShow" }],
       games: [{ type: Schema.Types.ObjectId, ref: "Game" }],
     },
+    wastedHistory: {
+      movies: [
+        {
+          itemId: {
+            type: Schema.Types.ObjectId,
+            ref: "Movie",
+          },
+          status: {
+            type: String,
+            enum: ["Watched", "Planning", "Dropped", "WatchedMultipleTimes"],
+          },
+          watchCount: { type: Number, default: 0 },
+          watchedAt: { type: Date, default: Date.now },
+        },
+      ],
+      tvShows: [
+        {
+          itemId: {
+            type: Schema.Types.ObjectId,
+            ref: "TVShow",
+          },
+          status: {
+            type: String,
+            enum: ["Watched", "Planning", "Dropped", "WatchedMultipleTimes"],
+          },
+          watchedEpisodes: [
+            {
+              episodeId: { type: Schema.Types.ObjectId, ref: "Episode" },
+              watchedAt: { type: Date, default: Date.now },
+              watchCount: { type: Number, default: 0 },
+            },
+          ],
+        },
+      ],
+      games: [
+        {
+          itemId: {
+            type: Schema.Types.ObjectId,
+            ref: "Game",
+          },
+          status: {
+            type: String,
+            enum: ["Played", "Planning", "Dropped", "PlayedMultipleTimes"],
+          },
+          playedCount: { type: Number, default: 0 },
+          playedAt: { type: Date, default: Date.now },
+        },
+      ],
+    },
+    socialProfiles: {
+      facebook: { type: String },
+      twitter: { type: String },
+      instagram: { type: String },
+      vk: { type: String },
+      discord: { type: String },
+    },
+    gameProfiles: {
+      psn: { type: String },
+      xbox: { type: String },
+      steam: { type: String },
+      nintendo: { type: String },
+    },
+    settings: {
+      theme: { type: String, enum: ["light", "dark"], default: "dark" },
+      country: { type: String },
+      language: { type: String, default: "Russian" },
+      timeZone: { type: String, default: "UTC" },
+      privacy: {
+        showProfileTo: {
+          type: String,
+          enum: ["everyone", "friends", "no_one"],
+          default: "everyone",
+        },
+        shareWastedHistory: { type: Boolean, default: true },
+      },
 
-    // wastedHistory: [
-    //   {
-    //     itemId: {
-    //       type: Schema.Types.ObjectId,
-    //       ref: "Movie",
-    //     },
-    //     status: {
-    //       type: String,
-    //       enum: ["Watched", "Planning", "Dropped", "WatchedMultipleTimes"],
-    //       default: "Planning",
-    //     },
-    //     date: { type: Date, default: Date.now },
-    //     rating: { type: Number, min: 1, max: 5 },
-    //   },
-    //   {
-    //     itemId: {
-    //       type: Schema.Types.ObjectId,
-    //       ref: "TVShow",
-    //     },
-    //     status: {
-    //       type: String,
-    //       enum: ["Watched", "Planning", "Dropped", "WatchedMultipleTimes"],
-    //       default: "Planning",
-    //     },
-    //     date: { type: Date, default: Date.now },
-    //     rating: { type: Number, min: 1, max: 5 },
-    //   },
-    //   {
-    //     itemId: {
-    //       type: Schema.Types.tv,
-    //       ref: "Game",
-    //     },
-    //     status: {
-    //       type: String,
-    //       enum: ["Played", "Planning", "Dropped", "PlayedMultipleTimes"],
-    //       default: "Planning",
-    //     },
-    //     date: { type: Date, default: Date.now },
-    //     rating: { type: Number, min: 1, max: 5 },
-    //   },
-    // ],
-    // socialProfiles: {
-    //   facebook: { type: String },
-    //   twitter: { type: String },
-    //   vk: { type: String },
-    //   discord: { type: String },
-    // },
-    // gameProfiles: {
-    //   psn: { type: String },
-    //   xbox: { type: String },
-    //   steam: { type: String },
-    //   nintendo: { type: String },
-    // },
+      notifications: { type: Boolean, default: true },
+    },
   },
   {
     timestamps: true,

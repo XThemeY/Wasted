@@ -7,7 +7,7 @@ import MainGames from "./pages/MainGames.jsx";
 import MainShows from "./pages/MainShows.jsx";
 import MainPage from "./pages/MainPage.jsx";
 import ErrorPage from "./pages/ErrorPage.jsx";
-import Login from "./pages/ErrorPage.jsx";
+import Login from "./components/Profile/Login";
 import Registration from "./pages/ErrorPage.jsx";
 import Colors from "./components/Colors.jsx";
 

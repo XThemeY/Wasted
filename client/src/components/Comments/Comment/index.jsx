@@ -42,7 +42,7 @@ export default function Comments() {
         <ul>
           <li>
             <button type="button">
-              <img src={require("../../../assets/emoji/+1.png")} alt="" />
+              <img src={require("../../../assets/emoji/like.png")} alt="" />
             </button>
           </li>
           <li>
@@ -100,7 +100,7 @@ export default function Comments() {
           <li>
             <button type="button">
               <img
-                src={require("../../../assets/emoji/face_with_symbols_on_mouth.png")}
+                src={require("../../../assets/emoji/rude_face.png")}
                 alt=""
               />
             </button>
@@ -118,6 +118,12 @@ export default function Comments() {
                 src={require("../../../assets/emoji/neutral_face.png")}
                 alt=""
               />
+            </button>
+            <span>1</span>
+          </li>
+          <li>
+            <button type="button">
+              <img src={require("../../../assets/emoji/dislike.png")} alt="" />
             </button>
             <span>1</span>
           </li>

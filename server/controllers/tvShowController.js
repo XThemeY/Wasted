@@ -23,15 +23,19 @@ class tvShowController {
 
   async getTVShowAll(req, res) {
     try {
-      const tvShow = await TVShow.find({}).select(excludeFieldsStr);
+      const tvShows = await TVShow.find({}).select(excludeFieldsStr);
+      const totalCount = await TVShow.countDocuments({});
 
-      if (!tvShow) {
+      if (!tvShows) {
         return res.status(400).json({
           message: `Неправильный адрес`,
         });
       }
-      res.json(tvShow);
-    } catch (e) {}
+      const response = { items: tvShows, total_items: totalCount };
+      res.json(response);
+    } catch (e) {
+      res.status(500).send(e);
+    }
   }
 }
 
