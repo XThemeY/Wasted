@@ -16,7 +16,7 @@ const LeftSidebar = () => {
   }, [isSuccess]);
   return (
     <nav className="nav">
-      <div className="flex flex-col gap-11">
+      <div className="flex flex-col gap-5">
         <Link to="/" className="flex items-center gap-3">
           <img
             src="/assets/images/WASTED.pro.png"

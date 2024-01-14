@@ -1,1 +1,13 @@
 export { default as Home } from './Home';
+export { default as Movies } from './Movies';
+export { default as Games } from './Games';
+export { default as Shows } from './Shows';
+export { default as Favorites } from './Favorites';
+export { default as Profile } from './Profile';
+export { default as UserGames } from './user/UserGames';
+export { default as UserMovies } from './user/UserMovies';
+export { default as UserShows } from './user/UserShows';
+export { default as UserStats } from './user/UserStats';
+export { default as GamePage } from './media/GamePage';
+export { default as MoviePage } from './media/MoviePage';
+export { default as ShowPage } from './media/ShowPage';

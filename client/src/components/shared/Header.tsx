@@ -13,12 +13,12 @@ const Header = () => {
   return (
     <header className="header">
       <div className="flex-between px-5 py-4">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" className="flex items-start gap-3">
           <img
             src="/assets/images/WASTED.pro.png"
             alt="logo"
-            width={130}
-            height={325}
+            width={200}
+            height={36}
           />
         </Link>
         <div className="flex gap-4">

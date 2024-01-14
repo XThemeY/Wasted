@@ -6,22 +6,22 @@ export const navLinks = [
   },
   {
     imgURL: '/assets/icons/wallpaper.svg',
-    route: '/:id/shows',
+    route: '/shows',
     label: 'Shows',
   },
   {
     imgURL: '/assets/icons/wallpaper.svg',
-    route: '/:id/movies',
+    route: '/movies',
     label: 'Movies',
   },
   {
     imgURL: '/assets/icons/wallpaper.svg',
-    route: '/:id/games',
+    route: '/games',
     label: 'Games',
   },
   {
     imgURL: '/assets/icons/wallpaper.svg',
-    route: '/:id/playlists',
+    route: '/playlists',
     label: 'Playlists',
   },
 
