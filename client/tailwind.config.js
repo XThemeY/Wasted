@@ -23,8 +23,8 @@ module.exports = {
         'secondary-500': '#FFB620',
         'off-white': '#D0DFFF',
         red: '#FF5A5A',
-        'dark-1': '#000000',
-        'dark-2': '#09090A',
+        'dark-1': '#09090A',
+        'dark-2': '#101010',
         'dark-3': '#101012',
         'dark-4': '#1F1F22',
         'light-1': '#FFFFFF',
@@ -41,6 +41,7 @@ module.exports = {
       },
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
+        JosefinSans: ['Josefin Sans', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': {

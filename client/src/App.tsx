@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
-import SigninForm from '@/_auth/forms/LoginForm';
-import SignupForm from '@/_auth/forms/RegisterForm';
+import LoginForm from '@/_auth/forms/LoginForm';
+import RegisterForm from '@/_auth/forms/RegisterForm';
 import { Home } from '@/_root/pages';
 import AuthLayout from '@/_auth/AuthLayout';
 import RootLayout from '@/_root/RootLayout';
@@ -11,15 +11,18 @@ const App = () => {
       <Routes>
         {/* Public routes */}
         <Route element={<AuthLayout />}>
-          <Route path="/login" element={<SigninForm />} />
-          <Route path="/registration" element={<SignupForm />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/registration" element={<RegisterForm />} />
         </Route>
         <Route element={<RootLayout />}>
           <Route index element={<Home />} />
         </Route>
 
         {/* Private routes */}
-
+        <Route element={<RootLayout />}>
+          {/* <Route path="/:id/shows" element={<Shows />} />
+          <Route path="/:id/movies" element={<Movies />} /> */}
+        </Route>
         {/* <Route path="/" element={<MainPage />} />
 			<Route path="/auth/login" element={<Login />} />
 			
