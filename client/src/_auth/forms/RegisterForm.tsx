@@ -2,6 +2,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { useAppSelector, useAppDispatch } from '@/redux/hooks';
+import { setUsername, setAvatarUrl } from '@/redux/slices/userSlice';
 import {
   Form,
   FormControl,
@@ -11,14 +14,20 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { SignupValidation } from '@/lib/validation';
+import { RegisterValidation } from '@/lib/validation';
 import Loader from '@/components/shared/Loader';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-const SignupForm = () => {
+const RegisterForm = () => {
+  const { toast } = useToast();
+  const username = useAppSelector((state) => state.username.value);
+  const avatarURL = useAppSelector((state) => state.avatarURL.value);
+  const dispatch = useAppDispatch();
+
   const isLoading = false;
-  const form = useForm<z.infer<typeof SignupValidation>>({
-    resolver: zodResolver(SignupValidation),
+  const form = useForm<z.infer<typeof RegisterValidation>>({
+    resolver: zodResolver(RegisterValidation),
     defaultValues: {
       username: '',
       email: '',
@@ -26,15 +35,32 @@ const SignupForm = () => {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof SignupValidation>) {
-    const newUser = await createUserAccount(values);
+  async function onSubmit() {
+    // values: z.infer<typeof RegisterValidation>
+    //const newUser = await createUserAccount(values);
+
+    await axios
+      .post('/auth/registration', form.getValues())
+      .then((res) => console.log('Response', res))
+      .catch((res) => {
+        toast({
+          variant: 'error',
+          title: res.response.data.message,
+        });
+      });
   }
 
   return (
     <Form {...form}>
       <div className="flex-center sm:w-520 flex-col rounded-2xl border-2 border-solid border-white px-5 py-3 backdrop-blur-lg">
-        <h1 className="h1-bold text-purple-700">WASTED PRO</h1>
-        <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">
+        <img
+          className="mt-4"
+          src="/assets/images/WASTED.pro.png"
+          alt="logo"
+          width={250}
+          height={36}
+        />
+        <h2 className="h3-bold md:h2-bold pt-5 sm:pt-6">
           Create a new account
         </h2>
         <p className="small-medium md:base-regular mt-2 text-light-3 ">
@@ -42,7 +68,7 @@ const SignupForm = () => {
         </p>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="mt-4 flex w-full flex-col gap-5"
+          className="mt-4 flex w-full flex-col gap-3"
         >
           <FormField
             control={form.control}
@@ -93,12 +119,9 @@ const SignupForm = () => {
               'Sign up'
             )}
           </Button>
-          <p className="text-small-regular mt-2 text-center text-light-2">
-            Already have an acoount?{' '}
-            <Link
-              to="/login"
-              className="text-small-semibold ml-1 text-primary-500"
-            >
+          <p className="small-regular mt-2 text-center text-light-2">
+            Already have an account?
+            <Link to="/login" className="small-semibold ml-1 text-primary-500">
               Log in
             </Link>
           </p>
@@ -108,4 +131,4 @@ const SignupForm = () => {
   );
 };
 
-export default SignupForm;
+export default RegisterForm;

@@ -3,7 +3,7 @@ import { Button } from '../ui/button';
 import { signOutAccount } from '@/lib/redux/Slices/signOutSlice';
 import { useEffect } from 'react';
 import { navLinks } from '@/constants';
-import { INavLink } from '@/types/INavLink';
+import { INavLink } from '@/types/interfaces/INavLink';
 
 const LeftSidebar = () => {
   const { pathname } = useLocation();

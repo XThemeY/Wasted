@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/index.js",
   "type": "module",
   "husky": {
     "hooks": {
@@ -10,9 +10,8 @@
     }
   },
   "scripts": {
-    "dev": "nodemon",
-    "build": "rimraf ./dist && tsc",
-    "start": "npm run build && node build/index",
+    "build": "node index.js",
+    "start": "nodemon",
     "lint": "eslint ./src",
     "format": "eslint ./src --fix"
   },
@@ -32,22 +31,9 @@
     "mongoose": "^8.0.3"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/compression": "^1.7.5",
-    "@types/cookie-parser": "^1.4.6",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/jsonwebtoken": "^9.0.5",
-    "@types/mongoose": "^5.11.97",
-    "@types/node": "^20.10.8",
-    "@typescript-eslint/eslint-plugin": "^6.18.1",
-    "@typescript-eslint/parser": "^6.18.1",
     "eslint": "^8.56.0",
     "husky": "^8.0.3",
     "nodemon": "^3.0.2",
-    "prettier": "^3.1.1",
-    "rimraf": "^5.0.5",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "prettier": "^3.1.1"
   }
 }

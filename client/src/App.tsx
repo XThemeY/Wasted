@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import axios from 'axios';
 import LoginForm from '@/_auth/forms/LoginForm';
 import RegisterForm from '@/_auth/forms/RegisterForm';
 import AuthLayout from '@/_auth/AuthLayout';
@@ -16,7 +17,11 @@ import {
   UserGames,
   Favorites,
   UserStats,
-} from '@/_root/pages';
+} from '@/_root/pages/';
+import { Toaster } from '@/components/ui/toaster';
+
+axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.withCredentials = true;
 
 const App = () => {
   return (
@@ -57,6 +62,7 @@ const App = () => {
 
 			<Route path="*" element={<ErrorPage />} /> */}
       </Routes>
+      <Toaster />
     </main>
   );
 };
