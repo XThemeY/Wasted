@@ -29,7 +29,6 @@ const commentGameSchema = new Schema(
       neutral_face: { type: Number, default: 0 },
       rude_face: { type: Number, default: 0 },
     },
-    __v: { type: Number, select: false },
   },
   {
     timestamps: true,

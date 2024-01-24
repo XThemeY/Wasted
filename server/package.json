@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "wasted.pro",
   "version": "1.0.0",
-  "description": "",
+  "description": "Wasted.pro server",
   "main": "./src/index.js",
   "type": "module",
   "husky": {
@@ -10,13 +10,12 @@
     }
   },
   "scripts": {
-    "build": "node index.js",
-    "start": "nodemon",
+    "build": "node index",
+    "dev": "nodemon index",
     "lint": "eslint ./src",
     "format": "eslint ./src --fix"
   },
-  "keywords": [],
-  "author": "",
+  "author": "Artem Ivannikov",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.2",
@@ -24,11 +23,14 @@
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "date-fns": "^3.3.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.3"
+    "mongoose": "^8.0.3",
+    "nanoid": "^5.0.4",
+    "nodemailer": "^6.9.8"
   },
   "devDependencies": {
     "eslint": "^8.56.0",

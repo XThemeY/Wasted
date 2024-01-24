@@ -1,19 +1,23 @@
-import { Link, useNavigate, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
-import { signOutAccount } from '@/lib/redux/Slices/signOutSlice';
-import { useEffect } from 'react';
-import { navLinks } from '@/constants';
-import { INavLink } from '@/types/interfaces/INavLink';
+
+import { navLinks } from '@/utils/constants';
+import { INavLink } from '@/types/';
+import { useLogoutMutation, logOut } from '@/store/slices/';
+import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 
 const LeftSidebar = () => {
   const { pathname } = useLocation();
-
+  const [logout] = useLogoutMutation();
+  const dispatch = useAppDispatch();
+  const { username } = useAppSelector((state) => state.user);
   const navigate = useNavigate();
-  const isSuccess = false;
+  async function onExit() {
+    await logout(username);
+    dispatch(logOut());
+    navigate('/login');
+  }
 
-  useEffect(() => {
-    if (isSuccess) navigate(0);
-  }, [isSuccess]);
   return (
     <nav className="nav">
       <div className="flex flex-col gap-5">
@@ -35,8 +39,8 @@ const LeftSidebar = () => {
             className="h-14 w-14 rounded-full"
           />
           <div className="flex flex-col">
-            <p className="body-bold">XTheme</p>
-            <div className="small-regular text-light-3">@XTheme</div>
+            <p className="body-bold">{username}</p>
+            <div className="small-regular text-light-3">@{username}</div>
           </div>
         </Link>
 
@@ -66,10 +70,10 @@ const LeftSidebar = () => {
         <Button
           variant="ghost"
           className="shad-button_ghost"
-          onClick={() => signOutAccount()}
+          onClick={() => onExit()}
         >
           <img src="/assets/icons/logout.svg" alt="logout" />
-          <p className="small-medium lg:base-medium">Logout</p>
+          <p className="small-medium lg:base-medium">Log out</p>
         </Button>
       </div>
     </nav>

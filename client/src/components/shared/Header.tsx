@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
-import { signOutAccount } from '@/lib/redux/Slices/signOutSlice';
 import { useEffect } from 'react';
 
 const Header = () => {
@@ -25,7 +24,7 @@ const Header = () => {
           <Button
             variant="ghost"
             className="shad-button_ghost"
-            onClick={() => signOutAccount()}
+            onClick={() => console.log('Выход')}
           >
             <img src="/assets/icons/logout.svg" alt="logout" />
           </Button>

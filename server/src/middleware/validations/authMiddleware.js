@@ -1,50 +1,43 @@
-import jwt from 'jsonwebtoken'
-import { secret } from '../../config.js'
-import { User } from '../../db/models/index.js'
+import ApiError from '../../exceptions/apiError.js';
+import tokenService from '../../services/tokenService.js';
 
 export default async function (req, res, next) {
   try {
-    const sessionToken = req.cookies['WASTED-AUTH']
-    if (!sessionToken) {
-      return res.status(403).json({
-        message: `Пользователь не авторизован`,
-      })
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return next(ApiError.UnathorizedError());
     }
-
-    const existingUser = await User.getUserBySessionToken(sessionToken)
-    if (!existingUser) {
-      return res.status(403).json({
-        message: `Пользователь не найден`,
-      })
+    const accessToken = authHeader.split(' ')[1];
+    if (!accessToken) {
+      return next(ApiError.UnathorizedError());
     }
-    const decodedData = jwt.verify(sessionToken, secret)
-
-    req.user = decodedData
-
-    next()
+    const userData = tokenService.validateAccessToken(accessToken);
+    if (!userData) {
+      return next(ApiError.UnathorizedError());
+    }
+    req.user = userData;
+    next();
   } catch (e) {
-    return res.status(403).json({
-      message: `Пользователь не авторизован`,
-    })
+    return next(ApiError.UnathorizedError());
   }
 }
 
 export async function isOwner(req, res, next) {
   try {
-    const { username } = req.params
+    const { username } = req.params;
 
-    const currentUserName = req.user.username
+    const currentUserName = req.user.username;
     if (!currentUserName) {
-      return res.sendStatus(403)
+      return res.sendStatus(403);
     }
 
     if (currentUserName !== username) {
-      return res.sendStatus(403)
+      return res.sendStatus(403);
     }
 
-    next()
+    next();
   } catch (e) {
-    console.log(e)
-    return res.sendStatus(403)
+    console.log(e);
+    return res.sendStatus(403);
   }
 }

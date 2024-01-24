@@ -1,19 +1,18 @@
-import Router from 'express'
-const router = Router()
-import { authController } from '../controllers/index.js'
-import { check } from 'express-validator'
+import Router from 'express';
+import { authController } from '../controllers/index.js';
+import { body } from 'express-validator';
+const router = Router();
 
 router.post(
   '/registration',
-  [
-    check('username', 'Имя пользователя не может быть пустым').notEmpty(),
-    check('password', 'Пароль должен содержать минимум 8 символов')
-      .notEmpty()
-      .isLength({ min: 8, max: 15 }),
-    check('email', 'Почта не может быть пустой').notEmpty().isEmail(),
-  ],
+  body('email').isEmail(),
+  body('password').isLength({ min: 8, max: 32 }),
+  body('username').isLength({ min: 3, max: 15 }),
   authController.registration,
-)
-router.post('/login', authController.login)
+);
+router.post('/login', authController.login);
+router.post('/logout', authController.logout);
+router.get('/refresh', authController.refresh);
+router.get('/activate/:link', authController.activate);
 
-export default router
+export default router;

@@ -1,14 +1,8 @@
-import Router from 'express'
-const router = Router()
-import { movieController } from '../controllers/index.js'
+import Router from 'express';
+import { movieController } from '../controllers/index.js';
+const router = Router();
 
-// controller.addMovie(1);
+router.get('/', movieController.getMovieAll);
+router.get('/:id(\\d+)/', movieController.getMovie);
 
-router.get('/', movieController.getMovieAll)
-router.get('/:id', movieController.getMovie)
-// router.get("/:id", controller.getMovie);
-// router.get("/:id", controller.getMovie);
-// router.get("/:id", controller.getMovie);
-// router.get("/:id", controller.getMovie);
-
-export default router
+export default router;

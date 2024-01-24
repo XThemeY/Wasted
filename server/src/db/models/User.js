@@ -1,5 +1,5 @@
-import mongoose, { Schema, model } from 'mongoose'
-const db = mongoose.connection
+import mongoose, { Schema, model } from 'mongoose';
+const db = mongoose.connection;
 
 const UserSchema = new Schema(
   {
@@ -7,10 +7,14 @@ const UserSchema = new Schema(
       type: Number,
       unique: true,
       immutable: true,
-      default: 0,
     },
     username: { type: String, required: true, immutable: true },
     email: { type: String, unique: true, required: true, trim: true },
+    authentication: {
+      password: { type: String, required: true },
+      activationLink: { type: String },
+      isActivated: { type: Boolean, default: false },
+    },
     birthdate: { type: Date },
     avatarUrl: { type: String },
     gender: {
@@ -102,38 +106,22 @@ const UserSchema = new Schema(
 
       notifications: { type: Boolean, default: true },
     },
-    authentication: {
-      password: { type: String, required: true, select: false },
-      sessionToken: { type: String, select: false },
-    },
-    __v: { type: Number, select: false },
   },
   {
     timestamps: true,
   },
-)
+);
 
 UserSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await db
       .collection('counters')
-      .findOneAndUpdate({ _id: 'userid' }, { $inc: { seq: 1 } })
-    this.id = counter.seq + 1
+      .findOneAndUpdate({ _id: 'userid' }, { $inc: { seq: 1 } });
+    this.id = counter.seq + 1;
   }
-  next()
-})
+  next();
+});
 
-const User = model('User', UserSchema)
+const User = model('User', UserSchema);
 
-export const getUsersCount = () => User.countDocuments()
-export const getUserAll = () => User.find()
-export const getUserByEmail = (email) => User.findOne({ email })
-export const getUserByUsername = (username) => User.findOne({ username })
-export const getUserBySessionToken = (sessionToken) =>
-  User.findOne({ 'authentication.sessionToken': sessionToken })
-export const getUserById = (id) => User.findOne({ id })
-export const createUser = (values) =>
-  new User(values).save().then((user) => user.toObject())
-export const deleteUserById = (id) => User.findOneAndDelete({ id })
-export const updateUserById = (id, values) =>
-  User.findOneAndUpdate({ id }, values)
+export default User;

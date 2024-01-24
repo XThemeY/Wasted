@@ -14,7 +14,6 @@ const episodeSchema = new Schema(
     description: { type: String },
     rating: { type: Number, default: 0 },
     comments: [{ type: Schema.Types.ObjectId, ref: 'CommentTV' }],
-    __v: { type: Number, select: false },
   },
   {
     timestamps: true,

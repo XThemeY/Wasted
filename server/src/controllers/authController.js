@@ -1,91 +1,82 @@
-import { User, Role } from '../db/models/index.js'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { validationResult } from 'express-validator'
-import { secret } from '../config.js'
-
-const generateAccessToken = (id, username) => {
-  const payload = {
-    id,
-    username,
-  }
-  return jwt.sign(payload, secret, { expiresIn: '365d' })
-}
-
+import authService from '../services/authService.js';
+import { validationResult } from 'express-validator';
+import ApiError from '../exceptions/apiError.js';
 class AuthController {
-  async registration(req, res) {
+  async registration(req, res, next) {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res
-          .status(400)
-          .json({ message: 'Ошибка при регистрации', errors })
+        return next(
+          ApiError.BadRequest('Ошибка при валидации', errors.array()),
+        );
       }
-      const { username, password, email } = req.body
-      let existingUser = await User.getUserByUsername(username)
-      if (existingUser) {
-        return res.status(400).json({
-          message: `Ошибка при регистрации`,
-        })
-      }
-      existingUser = await User.getUserByEmail(email)
-      if (existingUser) {
-        return res.status(400).json({
-          message: `Ошибка при регистрации`,
-        })
-      }
-      const salt = await bcrypt.genSalt(7)
-      const hashPassword = await bcrypt.hash(password, salt)
-      const userRole = await Role.getRole('User')
-      const user = User.createUser({
-        username: username,
-        email: email,
-        roles: [userRole._id],
-        authentication: { password: hashPassword },
-      })
-      return res
-        .status(200)
-        .json({ message: 'Пользователь успешно зарегистрирован' })
-        .end()
+      const { username, email, password } = req.body;
+      const userData = await authService.registration(
+        username,
+        email,
+        password,
+      );
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== 'development',
+      });
+      return res.json(userData);
     } catch (e) {
-      console.log(e)
-      res.status(400).json({ message: 'Ошибка при регистрации' })
+      next(e);
     }
   }
 
-  async login(req, res) {
+  async login(req, res, next) {
     try {
-      const { email, password } = req.body
-      const user = await User.getUserByEmail(email).select(
-        '+authentication.password',
-      )
-      if (!user) {
-        return res.status(400).json({ message: `Неверный логин или пароль` })
-      }
-
-      const isValidPassword = await bcrypt.compare(
-        password,
-        user.authentication.password,
-      )
-      if (!isValidPassword) {
-        return res.status(400).json({ message: `Неверный логин или пароль` })
-      }
-
-      user.authentication.sessionToken = generateAccessToken(
-        user.id.toString(),
-        user.username.toString(),
-      )
-      await user.save()
-      res.cookie('WASTED-AUTH', user.authentication.sessionToken, {
-        domain: 'localhost',
-        path: '/',
-      })
-      return res.sendStatus(200)
+      const { login, password } = req.body;
+      const userData = await authService.login(login, password);
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== 'development',
+      });
+      return res.json(userData);
     } catch (e) {
-      console.log(e)
-      res.status(400).json({ message: 'Login error' })
+      next(e);
+    }
+  }
+
+  async logout(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies;
+      await authService.logout(refreshToken);
+      res.clearCookie('refreshToken');
+      return res.sendStatus(200);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async refresh(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies;
+      const userData = await authService.refresh(refreshToken);
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== 'development',
+      });
+      return res.json(userData);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async activate(req, res, next) {
+    try {
+      const activationLink = req.params.link;
+      await authService.activate(activationLink);
+      return res.redirect(process.env.CLIENT_URL);
+    } catch (e) {
+      next(e);
     }
   }
 }
 
-export default new AuthController()
+export default new AuthController();

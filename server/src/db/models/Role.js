@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose'
+import { Schema, model } from 'mongoose';
 
 const roleSchema = new Schema({
   role: {
@@ -9,10 +9,9 @@ const roleSchema = new Schema({
   },
   category: { type: String },
   permissions: [{ type: String }],
-  __v: { type: Number, select: false },
-})
+});
 
-const Role = model('Role', roleSchema)
+const Role = model('Role', roleSchema);
 
-export const getRoles = () => Role.find()
-export const getRole = (role) => Role.findOne({ role })
+export const getRoles = () => Role.find();
+export const getRole = (role) => Role.findOne({ role });

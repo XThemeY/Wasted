@@ -20,7 +20,6 @@ const gameSchema = new Schema(
       metacritic: { type: Number, default: 0 },
     },
     comments: [{ type: Schema.Types.ObjectId, ref: 'CommentGame' }],
-    __v: { type: Number, select: false },
   },
   {
     timestamps: true,

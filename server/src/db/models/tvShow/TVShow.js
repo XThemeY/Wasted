@@ -1,5 +1,5 @@
-import mongoose, { Schema, model } from 'mongoose'
-const db = mongoose.connection
+import mongoose, { Schema, model } from 'mongoose';
+const db = mongoose.connection;
 
 const tvShowSchema = new Schema(
   {
@@ -26,38 +26,36 @@ const tvShowSchema = new Schema(
     ratings: {
       wasted: { type: Number, default: 0 },
       imdb: { type: Number, default: 0 },
-      rottenTomatoes: { type: Number, default: 0 },
       kinopoisk: { type: Number, default: 0 },
     },
-    __v: { type: Number, select: false },
   },
   {
     timestamps: true,
   },
-)
+);
 
 tvShowSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await db
       .collection('counters')
-      .findOneAndUpdate({ _id: 'tvshowid' }, { $inc: { seq: 1 } })
-    this.id = counter.seq + 1
+      .findOneAndUpdate({ _id: 'tvshowid' }, { $inc: { seq: 1 } });
+    this.id = counter.seq + 1;
   }
-  next()
-})
+  next();
+});
 
-const TVShow = model('TVShow', tvShowSchema)
+const TVShow = model('TVShow', tvShowSchema);
 
-export default TVShow
+export default TVShow;
 
 export function findOne({ id }) {
-  throw new Error('Function not implemented.')
+  throw new Error('Function not implemented.');
 }
 
 export function find({}) {
-  throw new Error('Function not implemented.')
+  throw new Error('Function not implemented.');
 }
 
 export function countDocuments({}) {
-  throw new Error('Function not implemented.')
+  throw new Error('Function not implemented.');
 }
