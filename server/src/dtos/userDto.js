@@ -5,5 +5,6 @@ export default class UserDto {
     this.id = model.id;
     this.email = model.email;
     this.isActivated = model.authentication.isActivated;
+    this.avatarUrl = model.avatarUrl;
   }
 }

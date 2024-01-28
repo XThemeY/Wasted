@@ -1,61 +1,67 @@
 export const navLinks = [
   {
-    imgURL: '/assets/icons/home.svg',
+    imgURL: 'home',
     route: '/',
     label: 'Home',
+    private: false,
   },
   {
-    imgURL: '/assets/icons/wallpaper.svg',
+    imgURL: 'tv',
     route: '/shows',
     label: 'Shows',
+    private: true,
   },
   {
-    imgURL: '/assets/icons/wallpaper.svg',
+    imgURL: 'film',
     route: '/movies',
     label: 'Movies',
+    private: true,
   },
   {
-    imgURL: '/assets/icons/wallpaper.svg',
+    imgURL: 'gamepad',
     route: '/games',
     label: 'Games',
+    private: true,
   },
   {
-    imgURL: '/assets/icons/wallpaper.svg',
-    route: '/playlists',
-    label: 'Playlists',
-  },
-
-  {
-    imgURL: '/assets/icons/people.svg',
-    route: '/favorites',
-    label: 'Favorites',
-  },
-  {
-    imgURL: '/assets/icons/gallery-add.svg',
-    route: '/comments',
-    label: 'Comments',
-  },
-
-  {
-    imgURL: '/assets/icons/gallery-add.svg',
-    route: '/friends',
-    label: 'Friends',
-  },
-  {
-    imgURL: '/assets/icons/gallery-add.svg',
+    imgURL: 'fire',
     route: '/popular',
     label: 'Popular',
+    private: true,
   },
-  {
-    imgURL: '/assets/icons/gallery-add.svg',
-    route: '/explore',
-    label: 'For You',
-  },
-  {
-    imgURL: '/assets/icons/gallery-add.svg',
-    route: '/:id/achievements',
-    label: 'Achievements',
-  },
+  // {
+  //   imgURL: '/assets/icons/wallpaper.svg',
+  //   route: '/playlists',
+  //   label: 'Playlists',
+  // },
+
+  // {
+  //   imgURL: '/assets/icons/people.svg',
+  //   route: '/favorites',
+  //   label: 'Favorites',
+  // },
+  // {
+  //   imgURL: '/assets/icons/gallery-add.svg',
+  //   route: '/comments',
+  //   label: 'Comments',
+  // },
+
+  // {
+  //   imgURL: '/assets/icons/gallery-add.svg',
+  //   route: '/friends',
+  //   //   label: 'Friends',
+  // },
+
+  // {
+  //   imgURL: '/assets/icons/gallery-add.svg',
+  //   route: '/explore',
+  //   label: 'For You',
+  // },
+  // {
+  //   imgURL: '/assets/icons/gallery-add.svg',
+  //   route: '/:id/achievements',
+  //   label: 'Achievements',
+  // },
 
   //   'Become a Pro',
   //   'Settings',
@@ -67,22 +73,22 @@ export const navLinks = [
 export const topBarLinks = [
   {
     imgURL: '',
-    route: '/movie',
-    label: 'Movies',
+    route: '/movies',
+    label: 'My Movies',
   },
   {
     imgURL: '',
-    route: '/show',
-    label: 'Shows',
+    route: '/shows',
+    label: 'My Shows',
   },
   {
     imgURL: '',
-    route: '/game',
-    label: 'Games',
+    route: '/games',
+    label: 'My Games',
   },
   {
     imgURL: '',
-    route: '/users',
-    label: 'Users',
+    route: '/stats',
+    label: 'My Statistic',
   },
 ];

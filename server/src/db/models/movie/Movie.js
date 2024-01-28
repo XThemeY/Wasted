@@ -5,23 +5,74 @@ const movieSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
     title: { type: String, required: true },
-    originalTitle: { type: String, required: true },
-    posterUrl: { type: String, required: true },
-    releaseDate: { type: Date, required: true },
-    genres: [{ type: String }],
-    countries: [{ type: String }],
-    director: [{ type: String }],
-    cast: [{ type: String }],
-    watchCount: { type: Number, default: 0 },
-    description: { type: String },
-    tags: [{ type: String }],
-    duration: { type: Number },
+    title_original: { type: String, default: '' },
+    images: {
+      poster_url: {
+        ru: { type: String, default: '' },
+        en: { type: String, default: '' },
+      },
+      logo_url: {
+        ru: { type: String, default: '' },
+        en: { type: String, default: '' },
+      },
+      backdrop_url: { type: String, default: '' },
+    },
+    release_date: { type: Date },
+    genres: [{ type: Schema.Types.ObjectId, ref: 'Genre' }],
+    countries: [{ type: Schema.Types.ObjectId, ref: 'Country' }],
+    director: [{ type: Schema.Types.ObjectId, ref: 'People' }],
+    cast: [{ type: Schema.Types.ObjectId, ref: 'People' }],
+    watch_count: { type: Number, default: 0 },
+    description: { type: String, default: '' },
+    description_original: { type: String, default: '' },
+    tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
+    duration: { type: Number, default: 0 },
+    production_companies: [{ type: Schema.Types.ObjectId, ref: 'ProdCompany' }],
     ratings: {
-      wasted: { type: Number, default: 0 },
-      imdb: { type: Number, default: 0 },
-      kinopoisk: { type: Number, default: 0 },
+      wasted: {
+        raiting: { type: Number, default: 0 },
+        beer: { type: Number, default: 0 },
+        favorite: { type: Number, default: 0 },
+        good: { type: Number, default: 0 },
+        pokerface: { type: Number, default: 0 },
+        poop: { type: Number, default: 0 },
+      },
+      tmdb: {
+        raiting: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      imdb: {
+        raiting: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      kinopoisk: {
+        raiting: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+    },
+    reactions: {
+      broken_heart: { type: Number, default: 0 },
+      clown_face: { type: Number, default: 0 },
+      dislike: { type: Number, default: 0 },
+      dizzy_face: { type: Number, default: 0 },
+      face_vomiting: { type: Number, default: 0 },
+      fire: { type: Number, default: 0 },
+      grin: { type: Number, default: 0 },
+      heart_eyes: { type: Number, default: 0 },
+      heart: { type: Number, default: 0 },
+      joy: { type: Number, default: 0 },
+      like: { type: Number, default: 0 },
+      muscle: { type: Number, default: 0 },
+      neutral_face: { type: Number, default: 0 },
+      rude_face: { type: Number, default: 0 },
     },
     comments: [{ type: Schema.Types.ObjectId, ref: 'CommentMovie' }],
+    external_ids: {
+      tmdb: { type: String },
+      imdb: { type: String },
+      kinopoisk: { type: String },
+    },
+    user_raitings: [{ type: Schema.Types.ObjectId, ref: 'MovieRating' }],
   },
   {
     timestamps: true,
@@ -40,52 +91,4 @@ movieSchema.pre('save', async function (next) {
 
 const Movie = model('Movie', movieSchema);
 
-export const getMovieById = async (id) => {
-  const movie = await Movie.findOne({ id });
-  if (!movie) {
-    return null;
-  }
-  const movieObj = setFields(movie);
-  return movieObj;
-};
-
-export const getMovieAll = async () => {
-  const movies = await Movie.find({});
-  if (!movies) {
-    return null;
-  }
-  const totalCount = await Movie.countDocuments({});
-  const moviesObj = { items: [], total_items: totalCount };
-  movies.forEach((movie) => {
-    moviesObj.items.push(setFields(movie));
-  });
-
-  return moviesObj;
-};
-
-const setFields = (item) => {
-  const newObj = {
-    id: item.id,
-    title: item.title,
-    originalTitle: item.originalTitle,
-    posterUrl: item.posterUrl,
-    releaseDate: item.releaseDate,
-    genres: item.genres,
-    countries: item.countries,
-    director: item.director,
-    cast: item.cast,
-    watchCount: item.watchCount,
-    description: item.description,
-    tags: item.tags,
-    duration: item.duration,
-    ratings: {
-      wasted: item.ratings.wasted,
-      imdb: item.ratings.imdb,
-      kinopoisk: item.ratings.kinopoisk,
-    },
-    comments: item.comments,
-    createdAt: item.createdAt,
-    updatedAt: item.updatedAt,
-  };
-  return newObj;
-};
+export default Movie;

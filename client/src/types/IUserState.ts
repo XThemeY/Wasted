@@ -4,6 +4,7 @@ export default interface IUserState {
   email: string | null;
   isActivated: boolean;
   isLogedIn: boolean;
+  avatarUrl: string;
   // favorites: {
   //   movies: [];
   //   tvShows: [];

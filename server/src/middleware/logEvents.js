@@ -1,8 +1,8 @@
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import path from 'path';
-import { format } from 'date-fns';
 import { nanoid } from 'nanoid';
+import { format } from 'date-fns';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +17,7 @@ const logEvents = async (msg, logName) => {
     if (!fs.existsSync(path.join(__dirname, '..', logDirName))) {
       await fsPromises.mkdir(path.join(__dirname, '..', logDirName));
     }
+
     await fsPromises.appendFile(
       path.join(__dirname, '..', logDirName, logName),
       logItem,

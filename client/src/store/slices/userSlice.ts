@@ -9,6 +9,7 @@ const initialState: IUserState = {
   email: null,
   isActivated: false,
   isLogedIn: false,
+  avatarUrl: '/assets/images/default-avatar.png',
 };
 
 const userSlice = createSlice({
@@ -23,6 +24,7 @@ const userSlice = createSlice({
       state.email = user.email;
       state.isActivated = user.isActivated;
       state.isLogedIn = true;
+      state.avatarUrl = user.avatarUrl || state.avatarUrl;
     },
     logOut: (state) => {
       localStorage.removeItem('access_token');
@@ -31,6 +33,7 @@ const userSlice = createSlice({
       state.email = null;
       state.isActivated = false;
       state.isLogedIn = false;
+      state.avatarUrl = '/assets/images/default-avatar.png';
     },
   },
 });

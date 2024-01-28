@@ -15,7 +15,6 @@ class AuthService {
         `Пользователь с таким именем/email уже существует`,
       );
     }
-
     const hashPassword = await bcrypt.hash(password, 7);
     const activationLink = nanoid();
     const user = await User.create({

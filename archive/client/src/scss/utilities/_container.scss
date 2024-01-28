@@ -1,0 +1,26 @@
+@use "../abstracts" as *;
+.container {
+  max-width: 1430px;
+  margin: 0 auto;
+  padding: 100px 15px 15px;
+  background-color: white;
+  height: 100vh;
+}
+
+.content__wrapper {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
+
+.movies__container {
+  display: flex;
+  gap: 10px;
+}
+
+.movie__container {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}

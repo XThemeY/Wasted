@@ -1,0 +1,19 @@
+@use "../../scss/abstracts" as *;
+
+.profile {
+  align-items: center;
+  cursor: pointer;
+}
+
+.login__btn {
+  font-size: 1.5rem;
+  border: 2px solid transparent;
+  padding: 0 5px;
+  &:hover {
+    text-decoration: none;
+    border: 2px solid $main-color;
+    background-color: $bg-color;
+    color: white;
+    border-radius: 10px;
+  }
+}

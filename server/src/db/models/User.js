@@ -1,7 +1,7 @@
 import mongoose, { Schema, model } from 'mongoose';
 const db = mongoose.connection;
 
-const UserSchema = new Schema(
+const userSchema = new Schema(
   {
     id: {
       type: Number,
@@ -112,7 +112,7 @@ const UserSchema = new Schema(
   },
 );
 
-UserSchema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await db
       .collection('counters')
@@ -122,6 +122,6 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-const User = model('User', UserSchema);
+const User = model('User', userSchema);
 
 export default User;

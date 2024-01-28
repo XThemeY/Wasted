@@ -13,5 +13,4 @@ const roleSchema = new Schema({
 
 const Role = model('Role', roleSchema);
 
-export const getRoles = () => Role.find();
-export const getRole = (role) => Role.findOne({ role });
+export default Role;

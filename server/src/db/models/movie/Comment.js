@@ -4,15 +4,15 @@ const db = mongoose.connection;
 const commentMovieSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
-    movieId: { type: Schema.Types.ObjectId, ref: 'Movie', required: true },
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    parentCommentId: {
+    movie_id: { type: Schema.Types.ObjectId, ref: 'Movie', required: true },
+    user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    parent_comment_id: {
       type: Schema.Types.ObjectId,
       ref: 'CommentMovie',
       default: 0,
     },
     text: { type: String, required: true },
-    imageUrl: [{ type: String }],
+    image_url: [{ type: String }],
     reactions: {
       broken_heart: { type: Number, default: 0 },
       clown_face: { type: Number, default: 0 },

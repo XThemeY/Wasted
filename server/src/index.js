@@ -6,6 +6,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { logger, errorHandler } from './middleware/index.js';
 import { corsOptions } from './config/corsOptions.js';
+import tmdbApi from './api/tmdb/movie.js';
 
 import {
   authRouter,
@@ -25,6 +26,7 @@ app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
 
+app.use('/tmdb', tmdbApi);
 app.use('/auth', authRouter);
 app.use('/movie', movieRouter);
 app.use('/show', tvshowRouter);

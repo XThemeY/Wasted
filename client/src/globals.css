@@ -224,7 +224,24 @@
   }
 
   .nav-link {
-    @apply base-medium rounded-lg transition hover:bg-primary-500;
+    @apply base-medium rounded-lg transition hover:text-gray-600;
+  }
+
+  .link-active:before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: -10px;
+    right: -10px;
+    height: 2px;
+    background: linear-gradient(
+      270deg,
+      transparent,
+      #cf750e 15%,
+      #cf750e 85%,
+      transparent
+    );
   }
 
   .topBarNav {

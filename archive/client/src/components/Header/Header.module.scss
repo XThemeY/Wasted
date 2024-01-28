@@ -1,0 +1,65 @@
+@use "../../scss/abstracts" as *;
+.header {
+  width: 100%;
+  position: fixed;
+  border-bottom: 12px solid $bg-color;
+  z-index: 10;
+}
+.header__container {
+  height: 65px;
+  display: flex;
+  padding: 0 30px;
+  gap: 30px;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  width: 70px;
+  background-color: $bg-color;
+  padding: 5px;
+  border-radius: 20px;
+}
+
+.searchForm {
+  label {
+    position: relative;
+  }
+
+  label:before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: url("../../assets/icons/search-outline.svg") center / contain
+      no-repeat;
+  }
+}
+
+.search {
+  width: 300px;
+  padding-left: 30px;
+  padding-right: 2px;
+  height: 30px;
+
+  outline: 0;
+  border: none;
+  border-radius: 5px;
+  background-color: #f5deb3;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: white;
+    padding-left: 28px;
+    padding-right: 0;
+    border: 2px solid #696969;
+  }
+
+  &:focus {
+    padding-left: 28px;
+    padding-right: 0;
+    border: 2px solid #696969;
+    background-color: white;
+  }
+}

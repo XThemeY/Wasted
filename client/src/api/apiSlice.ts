@@ -9,7 +9,7 @@ import {
 } from '@reduxjs/toolkit/query/react';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:5000',
+  baseUrl: 'http://192.168.0.199:5000',
   credentials: 'include',
   prepareHeaders: (headers) => {
     const token = localStorage.getItem('access_token');

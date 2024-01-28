@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useParams } from 'react-router-dom';
 import LoginForm from '@/pages/_auth/forms/LoginForm';
 import RegisterForm from '@/pages/_auth/forms/RegisterForm';
 import AuthLayout from '@/pages/_auth/AuthLayout';
@@ -23,8 +23,28 @@ import { useEffect } from 'react';
 import { useCheckLoginQuery, setCredentials } from '@/store/slices';
 import { IAuthRes } from '../types';
 import { useAppDispatch } from '@/hooks/redux';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+import {
+  faHouse,
+  faTv,
+  faGamepad,
+  faFilm,
+  faFire,
+  faRightFromBracket,
+} from '@fortawesome/free-solid-svg-icons';
 
 const App = () => {
+  library.add(
+    fab,
+    faHouse,
+    faTv,
+    faGamepad,
+    faFilm,
+    faFire,
+    faRightFromBracket,
+  );
+  const { username } = useParams();
   const { data, isSuccess } = useCheckLoginQuery();
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -47,22 +67,22 @@ const App = () => {
         </Route>
         <Route element={<RootLayout />}>
           <Route index element={<Home />} />
-          <Route path="/movie" element={<Movies />} />
-          <Route path="/movie/:id" element={<MoviePage />} />
-          <Route path="/show" element={<Shows />} />
-          <Route path="/show/:id" element={<ShowPage />} />
-          <Route path="/game" element={<Games />} />
-          <Route path="/game/:id" element={<GamePage />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/movies/:id" element={<MoviePage />} />
+          <Route path="/shows" element={<Shows />} />
+          <Route path="/shows/:id" element={<ShowPage />} />
+          <Route path="/games" element={<Games />} />
+          <Route path="/games/:id" element={<GamePage />} />
         </Route>
 
         {/* Private routes */}
         <Route element={<RequireAuth />}>
           <Route element={<RootLayout />}>
-            <Route path="/shows" element={<UserShows />} />
-            <Route path="/movies" element={<UserMovies />} />
-            <Route path="/games" element={<UserGames />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/users" element={<UserStats />} />
+            <Route path="/:username/shows" element={<UserShows />} />
+            <Route path="/:username/movies" element={<UserMovies />} />
+            <Route path="/:username/games" element={<UserGames />} />
+            <Route path="/:username/favorites" element={<Favorites />} />
+            <Route path="/:username/stats" element={<UserStats />} />
           </Route>
         </Route>
         {/* <Route path="/" element={<MainPage />} />
