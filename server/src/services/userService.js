@@ -1,4 +1,4 @@
-import { User } from '../db/models/index.js';
+import { User } from '../database/models/index.js';
 
 class UserService {
   async getAllUsers() {

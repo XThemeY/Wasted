@@ -1,4 +1,4 @@
-import { TVShow } from '../db/models/index.js';
+import { TVShow } from '../database/models/index.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 

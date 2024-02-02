@@ -1,4 +1,4 @@
-import { Game } from '../db/models/index.js';
+import { Game } from '../database/models/index.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 

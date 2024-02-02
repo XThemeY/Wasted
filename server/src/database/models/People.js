@@ -12,14 +12,14 @@ const peopleSchema = new Schema(
     profile_img: { type: String },
     movies: [
       {
-        movie_id: { type: Schema.Types.ObjectId, ref: 'Movie' },
+        movie_id: { type: Number },
         role: { type: String },
         job: { type: String },
       },
     ],
     shows: [
       {
-        show_id: { type: Schema.Types.ObjectId, ref: 'Show' },
+        show_id: { type: Number },
         role: { type: String },
         job: { type: String },
       },

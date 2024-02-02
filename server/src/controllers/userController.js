@@ -1,4 +1,4 @@
-import { User } from '../db/models/index.js';
+import { User } from '../database/models/index.js';
 import userService from '../services/userService.js';
 
 const excludeFields = '-_id -__v -password -email';

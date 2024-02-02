@@ -1,14 +1,14 @@
-import Movie from "../../models/movie/Movie.js";
-import TVShow from "../../models/tvShow/TVShow.js";
-import Game from "../../models/game/Game.js";
-import Episode from "../../models/tvShow/Episode.js";
+import Movie from '../../models/movie/Movie.js';
+import TVShow from '../../models/tvShow/TVShow.js';
+import Game from '../../models/game/Game.js';
+import Episode from '../../models/tvShow/Episode.js';
 
-import { readFileSync } from "fs";
+import { readFileSync } from 'fs';
 
 export default class dbController {
   async fillMovieDB() {
     try {
-      const file = JSON.parse(readFileSync("./DataBase/movies.json", "utf8"));
+      const file = JSON.parse(readFileSync('./DataBase/movies.json', 'utf8'));
 
       file.forEach(async (element) => {
         const genre = () => {
@@ -34,9 +34,9 @@ export default class dbController {
           releaseDate: element.year,
           genres: genre(),
           countries: country(),
-          director: ["Джон Доу"],
-          cast: ["Джон Доу", "Джон Доу", "Джон Доу"],
-          description: "Описание",
+          director: ['Джон Доу'],
+          cast: ['Джон Доу', 'Джон Доу', 'Джон Доу'],
+          description: 'Описание',
           ratings: {
             imdb: element.ratingImdb,
             kinopoisk: element.ratingKinopoisk,
@@ -45,15 +45,15 @@ export default class dbController {
         await movie.save();
       });
 
-      console.log("Фильмы добавлены в базу данных");
+      console.log('Фильмы добавлены в базу данных');
     } catch (error) {
-      console.error("Error fetching:", error.message);
+      console.error('Error fetching:', error.message);
     }
   }
 
   async filltvShowDB() {
     try {
-      const file = JSON.parse(readFileSync("./DataBase/tv-shows.json", "utf8"));
+      const file = JSON.parse(readFileSync('./DataBase/tv-shows.json', 'utf8'));
 
       file.forEach(async (element) => {
         const genre = () => {
@@ -74,15 +74,14 @@ export default class dbController {
 
         const tvshow = new TVShow({
           title: element.nameRu,
-          originalTitle:
-            element.nameOriginal !== null ? element.nameOriginal : "",
+          originalTitle: element.nameOriginal || '',
           posterUrl: element.posterUrl,
           startDate: element.year,
           genres: genre(),
           countries: country(),
-          director: ["Джон Доу"],
-          cast: ["Джон Доу", "Джон Доу", "Джон Доу"],
-          description: "Описание",
+          director: ['Джон Доу'],
+          cast: ['Джон Доу', 'Джон Доу', 'Джон Доу'],
+          description: 'Описание',
           ratings: {
             imdb: element.ratingImdb,
             kinopoisk: element.ratingKinopoisk,
@@ -92,15 +91,15 @@ export default class dbController {
         await tvshow.save();
       });
 
-      console.log("Сериалы добавлены в базу данных");
+      console.log('Сериалы добавлены в базу данных');
     } catch (error) {
-      console.error("Error fetching:", error.message);
+      console.error('Error fetching:', error.message);
     }
   }
 
   async fillGameDB() {
     try {
-      const file = JSON.parse(readFileSync("./DataBase/games.json", "utf8"));
+      const file = JSON.parse(readFileSync('./DataBase/games.json', 'utf8'));
 
       file.forEach(async (element) => {
         const genres = () => {
@@ -133,8 +132,8 @@ export default class dbController {
           releaseDate: element.released,
           genres: genres(),
           platforms: platforms(),
-          developer: ["Джон Доу"],
-          description: "Описание",
+          developer: ['Джон Доу'],
+          description: 'Описание',
           tags: tags(),
           duration: element.playtime,
           ratings: {
@@ -145,9 +144,9 @@ export default class dbController {
         await game.save();
       });
 
-      console.log("Игры добавлены в базу данных");
+      console.log('Игры добавлены в базу данных');
     } catch (error) {
-      console.error("Error fetching:", error.message);
+      console.error('Error fetching:', error.message);
     }
   }
 }
@@ -160,14 +159,14 @@ export async function fillEpisodesDB() {
         TVShowId: show._id,
         seasonNumber: i > 5 ? 2 : 1,
         episodeNumber: i,
-        title: "Название эпизода",
+        title: 'Название эпизода',
         duration: 45,
-        releaseDate: "10.10.2022",
-        description: "Описание",
+        releaseDate: '10.10.2022',
+        description: 'Описание',
       });
 
       await episode.save();
     }
   }
-  console.log("Эпизоды добавлены в базу данных");
+  console.log('Эпизоды добавлены в базу данных');
 }

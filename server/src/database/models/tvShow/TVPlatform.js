@@ -1,7 +1,7 @@
 import mongoose, { Schema, model } from 'mongoose';
 const db = mongoose.connection;
 
-const prodCompanySchema = new Schema(
+const tvPlatformSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
     name: { type: String, required: true },
@@ -12,16 +12,16 @@ const prodCompanySchema = new Schema(
   },
 );
 
-prodCompanySchemaeSchema.pre('save', async function (next) {
+tvPlatformSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await db
       .collection('counters')
-      .findOneAndUpdate({ _id: 'prodCompanyid' }, { $inc: { seq: 1 } });
+      .findOneAndUpdate({ _id: 'tvplatformid' }, { $inc: { seq: 1 } });
     this.id = counter.seq + 1;
   }
   next();
 });
 
-const ProdCompany = model('ProdCompany', prodCompanySchema);
+const TVPlatform = model('TVPlatform', tvPlatformSchema);
 
-export default ProdCompany;
+export default TVPlatform;

@@ -1,5 +1,5 @@
 import { logEvents } from './index.js';
-import ApiError from '../exceptions/apiError.js';
+import ApiError from '../utils/apiError.js';
 
 export const errorHandler = (err, req, res, next) => {
   logEvents(`${err.name}: ${err.message}`, 'errLog.log');

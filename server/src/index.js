@@ -6,15 +6,9 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { logger, errorHandler } from './middleware/index.js';
 import { corsOptions } from './config/corsOptions.js';
-import tmdbApi from './api/tmdb/movie.js';
+import v1Router from './api/v1/v1Router.js';
+import tmdbRouter from './api/tmdb/routes/tmdbRouter.js';
 
-import {
-  authRouter,
-  userRouter,
-  movieRouter,
-  tvshowRouter,
-  gameRouter,
-} from './routes/index.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -26,12 +20,9 @@ app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/tmdb', tmdbApi);
-app.use('/auth', authRouter);
-app.use('/movie', movieRouter);
-app.use('/show', tvshowRouter);
-app.use('/game', gameRouter);
-app.use('/', userRouter);
+app.use('/tmdb', tmdbRouter);
+app.use('/api/v1', v1Router);
+
 app.all('*', (req, res) => {
   res.sendStatus(404);
 });

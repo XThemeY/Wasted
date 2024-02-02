@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "build": "node index",
+    "build": "node ./src/index.js",
     "dev": "nodemon index",
     "lint": "eslint ./src",
     "format": "eslint ./src --fix"
@@ -40,6 +40,7 @@
     "eslint": "^8.56.0",
     "husky": "^8.0.3",
     "nodemon": "^3.0.2",
-    "prettier": "^3.1.1"
+    "prettier": "^3.1.1",
+    "translate": "^2.0.2"
   }
 }

@@ -13,6 +13,8 @@ const ratingSchema = new Schema(
 
 const MovieRating = model('MovieRating', ratingSchema);
 const ShowRating = model('ShowRating', ratingSchema);
+const SeasonRating = model('SeasonRating', ratingSchema);
+const EpisodeRating = model('EpisodeRating', ratingSchema);
 const GameRating = model('GameRating', ratingSchema);
 
-export { MovieRating, ShowRating, GameRating };
+export { MovieRating, ShowRating, GameRating, SeasonRating, EpisodeRating };

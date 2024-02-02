@@ -1,10 +1,10 @@
-import { User } from '../db/models/index.js';
+import { User } from '../database/models/index.js';
 import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import mailService from './mailService.js';
 import tokenService from './tokenService.js';
 import UserDto from '../dtos/userDto.js';
-import ApiError from '../exceptions/apiError.js';
+import ApiError from '../utils/apiError.js';
 
 class AuthService {
   async registration(username, email, password) {

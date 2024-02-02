@@ -1,37 +1,37 @@
-import { Movie } from '../db/models/index.js';
+import movieService from '../services/movieService.js';
+
 class MovieController {
-  async getMovie(req, res) {
+  async getMovie(req, res, next) {
     try {
-      const id = req.params.id;
-      const movie = await Movie.getMovieById(id);
-
-      if (!movie) {
-        return res.status(400).json({
-          message: `Неправильный адрес`,
-        });
-      }
-
-      res.status(200).json(movie).end();
+      const { id } = req.params;
+      const movie = await movieService.getMovie(id);
+      return res.json(movie);
     } catch (e) {
-      console.log('getMovie:', e);
-      res.sendStatus(500);
+      next(e);
     }
   }
 
-  async getMovieAll(req, res) {
+  async getMovieAll(req, res, next) {
     try {
-      const movies = await Movie.getMovieAll();
-
-      if (!movies) {
-        return res.status(400).json({
-          message: `Неправильный адрес`,
-        });
-      }
-
-      res.status(200).json(movies).end();
+      const movie = await movieService.getMovieAll();
+      return res.json(movie);
     } catch (e) {
-      console.log('getMovieAll:', e);
-      res.sendStatus(500);
+      next(e);
+    }
+  }
+
+  async searchMovie(req, res, next) {
+    try {
+      // const page = parseInt(req.query.page) - 1 || 0;
+      // const limit = parseInt(req.query.limit) || 10;
+      // const search = req.query.search || '';
+      // let sort = req.query.sort || 'popular';
+      // let genre = req.query.genre || 'All';
+      const title = req.query.title?.toString();
+      const findMovies = await movieService.searchMovie(title);
+      return res.json(findMovies);
+    } catch (e) {
+      next(e);
     }
   }
 }
