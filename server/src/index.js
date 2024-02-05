@@ -8,6 +8,7 @@ import { logger, errorHandler } from './middleware/index.js';
 import { corsOptions } from './config/corsOptions.js';
 import v1Router from './api/v1/v1Router.js';
 import tmdbRouter from './api/tmdb/routes/tmdbRouter.js';
+import igdbRouter from './api/igdb/routes/igdbRouter.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/tmdb', tmdbRouter);
+app.use('/igdb', igdbRouter);
 app.use('/api/v1', v1Router);
 
 app.all('*', (req, res) => {

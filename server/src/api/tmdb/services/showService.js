@@ -8,13 +8,14 @@ import {
   getTags,
   getProdCompanies,
   getPlatforms,
+  getSeasons,
 } from '../../../utils/dbFields.js';
 
 class TVShowService {
   async addShowToDb(model, modelENG) {
     let show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
     if (!show) {
-      const newShow = await TVShow.create({
+      const newMovie = await TVShow.create({
         title: model.name,
         title_original: model.original_name,
         start_date: model.first_air_date,
@@ -40,7 +41,7 @@ class TVShowService {
         },
       });
 
-      show = await TVShow.findOne({ id: newShow.id });
+      show = await TVShow.findOne({ id: newMovie.id });
 
       show.images = await getMediaImages(show.id, 'show', model);
       show.genres = await getGenres(model.genres, modelENG.genres);
@@ -57,9 +58,12 @@ class TVShowService {
       show.production_companies = await getProdCompanies(
         model.production_companies,
       );
-      //Доделать функцию
-      show.seasons = await getSeasons(model.seasons);
-
+      show.seasons = await getSeasons(
+        show.id,
+        model.seasons,
+        modelENG.seasons,
+        model.id,
+      );
       await show.save();
       console.log(
         `Шоу c tmdbID:${show.external_ids.tmdb} был добавлен в базу под id:${show.id}`,
