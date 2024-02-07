@@ -2,19 +2,17 @@ import 'dotenv/config';
 import axios from 'axios';
 import logEvents from '../../../middleware/logEvents.js';
 
-let token = '';
-igdbAuth();
-
-axios.defaults.baseURL = process.env.RAWG_API_URL;
-axios.defaults.headers.common['Client-ID'] = process.env.IGDB_CLIENT_ID;
-axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+const axiosGame = axios.create({
+  baseURL: process.env.IGDB_API_URL,
+});
+//igdbAuth();
 
 class IgdbGameAPI {
   async getGame(req, res, next) {
     const gameId = req.params.id;
-
+    const data = req.body.data;
     try {
-      const response = await axios.get('/games/' + gameId);
+      const response = await axiosGame.post('/games/', data);
 
       //await MovieService.addMovieToDb(response.data, responseENG.data);
 
@@ -30,12 +28,9 @@ class IgdbGameAPI {
 
   async searchGames(req, res, next) {
     const search = req.params.search || '';
-
+    const data = req.body.data;
     try {
-      const response = await axios.get(
-        process.env.RAWG_API_URL +
-          '/games?dates=2023-01-01,2023-12-31&ordering=-added',
-      );
+      const response = await axiosGame.get('/search/', data);
 
       //await MovieService.addMovieToDb(response.data, responseENG.data);
 
@@ -54,20 +49,21 @@ class IgdbGameAPI {
 }
 export default new IgdbGameAPI();
 
-function igdbAuth() {
-  axios
-    .post(
+async function igdbAuth() {
+  try {
+    const response = await axios.post(
       `https://id.twitch.tv/oauth2/token?client_id=${process.env.IGDB_CLIENT_ID}&client_secret=${process.env.IGDB_CLIENT_TOKEN}&grant_type=client_credentials`,
-    )
-    .then((response) => {
-      token = response.data.access_token;
-      console.log('Авторизация успешна');
-    })
-    .catch((error) => {
-      logEvents(
-        `${'Ошибка авторизации на IGDB -' + error?.name || error}: ${error?.message || error}`,
-        'gameReqLog.log',
-      );
-      console.log(`Ошибка авторизации на IGDB`, error?.message || error);
-    });
+    );
+    const token = response.data.access_token;
+    axiosGame.defaults.headers.common['Client-ID'] = process.env.IGDB_CLIENT_ID;
+    axiosGame.defaults.headers.common['Accept'] = 'application/json';
+    axiosGame.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log('Авторизация успешна');
+  } catch (error) {
+    logEvents(
+      `${'Ошибка авторизации на IGDB -' + error?.name || error}: ${error?.message || error}`,
+      'gameReqLog.log',
+    );
+    console.log(`Ошибка авторизации на IGDB`, error?.message || error);
+  }
 }

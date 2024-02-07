@@ -67,16 +67,14 @@ class TmdbShowAPI {
       }
 
       res.json(popularIDs);
-      console.log(`Список популярного получен`);
+      console.log(`Список популярных шоу получен`);
     } catch (error) {
       logEvents(
         `${error?.name || error}: ${error?.message || error}`,
         'showReqLog.log',
       );
-      console.log(
-        `Ошибка получения популярных фильмов`,
-        error?.message || error,
-      );
+
+      console.log(`Ошибка получения популярных шоу`, error?.message || error);
     }
   }
 }

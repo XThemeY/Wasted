@@ -12,8 +12,8 @@ export {
 } from './Raiting.js';
 export { default as TVShow } from './tvShow/TVShow.js';
 export { default as TVShowComment } from './tvShow/Comment.js';
-export { default as TVPlatform } from './tvshow/TVPlatform.js';
-export { default as Season } from './tvshow/Season.js';
+export { default as TVPlatform } from './tvShow/TVPlatform.js';
+export { default as Season } from './tvShow/Season.js';
 export { default as Episode } from './tvShow/Episode.js';
 export { default as Game } from './game/Game.js';
 export { default as GameComment } from './game/Comment.js';

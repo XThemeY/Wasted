@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
+import path from 'path';
 import fsPromises from 'fs/promises';
 import { nanoid } from 'nanoid';
 import axios from 'axios';
@@ -11,7 +12,7 @@ export async function createImgUrl(id, type, filename) {
     return '';
   }
   const url = process.env.TMDB_IMG_URL + filename;
-  const newFilename = `${nanoid()}.webp`;
+  const newFilename = `${nanoid()}_${id}.webp`;
   await downloadImage(url, newFilename, id, type);
   return '/' + newFilename;
 }
@@ -24,11 +25,11 @@ async function downloadImage(url, filename, id, type) {
   try {
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     const imageData = await min(response.data);
-    if (!fs.existsSync('./public/media/' + type + '/')) {
-      await fsPromises.mkdir('./public/media/' + type + '/');
+    if (!fs.existsSync(path.join('.', 'public', 'media', type))) {
+      await fsPromises.mkdir(path.join('.', 'public', 'media', type));
     }
     await fsPromises.writeFile(
-      './public/media/' + type + '/' + filename,
+      path.join('.', 'public', 'media', type, filename),
       imageData,
     );
   } catch (error) {

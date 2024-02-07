@@ -3,10 +3,10 @@ import axios from 'axios';
 import MovieService from '../services/movieService.js';
 import logEvents from '../../../middleware/logEvents.js';
 
-const axiosShow = axios.create({
+const axiosMovie = axios.create({
   baseURL: process.env.TMDB_API_URL,
 });
-axiosShow.defaults.headers.common['Authorization'] =
+axiosMovie.defaults.headers.common['Authorization'] =
   `Bearer ${process.env.TMDB_API_TOKEN}`;
 
 class TmdbMovieAPI {
@@ -14,15 +14,15 @@ class TmdbMovieAPI {
     const movieId = req.params.id;
 
     try {
-      const response = await axiosShow.get(
+      const response = await axiosMovie.get(
         '/movie/' +
           movieId +
           '?language=ru-RU&append_to_response=keywords,credits,images&include_image_language=ru,en',
       );
-      const responseENG = await axiosShow.get(
+      const responseENG = await axiosMovie.get(
         '/movie/' + movieId + '?language=en-US',
       );
-      //await MovieService.addMovieToDb(response.data, responseENG.data);
+      await MovieService.addMovieToDb(response.data, responseENG.data);
 
       res.json(response.data);
     } catch (error) {
@@ -43,7 +43,7 @@ class TmdbMovieAPI {
 
     try {
       for (let page = 1; page <= pages; page++) {
-        const response = await axiosShow.get(
+        const response = await axiosMovie.get(
           '/discover/movie' +
             '?language=ru-RU&page=' +
             page +
@@ -55,18 +55,18 @@ class TmdbMovieAPI {
       }
 
       for (const item of popularIDs) {
-        const newResponse = await axiosShow.get(
+        const newResponse = await axiosMovie.get(
           '/movie/' +
             item +
             '?language=ru-RU&append_to_response=keywords,credits,images&include_image_language=ru,en',
         );
-        const responseENG = await axiosShow.get(
+        const responseENG = await axiosMovie.get(
           '/movie/' + item + '?language=en-US',
         );
         await MovieService.addMovieToDb(newResponse.data, responseENG.data);
       }
       res.json(popularIDs);
-      console.log(`Список популярного получен`);
+      console.log(`Список популярноых фильмов получен`);
     } catch (error) {
       logEvents(
         `${error?.name || error}: ${error?.message || error}`,

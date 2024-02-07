@@ -13,10 +13,10 @@ import { createImgUrl, getImgPath } from './images.js';
 import logEvents from '../middleware/logEvents.js';
 import axios from 'axios';
 
-const axiosShow = axios.create({
+const axiosFields = axios.create({
   baseURL: process.env.TMDB_API_URL,
 });
-axiosShow.defaults.headers.common['Authorization'] =
+axiosFields.defaults.headers.common['Authorization'] =
   `Bearer ${process.env.TMDB_API_TOKEN}`;
 
 export async function getCountries(countries) {
@@ -110,12 +110,14 @@ async function addPeople(people, id, mediaType) {
       name: people.name,
     });
     newPeople = await People.findOne({ name: people.name });
-    newPeople.profile_img = await createImgUrl(
-      newPeople.id,
-      'people',
-      people.profile_path,
-    );
-
+    newPeople.profile_img = people.profile_path
+      ? process.env.TMDB_IMG_URL + people.profile_path
+      : '';
+    // await createImgUrl(
+    //   newPeople.id,
+    //   'people',
+    //   people.profile_path,
+    // );
     if (mediaType === 'movie') {
       const movie = { id, role: people.character, job: people.job };
       newPeople.movies = [...newPeople.movies, movie];
@@ -156,11 +158,14 @@ export async function getProdCompanies(companies) {
         name: company.name,
       });
       newCompany = await ProdCompany.findOne({ name: company.name });
-      newCompany.logo_url = await createImgUrl(
-        newCompany.id,
-        'company',
-        company.logo_path,
-      );
+      newCompany.logo_url = company.logo_path
+        ? process.env.TMDB_IMG_URL + company.logo_path
+        : '';
+      // await createImgUrl(
+      //   newCompany.id,
+      //   'company',
+      //   company.logo_path,
+      // );
       await newCompany.save();
     }
 
@@ -179,11 +184,14 @@ export async function getPlatforms(platforms) {
         name: platform.name,
       });
       newPlatform = await TVPlatform.findOne({ name: platform.name });
-      newPlatform.logo_url = await createImgUrl(
-        newPlatform.id,
-        'platform',
-        platform.logo_path,
-      );
+      newPlatform.logo_url = platform.logo_path
+        ? process.env.TMDB_IMG_URL + platform.logo_path
+        : '';
+      // await createImgUrl(
+      //   newPlatform.id,
+      //   'platform',
+      //   platform.logo_path,
+      // );
       await newPlatform.save();
     }
 
@@ -223,11 +231,14 @@ export async function getSeasons(id, seasons, seasonsENG, tmdbID) {
         tmdbID,
         newSeason.season_number,
       );
-      newSeason.poster_url = await createImgUrl(
-        newSeason.id,
-        'season',
-        seasons[i].poster_path,
-      );
+      newSeason.poster_url = seasons[i].poster_path
+        ? process.env.TMDB_IMG_URL + seasons[i].poster_path
+        : '';
+      // await createImgUrl(
+      //   newSeason.id,
+      //   'season',
+      //   seasons[i].poster_path,
+      // );
       await newSeason.save();
     }
 
@@ -241,10 +252,10 @@ async function getEpisodes(id, tmdbID, seasonNumber) {
   const newEpisodes = [];
 
   try {
-    const response = await axiosShow.get(
+    const response = await axiosFields.get(
       '/tv/' + tmdbID + '/season/' + seasonNumber + '?language=ru-RU',
     );
-    const responseENG = await axiosShow.get(
+    const responseENG = await axiosFields.get(
       '/tv/' + tmdbID + '/season/' + seasonNumber + '?language=en-US',
     );
     const episodes = response.data.episodes;
@@ -275,11 +286,15 @@ async function getEpisodes(id, tmdbID, seasonNumber) {
           season_number: episodes[i].season_number,
           episode_number: episodes[i].episode_number,
         });
-        newEpisode.poster_url = await createImgUrl(
-          newEpisode.id,
-          'episode',
-          episodes[i].still_path,
-        );
+        newEpisode.poster_url = episodes[i].still_path
+          ? process.env.TMDB_IMG_URL + episodes[i].still_path
+          : '';
+
+        // await createImgUrl(
+        //   newEpisode.id,
+        //   'episode',
+        //   episodes[i].still_path,
+        // );
         await newEpisode.save();
       }
       newEpisodes.push(newEpisode._id);
