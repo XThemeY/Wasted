@@ -1,11 +1,13 @@
 import Welcome from '@/components/Welcome';
+import NewMedia from '@/features/home/NewMedia';
 
 const Home = () => {
   return (
-    <>
-      <div>Home</div>
+    <div className="mx-1">
+      <NewMedia />
+
       <Welcome />
-    </>
+    </div>
   );
 };
 

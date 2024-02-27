@@ -1,11 +1,15 @@
-import { Movie } from '../database/models/index.js';
+import { Movie, Genre } from '../database/models/index.js';
 import ApiError from '../utils/apiError.js';
-import { MovieDto, MovieShortDto } from '../dtos/movieDto.js';
+import { MovieDto, MovieShortDto, newMediaDto } from '../dtos/index.js';
+
 class MovieService {
   async getMovie(id) {
-    const movie = await Movie.findOne({ id })
+    const movie = await Movie.findOne(
+      { id },
+      '-genres._id -genres.__v -director._id -cast._id',
+    )
       .populate({
-        path: 'genres countries tags director.person cast.person production_companies user_raitings comments',
+        path: 'countries tags director.person cast.person production_companies user_raitings comments',
         select: '-createdAt -updatedAt -_id -__v -movies -shows',
       })
       .exec();
@@ -17,44 +21,82 @@ class MovieService {
     return movieDto;
   }
 
-  async getMovieAll() {
-    const movies = await Movie.find({})
-      .populate({
-        path: 'genres countries director.person cast.person production_companies',
-        select: '-createdAt -updatedAt -_id -__v -movies -shows',
+  async exploreMovies({
+    page,
+    limit,
+    sort_by,
+    title,
+    start_year,
+    end_year,
+    genres,
+    countries,
+  }) {
+    const newMovies = { items: [], page, total_pages: 0, total_items: 0 };
+
+    const countQuery = new Promise(function (resolve, reject) {
+      const count = Movie.countDocuments({
+        $or: [
+          { title: { $regex: title, $options: 'i' } },
+          { title_original: { $regex: title, $options: 'i' } },
+        ],
       })
-      .exec();
-    if (!movies) {
-      throw ApiError.BadRequest(`Фильмы не найдены`);
-    }
-    const newMovies = movies.map((movie) => {
-      return new MovieShortDto(movie);
+        .where('release_date')
+        .gte(start_year)
+        .lte(end_year)
+        .where('genres')
+        .in(genres)
+        .where('countries')
+        .in(countries)
+        .exec();
+      resolve(count);
     });
-    const totalCount = await Movie.countDocuments();
-    const response = { items: newMovies, total_items: totalCount };
-    return response;
-  }
 
-  async searchMovie(title) {
-    const movies = await Movie.find({
-      $or: [
-        { title: { $regex: title, $options: 'i' } },
-        { title_original: { $regex: title, $options: 'i' } },
-      ],
-    }).sort();
-
-    if (!movies) {
-      throw ApiError.BadRequest(`Фильмы не найдены`);
-    }
-    const newMovies = movies.map((movie) => {
-      return new MovieShortDto(movie);
+    const dataQuery = new Promise(function (resolve, reject) {
+      const data = Movie.find({
+        $or: [
+          { title: { $regex: title, $options: 'i' } },
+          { title_original: { $regex: title, $options: 'i' } },
+        ],
+      })
+        .populate('countriesId genresId')
+        .where('release_date')
+        .gte(start_year)
+        .lte(end_year)
+        .where('genres')
+        .in(genres)
+        .where('countries')
+        .in(countries)
+        .sort([sort_by])
+        .skip(page * limit)
+        .limit(limit)
+        .exec();
+      resolve(data);
     });
-    const totalCount = newMovies.length;
-    const response = { items: newMovies, total_items: totalCount };
-    return response;
+
+    const results = await Promise.all([countQuery, dataQuery]);
+
+    const total_movies = results[1];
+    const total_items = results[0];
+    const total_pages = Math.ceil(total_items / limit);
+
+    if (page + 1 > total_pages && total_pages !== 0) {
+      return { message: 'Invalid page' };
+    }
+    if (!total_movies.length) {
+      return { message: `Фильмы не найдены` };
+    }
+
+    newMovies.items = total_movies.map((movie) => {
+      return new newMediaDto(movie);
+    });
+    newMovies.page = page + 1;
+    newMovies.total_pages = total_pages;
+    newMovies.total_items = total_items;
+
+    return newMovies;
   }
 }
 
-//Поиск по названию, по оригинальному названию, фильтрация по году выхода, по стране, по жанру, убрать просмотренные, по количеству просмотров. Сортировка по популярности, по рейтингу, по алфавиту
+// убрать просмотренные, по количеству просмотров.
 
 export default new MovieService();

@@ -3,7 +3,7 @@ const db = mongoose.connection;
 
 const countrySchema = new Schema({
   id: { type: Number, unique: true, immutable: true },
-  short_name: { type: String, required: true },
+  short_name: { type: String, required: true, index: true },
   name: { type: String, required: true },
 });
 

@@ -16,6 +16,7 @@ export class MovieDto {
     this.duration = model.duration;
     this.production_companies = model.production_companies;
     this.reactions = model.reactions;
+    this.rating = model.rating;
     this.ratings = model.ratings;
     this.external_ids = model.external_ids;
     this.user_raitings = model.user_raitings;
@@ -36,6 +37,6 @@ export class MovieShortDto {
     this.description = model.description;
     this.description_original = model.description_original;
     this.duration = model.duration;
-    this.ratings = model.ratings;
+    this.rating = model.rating;
   }
 }

@@ -26,9 +26,10 @@ class TVShowService {
         episode_duration: model.episode_run_time[0],
         number_of_seasons: model.number_of_seasons,
         number_of_episodes: model.number_of_episodes,
+        rating: model.vote_average,
         ratings: {
           tmdb: {
-            raiting: model.vote_average,
+            rating: model.vote_average,
             vote_count: model.vote_count,
           },
           //imdb: { type: Number, default: 0 },
@@ -39,10 +40,10 @@ class TVShowService {
           imdb: model.external_ids.imdb_id,
           //kinopoisk: { type: String },
         },
+        popularity: model.popularity,
       });
 
       show = await TVShow.findOne({ id: newMovie.id });
-
       show.images = await getMediaImages(show.id, 'show', model);
       show.genres = await getGenres(model.genres, modelENG.genres);
       show.countries = await getCountries(model.production_countries);

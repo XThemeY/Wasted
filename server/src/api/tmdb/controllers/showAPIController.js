@@ -47,13 +47,13 @@ class TmdbShowAPI {
           '/discover/tv' +
             '?language=ru-RU&page=' +
             page +
-            '&sort_by=popularity.desc&with_genres=10759',
+            '&sort_by=popularity.desc&vote_count.gte=100',
         );
         for (const item of response.data.results) {
           popularIDs.push(item.id);
         }
       }
-
+      res.json(popularIDs);
       for (const item of popularIDs) {
         const newResponse = await axiosShow.get(
           '/tv/' +
@@ -65,8 +65,6 @@ class TmdbShowAPI {
         );
         await ShowService.addShowToDb(newResponse.data, responseENG.data);
       }
-
-      res.json(popularIDs);
       console.log(`Список популярных шоу получен`);
     } catch (error) {
       logEvents(

@@ -1,4 +1,4 @@
-import { Routes, Route, useParams } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import LoginForm from '@/pages/_auth/forms/LoginForm';
 import RegisterForm from '@/pages/_auth/forms/RegisterForm';
 import AuthLayout from '@/pages/_auth/AuthLayout';
@@ -16,6 +16,7 @@ import {
   UserGames,
   Favorites,
   UserStats,
+  UserHome,
 } from '@/pages/_root/pages/';
 import { Toaster } from '@/components/ui/toaster';
 import RequireAuth from '@/features/auth/RequireAuth';
@@ -32,6 +33,7 @@ import {
   faFilm,
   faFire,
   faRightFromBracket,
+  faChartSimple,
 } from '@fortawesome/free-solid-svg-icons';
 
 const App = () => {
@@ -43,8 +45,9 @@ const App = () => {
     faFilm,
     faFire,
     faRightFromBracket,
+    faChartSimple,
   );
-  const { username } = useParams();
+
   const { data, isSuccess } = useCheckLoginQuery();
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -83,6 +86,7 @@ const App = () => {
             <Route path="/:username/games" element={<UserGames />} />
             <Route path="/:username/favorites" element={<Favorites />} />
             <Route path="/:username/stats" element={<UserStats />} />
+            <Route path="/:username" element={<UserHome />} />
           </Route>
         </Route>
         {/* <Route path="/" element={<MainPage />} />

@@ -6,6 +6,7 @@ import {
   tvshowRouter,
   gameRouter,
 } from '../../routes/index.js';
+import { searchController } from '../../controllers/index.js';
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.use('/auth', authRouter);
 router.use('/movies', movieRouter);
 router.use('/shows', tvshowRouter);
 router.use('/games', gameRouter);
-router.use('/', userRouter);
+router.use('/users', userRouter);
+router.get('/search', searchController.search);
 export default router;

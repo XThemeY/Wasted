@@ -9,6 +9,10 @@ import { corsOptions } from './config/corsOptions.js';
 import v1Router from './api/v1/v1Router.js';
 import tmdbRouter from './api/tmdb/routes/tmdbRouter.js';
 import igdbRouter from './api/igdb/routes/igdbRouter.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,7 +24,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(
+  '/public/media/m',
+  express.static(path.resolve(__dirname, '..', 'public', 'media', 'movie')),
+);
+app.use(
+  '/public/media/m',
+  express.static(path.resolve(__dirname, '..', 'public', 'media', 'show')),
+);
+app.use(
+  '/public/media/m',
+  express.static(path.resolve(__dirname, '..', 'public', 'media', 'users')),
+);
 app.use('/tmdb', tmdbRouter);
 app.use('/igdb', igdbRouter);
 app.use('/api/v1', v1Router);

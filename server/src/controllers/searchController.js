@@ -1,4 +1,5 @@
 import showService from '../services/showService.js';
+import movieService from '../services/movieService.js';
 import { getSortOptions } from '../config/sortOptions.js';
 import { getGenreOptions } from '../config/genreOptions.js';
 import { getСountryOptions } from '../config/countryOptions.js';
@@ -8,32 +9,31 @@ import {
   getEndYear,
   compareYears,
 } from '../config/yearOptions.js';
-class ShowController {
-  async getShow(req, res) {
-    try {
-      const id = req.params.id;
 
-      if (!tvShow) {
-        return res.status(400).json({
-          message: `Неправильный адрес`,
-        });
-      }
-      res.json(tvShow);
-    } catch (e) {}
-  }
-
-  async exploreShows(req, res, next) {
+class SearchController {
+  async search(req, res, next) {
     try {
       const sort_by = getSortOptions(req.query.sort_by);
       const genres = await getGenreOptions(req.query.genre);
       const countries = await getСountryOptions(req.query.country);
-      const tvPlatforms = await getTvPlatformsOptions(req.query.tvplatform);
       const start_year = await getStartYear(req.query.start_year);
       const end_year = await getEndYear(req.query.end_year);
+      const tvPlatforms = await getTvPlatformsOptions(req.query.tvplatform);
       compareYears(start_year, end_year);
       const page = req.query.page > 0 ? +req.query.page - 1 : 0;
       const limit = req.query.limit > 0 ? +req.query.limit : 20;
       const title = req.query.title || '';
+
+      const movies = await movieService.exploreMovies({
+        page,
+        limit,
+        sort_by,
+        title,
+        start_year,
+        end_year,
+        genres,
+        countries,
+      });
 
       const shows = await showService.exploreShows({
         page,
@@ -46,11 +46,11 @@ class ShowController {
         countries,
         tvPlatforms,
       });
-      res.json(shows);
+      res.json({ shows, movies });
     } catch (e) {
       next(e);
     }
   }
 }
 
-export default new ShowController();
+export default new SearchController();

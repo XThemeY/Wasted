@@ -4,7 +4,7 @@ const db = mongoose.connection;
 const prodCompanySchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
-    name: { type: String, required: true },
+    name: { type: String, required: true, index: true },
     logo_url: { type: String },
   },
   {

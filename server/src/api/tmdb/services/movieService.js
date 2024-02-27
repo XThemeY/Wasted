@@ -20,9 +20,10 @@ class MovieService {
         description: model.overview,
         description_original: modelENG.overview,
         duration: model.runtime,
+        rating: model.vote_average,
         ratings: {
           tmdb: {
-            raiting: model.vote_average,
+            rating: model.vote_average,
             vote_count: model.vote_count,
           },
           //imdb: { type: Number, default: 0 },
@@ -33,6 +34,7 @@ class MovieService {
           imdb: model.imdb_id,
           //kinopoisk: { type: String },
         },
+        popularity: model.popularity,
       });
 
       movie = await Movie.findOne({ id: newMovie.id });

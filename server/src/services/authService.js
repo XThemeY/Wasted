@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import mailService from './mailService.js';
 import tokenService from './tokenService.js';
-import UserDto from '../dtos/userDto.js';
+import { UserDto } from '../dtos/index.js';
 import ApiError from '../utils/apiError.js';
 
 class AuthService {

@@ -1,11 +1,10 @@
 import mongoose, { Schema, model } from 'mongoose';
 const db = mongoose.connection;
-
 const movieSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
-    title: { type: String, required: true },
-    title_original: { type: String, default: '' },
+    title: { type: String, required: true, index: true },
+    title_original: { type: String, default: '', index: true },
     images: {
       poster_url: {
         ru: { type: String, default: '' },
@@ -17,9 +16,9 @@ const movieSchema = new Schema(
       },
       backdrop_url: { type: String, default: '' },
     },
-    release_date: { type: Date },
-    genres: [{ type: Schema.Types.ObjectId, ref: 'Genre' }],
-    countries: [{ type: Schema.Types.ObjectId, ref: 'Country' }],
+    release_date: { type: Date, index: true },
+    genres: [Number],
+    countries: [Number],
     director: [
       {
         person: { type: Schema.Types.ObjectId, ref: 'People' },
@@ -35,12 +34,12 @@ const movieSchema = new Schema(
     watch_count: { type: Number, default: 0 },
     description: { type: String, default: '' },
     description_original: { type: String, default: '' },
-    tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
+    tags: [Number],
     duration: { type: Number, default: 0 },
-    production_companies: [{ type: Schema.Types.ObjectId, ref: 'ProdCompany' }],
+    production_companies: [Number],
+    rating: { type: Number, default: 0, index: true },
     ratings: {
       wasted: {
-        raiting: { type: Number, default: 0 },
         beer: { type: Number, default: 0 },
         favorite: { type: Number, default: 0 },
         good: { type: Number, default: 0 },
@@ -48,15 +47,15 @@ const movieSchema = new Schema(
         poop: { type: Number, default: 0 },
       },
       tmdb: {
-        raiting: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
         vote_count: { type: Number, default: 0 },
       },
       imdb: {
-        raiting: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
         vote_count: { type: Number, default: 0 },
       },
       kinopoisk: {
-        raiting: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
         vote_count: { type: Number, default: 0 },
       },
     },
@@ -83,11 +82,40 @@ const movieSchema = new Schema(
       kinopoisk: { type: String },
     },
     user_raitings: [{ type: Schema.Types.ObjectId, ref: 'MovieRating' }],
+    type: { type: String, enum: ['movie', 'show', 'game'], default: 'movie' },
+    popularity: { type: Number, default: 0, index: true },
   },
   {
     timestamps: true,
   },
 );
+
+movieSchema.set('toObject', { virtuals: true });
+movieSchema.set('toJSON', { virtuals: true });
+
+movieSchema.virtual('countriesId', {
+  ref: 'Country',
+  localField: 'countries',
+  foreignField: 'id',
+});
+
+movieSchema.virtual('genresId', {
+  ref: 'Genre',
+  localField: 'genres',
+  foreignField: 'id',
+});
+
+movieSchema.virtual('production_companiesId', {
+  ref: 'ProdCompany',
+  localField: 'production_companies',
+  foreignField: 'id',
+});
+
+movieSchema.virtual('tagsId', {
+  ref: 'Tag',
+  localField: 'tags',
+  foreignField: 'id',
+});
 
 movieSchema.pre('save', async function (next) {
   if (this.isNew) {

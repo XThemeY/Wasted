@@ -17,9 +17,9 @@ const gameSchema = new Schema(
     description_original: { type: String, default: '' },
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
     duration: { type: Number, default: 0 },
+    rating: { type: Number, default: 0 },
     ratings: {
       wasted: {
-        raiting: { type: Number, default: 0 },
         beer: { type: Number, default: 0 },
         favorite: { type: Number, default: 0 },
         good: { type: Number, default: 0 },
@@ -27,11 +27,11 @@ const gameSchema = new Schema(
         poop: { type: Number, default: 0 },
       },
       rawg: {
-        raiting: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
         vote_count: { type: Number, default: 0 },
       },
       metacritic: {
-        raiting: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
         vote_count: { type: Number, default: 0 },
       },
     },
@@ -56,6 +56,7 @@ const gameSchema = new Schema(
     },
     comments: [{ type: Schema.Types.ObjectId, ref: 'CommentGame' }],
     user_raitings: [{ type: Schema.Types.ObjectId, ref: 'GameRating' }],
+    type: { type: String, enum: ['movie', 'show', 'game'], default: 'game' },
   },
   {
     timestamps: true,

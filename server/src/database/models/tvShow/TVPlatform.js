@@ -1,16 +1,11 @@
 import mongoose, { Schema, model } from 'mongoose';
 const db = mongoose.connection;
 
-const tvPlatformSchema = new Schema(
-  {
-    id: { type: Number, unique: true, immutable: true },
-    name: { type: String, required: true },
-    logo_url: { type: String },
-  },
-  {
-    timestamps: true,
-  },
-);
+const tvPlatformSchema = new Schema({
+  id: { type: Number, unique: true, immutable: true },
+  name: { type: String, required: true },
+  logo_url: { type: String },
+});
 
 tvPlatformSchema.pre('save', async function (next) {
   if (this.isNew) {

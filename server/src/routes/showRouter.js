@@ -1,12 +1,10 @@
-import Router from 'express'
-const router = Router()
-import { tvShowController } from '../controllers/index.js'
+import Router from 'express';
+import { tvShowController } from '../controllers/index.js';
 
-router.get('/', tvShowController.getTVShowAll)
-router.get('/:id', tvShowController.getTVShow)
-// router.get("/:id", controller.getMovie);
-// router.get("/:id", controller.getMovie);
-// router.get("/:id", controller.getMovie);
-// router.get("/:id", controller.getMovie);
+const router = Router();
+const idRegExp = ':id(\\d+)/';
 
-export default router
+router.get('/explore', tvShowController.exploreShows);
+router.get(`/${idRegExp}`, tvShowController.getShow);
+
+export default router;

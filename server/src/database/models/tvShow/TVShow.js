@@ -4,8 +4,8 @@ const db = mongoose.connection;
 const tvShowSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
-    title: { type: String, required: true },
-    title_original: { type: String, default: '' },
+    title: { type: String, required: true, index: true },
+    title_original: { type: String, default: '', index: true },
     images: {
       poster_url: {
         ru: { type: String, default: '' },
@@ -17,11 +17,11 @@ const tvShowSchema = new Schema(
       },
       backdrop_url: { type: String, default: '' },
     },
-    start_date: { type: Date, required: true },
-    end_date: { type: Date },
+    start_date: { type: Date, required: true, index: true },
+    end_date: { type: Date, index: true },
     status: { type: String, default: '' },
-    genres: [{ type: Schema.Types.ObjectId, ref: 'Genre' }],
-    countries: [{ type: Schema.Types.ObjectId, ref: 'Country' }],
+    genres: [Number],
+    countries: [Number],
     creators: [
       {
         person: { type: Schema.Types.ObjectId, ref: 'People' },
@@ -37,16 +37,16 @@ const tvShowSchema = new Schema(
     watch_count: { type: Number, default: 0 },
     description: { type: String, default: '' },
     description_original: { type: String, default: '' },
-    tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
+    tags: [Number],
     episode_duration: { type: Number, default: 0 },
-    production_companies: [{ type: Schema.Types.ObjectId, ref: 'ProdCompany' }],
+    production_companies: [Number],
     number_of_seasons: { type: Number, default: 1 },
     number_of_episodes: { type: Number, default: 1 },
-    platforms: [{ type: Schema.Types.ObjectId, ref: 'TVPlatform' }],
+    platforms: [Number],
     seasons: [{ type: Schema.Types.ObjectId, ref: 'Season' }],
+    rating: { type: Number, default: 0, index: true },
     ratings: {
       wasted: {
-        raiting: { type: Number, default: 0 },
         beer: { type: Number, default: 0 },
         favorite: { type: Number, default: 0 },
         good: { type: Number, default: 0 },
@@ -54,15 +54,15 @@ const tvShowSchema = new Schema(
         poop: { type: Number, default: 0 },
       },
       tmdb: {
-        raiting: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
         vote_count: { type: Number, default: 0 },
       },
       imdb: {
-        raiting: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
         vote_count: { type: Number, default: 0 },
       },
       kinopoisk: {
-        raiting: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
         vote_count: { type: Number, default: 0 },
       },
     },
@@ -89,11 +89,46 @@ const tvShowSchema = new Schema(
       kinopoisk: { type: String },
     },
     user_raitings: [{ type: Schema.Types.ObjectId, ref: 'MovieRating' }],
+    type: { type: String, enum: ['movie', 'show', 'game'], default: 'show' },
+    popularity: { type: Number, default: 0, index: true },
   },
   {
     timestamps: true,
   },
 );
+
+tvShowSchema.set('toObject', { virtuals: true });
+tvShowSchema.set('toJSON', { virtuals: true });
+
+tvShowSchema.virtual('countriesId', {
+  ref: 'Country',
+  localField: 'countries',
+  foreignField: 'id',
+});
+
+tvShowSchema.virtual('genresId', {
+  ref: 'Genre',
+  localField: 'genres',
+  foreignField: 'id',
+});
+
+tvShowSchema.virtual('production_companiesId', {
+  ref: 'ProdCompany',
+  localField: 'production_companies',
+  foreignField: 'id',
+});
+
+tvShowSchema.virtual('tagsId', {
+  ref: 'Tag',
+  localField: 'tags',
+  foreignField: 'id',
+});
+
+tvShowSchema.virtual('platformsId', {
+  ref: 'TVPlatform',
+  localField: 'platforms',
+  foreignField: 'id',
+});
 
 tvShowSchema.pre('save', async function (next) {
   if (this.isNew) {

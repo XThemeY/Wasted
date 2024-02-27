@@ -15,7 +15,7 @@ const seasonSchema = new Schema(
     air_date: { type: Date },
     rating: { type: Number, default: 0 },
     episodes: [{ type: Schema.Types.ObjectId, ref: 'Episode' }],
-    user_raitings: [{ type: Schema.Types.ObjectId, ref: 'SeasonRating' }],
+    user_ratings: [{ type: Schema.Types.ObjectId, ref: 'SeasonRating' }],
   },
   {
     timestamps: true,

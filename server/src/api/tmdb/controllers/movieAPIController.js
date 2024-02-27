@@ -40,20 +40,19 @@ class TmdbMovieAPI {
   async getPopularMovies(req, res, next) {
     const pages = +req.query.pages;
     const popularIDs = [];
-
     try {
       for (let page = 1; page <= pages; page++) {
         const response = await axiosMovie.get(
           '/discover/movie' +
             '?language=ru-RU&page=' +
             page +
-            '&sort_by=popularity.desc',
+            '&sort_by=popularity.desc&vote_count.gte=100',
         );
         for (const item of response.data.results) {
           popularIDs.push(item.id);
         }
       }
-
+      res.json(popularIDs);
       for (const item of popularIDs) {
         const newResponse = await axiosMovie.get(
           '/movie/' +
@@ -65,8 +64,7 @@ class TmdbMovieAPI {
         );
         await MovieService.addMovieToDb(newResponse.data, responseENG.data);
       }
-      res.json(popularIDs);
-      console.log(`Список популярноых фильмов получен`);
+      console.log(`Список популярных фильмов получен`);
     } catch (error) {
       logEvents(
         `${error?.name || error}: ${error?.message || error}`,

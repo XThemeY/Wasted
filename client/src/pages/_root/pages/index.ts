@@ -11,3 +11,4 @@ export { default as UserStats } from './user/UserStats';
 export { default as GamePage } from './media/GamePage';
 export { default as MoviePage } from './media/MoviePage';
 export { default as ShowPage } from './media/ShowPage';
+export { default as UserHome } from './user/UserHome';

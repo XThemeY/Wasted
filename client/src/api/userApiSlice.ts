@@ -5,6 +5,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
     getAllUsers: builder.query({
       query: () => ({
         url: '/users',
+        method: 'GET',
         // params: {
         //   _limit: limit,
         // },

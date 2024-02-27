@@ -1,4 +1,4 @@
-export default class UserDto {
+export class UserDto {
   constructor(model) {
     this.username = model.username;
     this._id = model._id;

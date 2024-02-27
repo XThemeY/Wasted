@@ -53,7 +53,7 @@ const LeftSidebar = () => {
         </Link>
         <ul className="flex flex-col gap-1">
           {navLinks.map((link: INavLink) => {
-            const isActive = pathname === link.route;
+            const isActive = pathname === '/' + username + link.route;
 
             return (
               <li
@@ -62,7 +62,13 @@ const LeftSidebar = () => {
               >
                 <NavLink
                   className="flex items-center gap-4 p-3"
-                  to={link.route}
+                  to={
+                    link.private
+                      ? isLogedIn
+                        ? username + link.route
+                        : '/login'
+                      : '/'
+                  }
                 >
                   <FontAwesomeIcon
                     icon={link.imgURL as IconProp}

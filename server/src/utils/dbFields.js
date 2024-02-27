@@ -30,8 +30,10 @@ export async function getCountries(countries) {
         name: country.name,
       });
     }
-
-    newCountries.push(newCountry._id);
+    newCountries.push(newCountry.id);
+  }
+  if (!countries.length) {
+    newCountries.push(0);
   }
   return newCountries;
 }
@@ -47,7 +49,7 @@ export async function getGenres(genres, genresENG) {
       });
     }
 
-    newGenres.push(genre._id);
+    newGenres.push(genre.id);
   }
   return newGenres;
 }
@@ -118,17 +120,25 @@ async function addPeople(people, id, mediaType) {
     //   'people',
     //   people.profile_path,
     // );
-    if (mediaType === 'movie') {
-      const movie = { id, role: people.character, job: people.job };
-      newPeople.movies = [...newPeople.movies, movie];
-    }
-    if (mediaType === 'show') {
-      const show = { id, role: people.character, job: people.job };
-      newPeople.shows = [...newPeople.shows, show];
-    }
-    await newPeople.save();
   }
-  return newPeople._id;
+  if (mediaType === 'movie') {
+    const movie = { id, role: people.character, job: people.job };
+    newPeople.movies = [...newPeople.movies, movie];
+  }
+  if (mediaType === 'show') {
+    const show = {
+      id,
+      role: people.character,
+      job: !people.character ? 'Creator' : people.job,
+    };
+    newPeople.shows = [...newPeople.shows, show];
+  }
+  await newPeople.save();
+  return {
+    person: newPeople._id,
+    role: people.character,
+    job: !people.character ? 'Creator' : people.job,
+  };
 }
 
 export async function getTags(tags) {
@@ -143,7 +153,7 @@ export async function getTags(tags) {
       });
     }
 
-    newTags.push(newTag._id);
+    newTags.push(newTag.id);
   }
   return newTags;
 }
@@ -169,7 +179,7 @@ export async function getProdCompanies(companies) {
       await newCompany.save();
     }
 
-    newCompanies.push(newCompany._id);
+    newCompanies.push(newCompany.id);
   }
   return newCompanies;
 }
@@ -195,7 +205,7 @@ export async function getPlatforms(platforms) {
       await newPlatform.save();
     }
 
-    newPlatforms.push(newPlatform._id);
+    newPlatforms.push(newPlatform.id);
   }
   return newPlatforms;
 }

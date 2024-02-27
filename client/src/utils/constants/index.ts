@@ -6,29 +6,35 @@ export const navLinks = [
     private: false,
   },
   {
-    imgURL: 'tv',
-    route: '/shows',
-    label: 'Shows',
+    imgURL: 'film',
+    route: '/movies',
+    label: 'My Movies',
     private: true,
   },
   {
-    imgURL: 'film',
-    route: '/movies',
-    label: 'Movies',
+    imgURL: 'tv',
+    route: '/shows',
+    label: 'My Shows',
     private: true,
   },
   {
     imgURL: 'gamepad',
     route: '/games',
-    label: 'Games',
+    label: 'My Games',
     private: true,
   },
   {
-    imgURL: 'fire',
-    route: '/popular',
-    label: 'Popular',
+    imgURL: 'chart-simple',
+    route: '/stats',
+    label: 'My Statistic',
     private: true,
   },
+  // {
+  //   imgURL: 'fire',
+  //   route: '/popular',
+  //   label: 'Popular',
+  //   private: false,
+  // },
   // {
   //   imgURL: '/assets/icons/wallpaper.svg',
   //   route: '/playlists',
@@ -72,23 +78,21 @@ export const navLinks = [
 ];
 export const topBarLinks = [
   {
-    imgURL: '',
-    route: '/movies',
-    label: 'My Movies',
-  },
-  {
-    imgURL: '',
+    imgURL: 'tv',
     route: '/shows',
-    label: 'My Shows',
+    label: 'Shows',
+    private: false,
   },
   {
-    imgURL: '',
+    imgURL: 'film',
+    route: '/movies',
+    label: 'Movies',
+    private: false,
+  },
+  {
+    imgURL: 'gamepad',
     route: '/games',
-    label: 'My Games',
-  },
-  {
-    imgURL: '',
-    route: '/stats',
-    label: 'My Statistic',
+    label: 'Games',
+    private: false,
   },
 ];

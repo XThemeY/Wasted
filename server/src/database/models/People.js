@@ -8,18 +8,18 @@ const peopleSchema = new Schema(
       unique: true,
       immutable: true,
     },
-    name: { type: String, required: true },
+    name: { type: String, required: true, index: true },
     profile_img: { type: String },
     movies: [
       {
-        movie_id: { type: Number },
+        id: { type: Number },
         role: { type: String },
         job: { type: String },
       },
     ],
     shows: [
       {
-        show_id: { type: Number },
+        id: { type: Number },
         role: { type: String },
         job: { type: String },
       },

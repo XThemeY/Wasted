@@ -7,3 +7,4 @@ export {
   useCheckLoginQuery,
 } from '../../api/authApiSlice';
 export { useGetAllUsersQuery } from '../../api/userApiSlice';
+export { useGetNewMediaQuery } from '../../api/mediaApiSlice';
