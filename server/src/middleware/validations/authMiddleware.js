@@ -25,19 +25,17 @@ export default async function (req, res, next) {
 export async function isOwner(req, res, next) {
   try {
     const { username } = req.params;
-
     const currentUserName = req.user.username;
     if (!currentUserName) {
-      return res.sendStatus(403);
+      return next(ApiError.Forbidden());
     }
 
     if (currentUserName !== username) {
-      return res.sendStatus(403);
+      return next(ApiError.Forbidden());
     }
 
     next();
   } catch (e) {
-    console.log(e);
-    return res.sendStatus(403);
+    return next(ApiError.Forbidden());
   }
 }

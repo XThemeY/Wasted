@@ -23,7 +23,7 @@ class SearchController {
       const page = req.query.page > 0 ? +req.query.page - 1 : 0;
       const limit = req.query.limit > 0 ? +req.query.limit : 20;
       const title = req.query.title || '';
-
+      const watched = 'true';
       const movies = await movieService.exploreMovies({
         page,
         limit,
@@ -33,6 +33,7 @@ class SearchController {
         end_year,
         genres,
         countries,
+        watched,
       });
 
       const shows = await showService.exploreShows({
@@ -45,6 +46,7 @@ class SearchController {
         genres,
         countries,
         tvPlatforms,
+        watched,
       });
       res.json({ shows, movies });
     } catch (e) {

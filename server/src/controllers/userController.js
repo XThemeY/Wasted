@@ -51,6 +51,50 @@ class UserController {
       res.sendStatus(500);
     }
   }
+
+  async setMovieToWasted(req, res, next) {
+    try {
+      const { movieId, status } = req.body;
+      const username = req.user.username;
+      await userService.setMovieToWasted(username, movieId, status);
+      return res.sendStatus(200);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async setShowToWasted(req, res, next) {
+    try {
+      const { showId, status } = req.body;
+      const username = req.user.username;
+      await userService.setShowToWasted(username, showId, status);
+      return res.sendStatus(200);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async setMovieToFav(req, res, next) {
+    try {
+      const { movieId } = req.body;
+      const username = req.user.username;
+      await userService.setMovieToFav(username, movieId);
+      return res.sendStatus(200);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async setShowToFav(req, res, next) {
+    try {
+      const { showId } = req.body;
+      const username = req.user.username;
+      await userService.setShowToFav(username, showId);
+      return res.sendStatus(200);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export default new UserController();

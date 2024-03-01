@@ -1,4 +1,5 @@
 import movieService from '../services/movieService.js';
+import userService from '../services/userService.js';
 import { getSortOptions } from '../config/sortOptions.js';
 import { getGenreOptions } from '../config/genreOptions.js';
 import { getСountryOptions } from '../config/countryOptions.js';
@@ -30,6 +31,11 @@ class MovieController {
       const page = req.query.page > 0 ? +req.query.page - 1 : 0;
       const limit = req.query.limit > 0 ? +req.query.limit : 20;
       const title = req.query.title || '';
+      const isWatched = req.query.watched === 'true';
+      const username = req.user.username;
+      const wastedIds = isWatched
+        ? await userService.getWastedIds(username, 'movies')
+        : [];
 
       const movies = await movieService.exploreMovies({
         page,
@@ -40,6 +46,7 @@ class MovieController {
         end_year,
         genres,
         countries,
+        wastedIds,
       });
       res.json(movies);
     } catch (e) {

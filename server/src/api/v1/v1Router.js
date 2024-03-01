@@ -14,6 +14,8 @@ router.use('/auth', authRouter);
 router.use('/movies', movieRouter);
 router.use('/shows', tvshowRouter);
 router.use('/games', gameRouter);
-router.use('/users', userRouter);
+//router.use('/users', userRouter);
 router.get('/search', searchController.search);
+router.use('/', userRouter);
+
 export default router;

@@ -1,4 +1,4 @@
-import { Movie, Genre } from '../database/models/index.js';
+import { Movie } from '../database/models/index.js';
 import ApiError from '../utils/apiError.js';
 import { MovieDto, MovieShortDto, newMediaDto } from '../dtos/index.js';
 
@@ -30,6 +30,7 @@ class MovieService {
     end_year,
     genres,
     countries,
+    wastedIds,
   }) {
     const newMovies = { items: [], page, total_pages: 0, total_items: 0 };
 
@@ -46,9 +47,12 @@ class MovieService {
         .where('genres')
         .in(genres)
         .where('countries')
+        .nin('id', wastedIds)
         .in(countries)
+        // .nin('id', watchedIds)
         .exec();
       resolve(count);
+      reject(ApiError.InternalServerError());
     });
 
     const dataQuery = new Promise(function (resolve, reject) {
@@ -66,11 +70,13 @@ class MovieService {
         .in(genres)
         .where('countries')
         .in(countries)
+        .nin('id', wastedIds)
         .sort([sort_by])
         .skip(page * limit)
         .limit(limit)
         .exec();
       resolve(data);
+      reject(ApiError.InternalServerError());
     });
 
     const results = await Promise.all([countQuery, dataQuery]);
@@ -96,7 +102,5 @@ class MovieService {
     return newMovies;
   }
 }
-
-// убрать просмотренные, по количеству просмотров.
 
 export default new MovieService();

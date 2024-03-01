@@ -12,6 +12,7 @@ class TVShowService {
     genres,
     countries,
     tvPlatforms,
+    wastedIds,
   }) {
     const newShows = { items: [], page, total_pages: 0, total_items: 0 };
 
@@ -31,9 +32,11 @@ class TVShowService {
         .in(countries)
         .where('platforms')
         .in(tvPlatforms)
+        .nin('id', wastedIds)
         .count()
         .exec();
       resolve(count);
+      reject(ApiError.InternalServerError());
     });
 
     const dataQuery = new Promise(function (resolve, reject) {
@@ -53,11 +56,13 @@ class TVShowService {
         .in(countries)
         .where('platforms')
         .in(tvPlatforms)
+        .nin('id', wastedIds)
         .sort([sort_by])
         .skip(page * limit)
         .limit(limit)
         .exec();
       resolve(data);
+      reject(ApiError.InternalServerError());
     });
 
     const results = await Promise.all([countQuery, dataQuery]);

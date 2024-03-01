@@ -24,20 +24,17 @@ const userSchema = new Schema(
     },
     roles: [{ type: Schema.Types.ObjectId, ref: 'Role', required: true }],
     favorites: {
-      movies: [{ type: Schema.Types.ObjectId, ref: 'Movie' }],
-      tvShows: [{ type: Schema.Types.ObjectId, ref: 'TVShow' }],
-      games: [{ type: Schema.Types.ObjectId, ref: 'Game' }],
+      movies: [Number],
+      tvShows: [Number],
+      games: [Number],
     },
     wastedHistory: {
       movies: [
         {
-          itemId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Movie',
-          },
+          itemId: Number,
           status: {
             type: String,
-            enum: ['Watched', 'Planning', 'Dropped', 'WatchedMultipleTimes'],
+            enum: ['watched', 'willWatch', 'dropped', 'watchedMultipleTimes'],
           },
           watchCount: { type: Number, default: 0 },
           watchedAt: { type: Date, default: Date.now },
@@ -45,13 +42,10 @@ const userSchema = new Schema(
       ],
       tvShows: [
         {
-          itemId: {
-            type: Schema.Types.ObjectId,
-            ref: 'TVShow',
-          },
+          itemId: Number,
           status: {
             type: String,
-            enum: ['Watched', 'Planning', 'Dropped', 'WatchedMultipleTimes'],
+            enum: ['watched', 'willWatch', 'dropped', 'watchedMultipleTimes'],
           },
           watchedEpisodes: [
             {
@@ -111,6 +105,21 @@ const userSchema = new Schema(
     timestamps: true,
   },
 );
+
+userSchema.set('toObject', { virtuals: true });
+userSchema.set('toJSON', { virtuals: true });
+
+userSchema.virtual('favoriteMovies', {
+  ref: 'Movie',
+  localField: 'favorites.movies',
+  foreignField: 'id',
+});
+
+userSchema.virtual('favoriteShows', {
+  ref: 'Show',
+  localField: 'favorites.tvShows',
+  foreignField: 'id',
+});
 
 userSchema.pre('save', async function (next) {
   if (this.isNew) {

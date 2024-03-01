@@ -12,7 +12,7 @@ router.post(
 );
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
-router.get('/refresh', authController.refresh);
+router.post('/refresh', authController.refresh);
 router.get('/activate/:link', authController.activate);
 
 export default router;

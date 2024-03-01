@@ -14,6 +14,7 @@ export class newMediaDto {
     this.rating = model.rating;
     this.type = model.type;
     this.genres = model.genresId;
+    this.watch_count = model.watch_count;
     this.popularity = model.popularity;
     this.countries = model.countriesId;
     this.platforms = model.platformsId;
