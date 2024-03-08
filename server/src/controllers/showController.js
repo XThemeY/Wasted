@@ -1,5 +1,6 @@
 import showService from '../services/showService.js';
-import userService from '../services/userService.js';
+import wastedHistoryService from '../services/wastedHistoryService.js';
+import ApiError from '../utils/apiError.js';
 import { getSortOptions } from '../config/sortOptions.js';
 import { getGenreOptions } from '../config/genreOptions.js';
 import { getСountryOptions } from '../config/countryOptions.js';
@@ -10,17 +11,17 @@ import {
   compareYears,
 } from '../config/yearOptions.js';
 class ShowController {
-  async getShow(req, res) {
+  async getShow(req, res, next) {
     try {
       const id = req.params.id;
 
       if (!tvShow) {
-        return res.status(400).json({
-          message: `Неправильный адрес`,
-        });
+        return next(ApiError.BadRequest(`Неправильный адрес`));
       }
       res.json(tvShow);
-    } catch (e) {}
+    } catch (e) {
+      next(e);
+    }
   }
 
   async exploreShows(req, res, next) {
@@ -38,7 +39,7 @@ class ShowController {
       const isWatched = req.query.watched === 'true';
       const username = req.user?.username;
       const wastedIds = isWatched
-        ? await userService.getWastedIds(username, 'tvShows')
+        ? await wastedHistoryService.getWastedIds(username, 'tvShows')
         : [];
       const shows = await showService.exploreShows({
         page,

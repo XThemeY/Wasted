@@ -1,6 +1,6 @@
 import { formatISO } from 'date-fns';
 
-export class newMediaDto {
+export class NewMediaDto {
   constructor(model) {
     this.id = model.id;
     this._id = model._id;

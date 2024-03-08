@@ -1,5 +1,5 @@
 import movieService from '../services/movieService.js';
-import userService from '../services/userService.js';
+import wastedHistoryService from '../services/wastedHistoryService.js';
 import { getSortOptions } from '../config/sortOptions.js';
 import { getGenreOptions } from '../config/genreOptions.js';
 import { getСountryOptions } from '../config/countryOptions.js';
@@ -8,6 +8,7 @@ import {
   getEndYear,
   compareYears,
 } from '../config/yearOptions.js';
+import ApiError from '../utils/apiError.js';
 
 class MovieController {
   async getMovie(req, res, next) {
@@ -34,7 +35,7 @@ class MovieController {
       const isWatched = req.query.watched === 'true';
       const username = req.user.username;
       const wastedIds = isWatched
-        ? await userService.getWastedIds(username, 'movies')
+        ? await wastedHistoryService.getWastedIds(username, 'movies')
         : [];
 
       const movies = await movieService.exploreMovies({
@@ -49,6 +50,21 @@ class MovieController {
         wastedIds,
       });
       res.json(movies);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async setMovieRating(req, res, next) {
+    try {
+      const { id } = req.params;
+      const rating =
+        6 > req.body.rating && req.body.rating > 0 ? +req.body.rating : null;
+      if (!rating) {
+        return next(ApiError.BadRequest('Поле "rating" должно быть от 1 до 5'));
+      }
+      await movieService.setMovieRating(id, rating);
+      res.json(rating);
     } catch (e) {
       next(e);
     }

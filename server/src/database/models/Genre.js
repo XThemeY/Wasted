@@ -1,5 +1,4 @@
 import mongoose, { Schema, model } from 'mongoose';
-const db = mongoose.connection;
 
 const genreSchema = new Schema({
   id: { type: Number, unique: true, immutable: true },
@@ -9,7 +8,7 @@ const genreSchema = new Schema({
 
 genreSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await db
+    const counter = await mongoose.connection
       .collection('counters')
       .findOneAndUpdate({ _id: 'genreid' }, { $inc: { seq: 1 } });
     this.id = counter.seq + 1;

@@ -9,7 +9,8 @@ import ApiError from '../utils/apiError.js';
 class AuthService {
   async registration(username, email, password) {
     const newUser =
-      (await User.findOne({ email })) || (await User.findOne({ username }));
+      (await User.findOne({ email }).exec()) ||
+      (await User.findOne({ username }).exec());
     if (newUser) {
       throw ApiError.BadRequest(
         `Пользователь с таким именем/email уже существует`,
@@ -38,7 +39,7 @@ class AuthService {
   async activate(activationLink) {
     const user = await User.findOne({
       'authentication.activationLink': activationLink,
-    });
+    }).exec();
     if (!user) {
       throw ApiError.BadRequest('Неккоректная ссылка активации');
     }
@@ -48,8 +49,8 @@ class AuthService {
 
   async login(login, password) {
     const user =
-      (await User.findOne({ email: login })) ||
-      (await User.findOne({ username: login }));
+      (await User.findOne({ email: login }).exec()) ||
+      (await User.findOne({ username: login }).exec());
     if (!user) {
       throw ApiError.BadRequest(
         `Пользователь с таким именем/email не существует`,
@@ -88,7 +89,7 @@ class AuthService {
       throw ApiError.UnathorizedError();
     }
 
-    const user = await User.findById(userData._id);
+    const user = await User.findById(userData._id).exec();
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto._id, tokens.refreshToken);

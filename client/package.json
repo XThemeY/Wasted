@@ -25,6 +25,7 @@
     "embla-carousel-autoplay": "^8.0.0-rc22",
     "embla-carousel-react": "^8.0.0-rc22",
     "lucide-react": "^0.309.0",
+    "moment-timezone": "^0.5.45",
     "react": "^18.2.0",
     "react-content-loader": "^6.2.1",
     "react-dom": "^18.2.0",

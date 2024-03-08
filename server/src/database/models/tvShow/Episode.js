@@ -1,5 +1,4 @@
 import mongoose, { Schema, model } from 'mongoose';
-const db = mongoose.connection;
 
 const episodeSchema = new Schema(
   {
@@ -17,6 +16,23 @@ const episodeSchema = new Schema(
     description: { type: String, default: '' },
     description_original: { type: String, default: '' },
     rating: { type: Number, default: 0 },
+    tags: [Number],
+    reactions: {
+      broken_heart: { type: Number, default: 0 },
+      clown_face: { type: Number, default: 0 },
+      dislike: { type: Number, default: 0 },
+      dizzy_face: { type: Number, default: 0 },
+      face_vomiting: { type: Number, default: 0 },
+      fire: { type: Number, default: 0 },
+      grin: { type: Number, default: 0 },
+      heart_eyes: { type: Number, default: 0 },
+      heart: { type: Number, default: 0 },
+      joy: { type: Number, default: 0 },
+      like: { type: Number, default: 0 },
+      muscle: { type: Number, default: 0 },
+      neutral_face: { type: Number, default: 0 },
+      rude_face: { type: Number, default: 0 },
+    },
     comments: [{ type: Schema.Types.ObjectId, ref: 'CommentTV' }],
     user_ratings: [{ type: Schema.Types.ObjectId, ref: 'EpisodeRating' }],
   },
@@ -25,9 +41,15 @@ const episodeSchema = new Schema(
   },
 );
 
+episodeSchema.virtual('tagsId', {
+  ref: 'Tag',
+  localField: 'tags',
+  foreignField: 'id',
+});
+
 episodeSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await db
+    const counter = await mongoose.connection
       .collection('counters')
       .findOneAndUpdate({ _id: 'episodeid' }, { $inc: { seq: 1 } });
     this.id = counter.seq + 1;

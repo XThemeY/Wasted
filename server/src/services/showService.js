@@ -1,6 +1,8 @@
 import { TVShow } from '../database/models/index.js';
-import { newMediaDto } from '../dtos/index.js';
+import { NewMediaDto } from '../dtos/index.js';
 import ApiError from '../utils/apiError.js';
+import userService from './userService.js';
+import { WastedHistory } from '../database/models/index.js';
 class TVShowService {
   async exploreShows({
     page,
@@ -79,13 +81,33 @@ class TVShowService {
     }
 
     newShows.items = total_shows.map((show) => {
-      return new newMediaDto(show);
+      return new NewMediaDto(show);
     });
     newShows.page = page + 1;
     newShows.total_pages = total_pages;
     newShows.total_items = total_items;
 
     return newShows;
+  }
+
+  async setWatchCount(id) {
+    const show = await TVShow.findOne(
+      {
+        id,
+      },
+      'watch_count',
+    ).exec();
+
+    if (!show) {
+      throw ApiError.BadRequest(`Шоу с таким id:${id} не существует`);
+    }
+    show.watch_count = await WastedHistory.find({
+      'tvShows.showId': id,
+      'tvShows.status': { $in: ['watched', 'watching'] },
+    })
+      .count()
+      .exec();
+    show.save();
   }
 }
 export default new TVShowService();

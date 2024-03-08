@@ -1,5 +1,5 @@
 import mongoose, { Schema, model } from 'mongoose';
-const db = mongoose.connection;
+
 const movieSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
@@ -119,7 +119,7 @@ movieSchema.virtual('tagsId', {
 
 movieSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await db
+    const counter = await mongoose.connection
       .collection('counters')
       .findOneAndUpdate({ _id: 'movieid' }, { $inc: { seq: 1 } });
     this.id = counter.seq + 1;

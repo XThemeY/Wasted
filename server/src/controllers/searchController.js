@@ -24,6 +24,7 @@ class SearchController {
       const limit = req.query.limit > 0 ? +req.query.limit : 20;
       const title = req.query.title || '';
       const watched = 'true';
+
       const movies = await movieService.exploreMovies({
         page,
         limit,

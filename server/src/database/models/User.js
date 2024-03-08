@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from 'mongoose';
-const db = mongoose.connection;
+import moment from 'moment-timezone';
 
+const timezones = moment.tz.names();
 const userSchema = new Schema(
   {
     id: {
@@ -15,62 +16,9 @@ const userSchema = new Schema(
       activationLink: { type: String },
       isActivated: { type: Boolean, default: false },
     },
-    birthdate: { type: Date },
-    avatarUrl: { type: String },
-    gender: {
-      type: String,
-      enum: ['male', 'female', 'unknown'],
-      default: 'unknown',
-    },
     roles: [{ type: Schema.Types.ObjectId, ref: 'Role', required: true }],
-    favorites: {
-      movies: [Number],
-      tvShows: [Number],
-      games: [Number],
-    },
-    wastedHistory: {
-      movies: [
-        {
-          itemId: Number,
-          status: {
-            type: String,
-            enum: ['watched', 'willWatch', 'dropped', 'watchedMultipleTimes'],
-          },
-          watchCount: { type: Number, default: 0 },
-          watchedAt: { type: Date, default: Date.now },
-        },
-      ],
-      tvShows: [
-        {
-          itemId: Number,
-          status: {
-            type: String,
-            enum: ['watched', 'willWatch', 'dropped', 'watchedMultipleTimes'],
-          },
-          watchedEpisodes: [
-            {
-              episodeId: { type: Schema.Types.ObjectId, ref: 'Episode' },
-              watchedAt: { type: Date, default: Date.now },
-              watchCount: { type: Number, default: 0 },
-            },
-          ],
-        },
-      ],
-      games: [
-        {
-          itemId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Game',
-          },
-          status: {
-            type: String,
-            enum: ['Played', 'Planning', 'Dropped', 'PlayedMultipleTimes'],
-          },
-          playedCount: { type: Number, default: 0 },
-          playedAt: { type: Date, default: Date.now },
-        },
-      ],
-    },
+    favorites: { type: Schema.Types.ObjectId, ref: 'Favorites' },
+    wastedHistory: { type: Schema.Types.ObjectId, ref: 'WastedHistory' },
     socialProfiles: {
       facebook: { type: String },
       twitter: { type: String },
@@ -85,10 +33,25 @@ const userSchema = new Schema(
       nintendo: { type: String },
     },
     settings: {
+      birthdate: { type: Date },
+      avatarUrl: { type: String },
+      gender: {
+        type: String,
+        enum: ['male', 'female', 'unknown'],
+        default: 'unknown',
+      },
       theme: { type: String, enum: ['light', 'dark'], default: 'dark' },
       country: { type: String },
-      language: { type: String, default: 'Russian' },
-      timeZone: { type: String, default: 'UTC' },
+      language: {
+        type: String,
+        enum: ['Russian', 'English'],
+        default: 'Russian',
+      },
+      timeZone: {
+        type: String,
+        enum: timezones,
+        default: 'UTC',
+      },
       privacy: {
         showProfileTo: {
           type: String,
@@ -116,14 +79,32 @@ userSchema.virtual('favoriteMovies', {
 });
 
 userSchema.virtual('favoriteShows', {
-  ref: 'Show',
+  ref: 'TVShow',
   localField: 'favorites.tvShows',
+  foreignField: 'id',
+});
+
+userSchema.virtual('wastedhistory.movies', {
+  ref: 'Movie',
+  localField: 'wastedHistory.movies.itemId',
+  foreignField: 'id',
+});
+
+userSchema.virtual('wastedhistory.tvShows', {
+  ref: 'TVShow',
+  localField: 'wastedHistory.tvShows.showId',
+  foreignField: 'id',
+});
+
+userSchema.virtual('wastedhistory.tvShows.watchedEpisodes', {
+  ref: 'Episode',
+  localField: 'wastedHistory.tvShows.watchedEpisodes.episodeId',
   foreignField: 'id',
 });
 
 userSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await db
+    const counter = await mongoose.connection
       .collection('counters')
       .findOneAndUpdate({ _id: 'userid' }, { $inc: { seq: 1 } });
     this.id = counter.seq + 1;

@@ -1,6 +1,7 @@
 import { Movie } from '../database/models/index.js';
 import ApiError from '../utils/apiError.js';
-import { MovieDto, MovieShortDto, newMediaDto } from '../dtos/index.js';
+import { MovieDto, MovieShortDto, NewMediaDto } from '../dtos/index.js';
+import userService from './userService.js';
 
 class MovieService {
   async getMovie(id) {
@@ -47,9 +48,8 @@ class MovieService {
         .where('genres')
         .in(genres)
         .where('countries')
-        .nin('id', wastedIds)
         .in(countries)
-        // .nin('id', watchedIds)
+        .nin('id', wastedIds)
         .exec();
       resolve(count);
       reject(ApiError.InternalServerError());
@@ -93,7 +93,7 @@ class MovieService {
     }
 
     newMovies.items = total_movies.map((movie) => {
-      return new newMediaDto(movie);
+      return new NewMediaDto(movie);
     });
     newMovies.page = page + 1;
     newMovies.total_pages = total_pages;
@@ -101,6 +101,47 @@ class MovieService {
 
     return newMovies;
   }
+
+  async setWatchCount(id) {
+    const movie = await Movie.findOne(
+      {
+        id,
+      },
+      'watch_count',
+    ).exec();
+
+    if (!movie) {
+      throw ApiError.BadRequest(`Фильма с таким id:${id} не существует`);
+    }
+    movie.watch_count = (
+      await userService.getAllUsers({
+        'wastedHistory.movies.movieId': id,
+        'wastedHistory.movies.status': 'watched',
+      })
+    ).total_users;
+    movie.save();
+  }
+
+  // async setMovieRating(itemId, rating) {
+  //   const movie = await Movie.findOne({
+  //     itemId,
+  //   }).exec();
+
+  //   if (!movie) {
+  //     throw ApiError.BadRequest(`Фильма с таким id:${itemId} не существует`);
+  //   }
+  //   movie.watch_count = await userService
+  //     .getAllUsers(
+  //       { itemId },
+  //       {
+  //         'wastedHistory.movies.movieId': movieId,
+  //         'wastedHistory.movies.status': status,
+  //       },
+  //     )
+  //     .count()
+  //     .exec();
+  //   movie.save();
+  // }
 }
 
 export default new MovieService();

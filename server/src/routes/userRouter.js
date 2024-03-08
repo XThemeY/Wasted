@@ -2,32 +2,22 @@ import Router from 'express';
 const router = Router();
 import { userController } from '../controllers/index.js';
 import { authMiddleware, isOwner } from '../middleware/index.js';
+const idRegExp = ':id(\\d+)';
 
-router.get('/:username', authMiddleware, userController.getUser);
-router.patch('/:username', authMiddleware, isOwner, userController.updateUser);
-router.put(
-  `/:username/movies`,
+router.get('/users/', userController.getAllUsers);
+router.get('/:username', userController.getUser);
+//UserSettings
+router.get(
+  `/:username/settings`,
   authMiddleware,
   isOwner,
-  userController.setMovieToWasted,
+  userController.getUserSettings,
 );
-router.put(
-  `/:username/shows`,
+router.patch(
+  `/:username/settings`,
   authMiddleware,
   isOwner,
-  userController.setShowToWasted,
-);
-router.put(
-  `/:username/favorites/movies`,
-  authMiddleware,
-  isOwner,
-  userController.setMovieToFav,
-);
-router.put(
-  `/:username/favorites/shows`,
-  authMiddleware,
-  isOwner,
-  userController.setShowToFav,
+  userController.setUserSettings,
 );
 
 export default router;

@@ -1,26 +1,17 @@
-import { User } from '../database/models/index.js';
 import userService from '../services/userService.js';
-
-const excludeFields = '-_id -__v -password -email';
-
+import ApiError from '../utils/apiError.js';
 class UserController {
   async getUser(req, res, next) {
     try {
       const username = req.params.username;
-      const user = await User.getUserByUsername(username)
-        .populate('roles', excludeFields)
-        .populate('favorites.movies', excludeFields)
-        .exec();
+      const user = await userService.getUser(username);
 
       if (!user) {
-        return res.status(400).json({
-          message: `Пользователя не существует`,
-        });
+        return next(ApiError.BadRequest('Пользователя не существует'));
       }
-      res.status(200).json(user).end();
+      res.json(user);
     } catch (e) {
-      console.log('getUser:', e);
-      res.sendStatus(500);
+      next(e);
     }
   }
 
@@ -33,64 +24,26 @@ class UserController {
     }
   }
 
-  async updateUser(req, res, next) {
+  async getUserSettings(req, res, next) {
     try {
       const nickname = req.params.username;
-      const { gender } = req.body;
-      if (!gender) {
-        return res.sendStatus(400);
+      const options = await userService.getUserSettings(nickname);
+      return res.json(options);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async setUserSettings(req, res, next) {
+    try {
+      const username = req.params.username;
+      const body = req.body;
+
+      if (!body) {
+        return next(ApiError.BadRequest('Ошибка запроса'));
       }
-      const user = await User.getUserByUsername(nickname);
-
-      user.gender = gender;
-      await user?.save();
-
-      res.status(200).json(user).end();
-    } catch (e) {
-      console.log('getUserAll:', e);
-      res.sendStatus(500);
-    }
-  }
-
-  async setMovieToWasted(req, res, next) {
-    try {
-      const { movieId, status } = req.body;
-      const username = req.user.username;
-      await userService.setMovieToWasted(username, movieId, status);
-      return res.sendStatus(200);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async setShowToWasted(req, res, next) {
-    try {
-      const { showId, status } = req.body;
-      const username = req.user.username;
-      await userService.setShowToWasted(username, showId, status);
-      return res.sendStatus(200);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async setMovieToFav(req, res, next) {
-    try {
-      const { movieId } = req.body;
-      const username = req.user.username;
-      await userService.setMovieToFav(username, movieId);
-      return res.sendStatus(200);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async setShowToFav(req, res, next) {
-    try {
-      const { showId } = req.body;
-      const username = req.user.username;
-      await userService.setShowToFav(username, showId);
-      return res.sendStatus(200);
+      const settings = await userService.setUserSettings(username, body);
+      return res.json(settings);
     } catch (e) {
       next(e);
     }

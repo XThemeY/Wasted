@@ -22,3 +22,5 @@ export { default as Genre } from './Genre.js';
 export { default as Country } from './Country.js';
 export { default as Tag } from './Tag.js';
 export { default as ProdCompany } from './ProdCompany.js';
+export { default as Favorites } from './Favorites.js';
+export { default as WastedHistory } from './WastedHistory.js';

@@ -1,5 +1,4 @@
 import mongoose, { Schema, model } from 'mongoose';
-const db = mongoose.connection;
 
 const tvShowSchema = new Schema(
   {
@@ -19,7 +18,11 @@ const tvShowSchema = new Schema(
     },
     start_date: { type: Date, required: true, index: true },
     end_date: { type: Date, index: true },
-    status: { type: String, default: '' },
+    status: {
+      type: String,
+      // enum: ['onair', 'ended', 'pause', 'new', 'soon_release'],
+      default: '',
+    },
     genres: [Number],
     countries: [Number],
     creators: [
@@ -35,13 +38,15 @@ const tvShowSchema = new Schema(
       },
     ],
     watch_count: { type: Number, default: 0 },
+    total_episodes_time: { type: Number, default: 0 },
+    episode_duration: { type: Number, default: 0 },
+    episodes_count: { type: Number, default: 0 },
     description: { type: String, default: '' },
     description_original: { type: String, default: '' },
     tags: [Number],
-    episode_duration: { type: Number, default: 0 },
     production_companies: [Number],
-    number_of_seasons: { type: Number, default: 1 },
-    number_of_episodes: { type: Number, default: 1 },
+    number_of_seasons: { type: Number, default: 0 },
+    number_of_episodes: { type: Number, default: 0 },
     platforms: [Number],
     seasons: [{ type: Schema.Types.ObjectId, ref: 'Season' }],
     rating: { type: Number, default: 0, index: true },
@@ -132,7 +137,7 @@ tvShowSchema.virtual('platformsId', {
 
 tvShowSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await db
+    const counter = await mongoose.connection
       .collection('counters')
       .findOneAndUpdate({ _id: 'tvshowid' }, { $inc: { seq: 1 } });
     this.id = counter.seq + 1;

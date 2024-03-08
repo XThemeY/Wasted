@@ -1,5 +1,4 @@
 import mongoose, { Schema, model } from 'mongoose';
-const db = mongoose.connection;
 
 const seasonSchema = new Schema(
   {
@@ -24,7 +23,7 @@ const seasonSchema = new Schema(
 
 seasonSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await db
+    const counter = await mongoose.connection
       .collection('counters')
       .findOneAndUpdate({ _id: 'seasonid' }, { $inc: { seq: 1 } });
     this.id = counter.seq + 1;
