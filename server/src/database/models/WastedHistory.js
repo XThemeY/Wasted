@@ -10,7 +10,7 @@ const wastedHistory = new Schema(
     },
     movies: [
       {
-        movieId: Number,
+        itemId: Number,
         status: {
           type: String,
           enum: ['watched', 'willWatch', 'dropped', 'notWatched'],
@@ -22,7 +22,7 @@ const wastedHistory = new Schema(
     ],
     tvShows: [
       {
-        showId: Number,
+        itemId: Number,
         status: {
           type: String,
           enum: ['willWatch', 'watching', 'dropped', 'notWatched'],
@@ -30,7 +30,7 @@ const wastedHistory = new Schema(
         },
         watchedEpisodes: [
           {
-            episodeId: Number,
+            itemId: Number,
             watchedAt: { type: Date, default: Date.now },
             watchCount: { type: Number, default: 1 },
           },
@@ -39,7 +39,7 @@ const wastedHistory = new Schema(
     ],
     games: [
       {
-        gameId: {
+        itemId: {
           type: Schema.Types.ObjectId,
           ref: 'Game',
         },

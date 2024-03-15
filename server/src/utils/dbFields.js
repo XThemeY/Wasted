@@ -1,3 +1,5 @@
+import axios from 'axios';
+import translate from 'translate';
 import {
   People,
   Genre,
@@ -7,11 +9,9 @@ import {
   TVPlatform,
   Season,
   Episode,
-} from '../database/models/index.js';
-import translate from 'translate';
+} from '#db/models/index.js';
+import { logEvents } from '#apiV1/middleware/index.js';
 import { createImgUrl, getImgPath } from './images.js';
-import logEvents from '../middleware/logEvents.js';
-import axios from 'axios';
 
 const axiosFields = axios.create({
   baseURL: process.env.TMDB_API_URL,

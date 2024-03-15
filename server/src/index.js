@@ -4,11 +4,11 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import { logger, errorHandler } from './middleware/index.js';
-import { corsOptions } from './config/corsOptions.js';
-import v1Router from './api/v1/v1Router.js';
-import tmdbRouter from './api/tmdb/routes/tmdbRouter.js';
-import igdbRouter from './api/igdb/routes/igdbRouter.js';
+import { logger, errorHandler } from '#apiV1/middleware/index.js';
+import { corsOptions } from '#apiV1/config/index.js';
+import v1Router from '#apiV1/v1Router.js';
+import tmdbRouter from '#api/tmdb/routes/tmdbRouter.js';
+import igdbRouter from '#api/igdb/routes/igdbRouter.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -16,6 +16,9 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+if (process.env.NODE_ENV === 'development') {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+}
 
 app.use(logger);
 

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
-import MovieService from '../services/movieService.js';
-import logEvents from '../../../middleware/logEvents.js';
+import MovieService from '#api/tmdb/services/movieService.js';
+import { logEvents } from '#apiV1/middleware/index.js';
 
 const axiosMovie = axios.create({
   baseURL: process.env.TMDB_API_URL,

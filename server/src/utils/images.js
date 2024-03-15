@@ -1,11 +1,11 @@
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
-import fsPromises from 'fs/promises';
-import { nanoid } from 'nanoid';
-import axios from 'axios';
-import logEvents from '../middleware/logEvents.js';
 import sharp from 'sharp';
+import axios from 'axios';
+import { nanoid } from 'nanoid';
+import fsPromises from 'fs/promises';
+import { logEvents } from '#apiV1/middleware/index.js';
 
 export async function createImgUrl(id, type, filename) {
   if (!filename) {

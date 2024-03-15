@@ -1,7 +1,7 @@
 import Router from 'express';
-import { tmdbMovieAPI, tmdbShowAPI } from '../controllers/index.js';
-const router = Router();
+import { tmdbMovieAPI, tmdbShowAPI } from '#api/tmdb/controllers/index.js';
 
+const router = Router();
 const idRegExp = ':id(\\d+)';
 
 router.get(`/movie/${idRegExp}`, tmdbMovieAPI.getMovie);

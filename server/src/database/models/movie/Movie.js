@@ -45,6 +45,7 @@ const movieSchema = new Schema(
         good: { type: Number, default: 0 },
         pokerface: { type: Number, default: 0 },
         poop: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
       },
       tmdb: {
         rating: { type: Number, default: 0 },
@@ -60,28 +61,53 @@ const movieSchema = new Schema(
       },
     },
     reactions: {
-      broken_heart: { type: Number, default: 0 },
-      clown_face: { type: Number, default: 0 },
-      dislike: { type: Number, default: 0 },
-      dizzy_face: { type: Number, default: 0 },
-      face_vomiting: { type: Number, default: 0 },
-      fire: { type: Number, default: 0 },
-      grin: { type: Number, default: 0 },
-      heart_eyes: { type: Number, default: 0 },
-      heart: { type: Number, default: 0 },
-      joy: { type: Number, default: 0 },
-      like: { type: Number, default: 0 },
-      muscle: { type: Number, default: 0 },
-      neutral_face: { type: Number, default: 0 },
-      rude_face: { type: Number, default: 0 },
+      shocked: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      thrilled: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      scared: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      sad: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      touched: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      bored: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      confused: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      amused: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      tense: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
+      reflective: {
+        value: { type: Number, default: 0 },
+        vote_count: { type: Number, default: 0 },
+      },
     },
-    comments: [{ type: Schema.Types.ObjectId, ref: 'CommentMovie' }],
+    comments: [{ type: Schema.Types.ObjectId, ref: 'CommentsMovie' }],
     external_ids: {
       tmdb: { type: String },
       imdb: { type: String },
       kinopoisk: { type: String },
     },
-    user_raitings: [{ type: Schema.Types.ObjectId, ref: 'MovieRating' }],
     type: { type: String, enum: ['movie', 'show', 'game'], default: 'movie' },
     popularity: { type: Number, default: 0, index: true },
   },
@@ -121,7 +147,11 @@ movieSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await mongoose.connection
       .collection('counters')
-      .findOneAndUpdate({ _id: 'movieid' }, { $inc: { seq: 1 } });
+      .findOneAndUpdate(
+        { _id: 'movieid' },
+        { $inc: { seq: 1 } },
+        { upsert: true },
+      );
     this.id = counter.seq + 1;
   }
   next();

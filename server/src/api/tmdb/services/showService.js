@@ -1,5 +1,5 @@
-import { TVShow } from '../../../database/models/index.js';
-import logEvents from '../../../middleware/logEvents.js';
+import { TVShow } from '#db/models/index.js';
+import { logEvents } from '#apiV1/middleware/index.js';
 import {
   getMediaImages,
   getGenres,
@@ -9,7 +9,7 @@ import {
   getProdCompanies,
   getPlatforms,
   getSeasons,
-} from '../../../utils/dbFields.js';
+} from '#utils/dbFields.js';
 
 class TVShowService {
   async addShowToDb(model, modelENG) {

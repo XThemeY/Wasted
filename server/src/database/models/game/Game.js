@@ -66,7 +66,11 @@ gameSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await mongoose.connection
       .collection('counters')
-      .findOneAndUpdate({ _id: 'gameid' }, { $inc: { seq: 1 } });
+      .findOneAndUpdate(
+        { _id: 'gameid' },
+        { $inc: { seq: 1 } },
+        { upsert: true },
+      );
     this.id = counter.seq + 1;
   }
   next();

@@ -1,5 +1,11 @@
 import mongoose, { Schema, model } from 'mongoose';
 import moment from 'moment-timezone';
+import {
+  WastedHistory,
+  Favorites,
+  UserRating,
+  UserReactions,
+} from '#db/models/index.js';
 
 const timezones = moment.tz.names();
 const userSchema = new Schema(
@@ -16,9 +22,18 @@ const userSchema = new Schema(
       activationLink: { type: String },
       isActivated: { type: Boolean, default: false },
     },
-    roles: [{ type: Schema.Types.ObjectId, ref: 'Role', required: true }],
-    favorites: { type: Schema.Types.ObjectId, ref: 'Favorites' },
-    wastedHistory: { type: Schema.Types.ObjectId, ref: 'WastedHistory' },
+    favorites: { type: Schema.Types.ObjectId, ref: 'Favorites', unique: true },
+    ratings: { type: Schema.Types.ObjectId, ref: 'UserRating', unique: true },
+    reactions: {
+      type: Schema.Types.ObjectId,
+      ref: 'UserReactions',
+      unique: true,
+    },
+    wastedHistory: {
+      type: Schema.Types.ObjectId,
+      ref: 'WastedHistory',
+      unique: true,
+    },
     socialProfiles: {
       facebook: { type: String },
       twitter: { type: String },
@@ -35,6 +50,13 @@ const userSchema = new Schema(
     settings: {
       birthdate: { type: Date },
       avatarUrl: { type: String },
+      userRoles: [
+        {
+          type: String,
+          required: true,
+          default: 'User',
+        },
+      ],
       gender: {
         type: String,
         enum: ['male', 'female', 'unknown'],
@@ -106,8 +128,20 @@ userSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await mongoose.connection
       .collection('counters')
-      .findOneAndUpdate({ _id: 'userid' }, { $inc: { seq: 1 } });
+      .findOneAndUpdate(
+        { _id: 'userid' },
+        { $inc: { seq: 1 } },
+        { upsert: true },
+      );
     this.id = counter.seq + 1;
+    this.wastedHistory = (
+      await WastedHistory.create({ username: this.username })
+    )._id;
+    this.favorites = (await Favorites.create({ username: this.username }))._id;
+    this.ratings = (await UserRating.create({ username: this.username }))._id;
+    this.reactions = (
+      await UserReactions.create({ username: this.username })
+    )._id;
   }
   next();
 });

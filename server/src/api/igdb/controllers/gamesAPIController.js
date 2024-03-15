@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import axios from 'axios';
-import logEvents from '../../../middleware/logEvents.js';
+import { logEvents } from '#apiV1/middleware/index.js';
 
 const axiosGame = axios.create({
   baseURL: process.env.IGDB_API_URL,

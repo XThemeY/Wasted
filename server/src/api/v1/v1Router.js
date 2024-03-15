@@ -1,4 +1,4 @@
-import Router from 'express';
+import { Router } from 'express';
 import {
   authRouter,
   userRouter,
@@ -7,15 +7,17 @@ import {
   gameRouter,
   wastedHistoryRouter,
   favoriteRouter,
-} from '../../routes/index.js';
-import { searchController } from '../../controllers/index.js';
-import { authMiddleware, isOwner } from '../../middleware/index.js';
+  episodeRouter,
+} from '#apiV1/routes/index.js';
+import { searchController } from '#apiV1/controllers/index.js';
+import { authMiddleware, isOwner } from '#apiV1/middleware/index.js';
 
 const router = Router();
 
 router.use('/auth', authRouter);
 router.use('/movies', movieRouter);
 router.use('/shows', tvshowRouter);
+router.use('/shows/:id/episodes', episodeRouter);
 router.use('/games', gameRouter);
 router.get('/search', searchController.search);
 router.use('/', userRouter);

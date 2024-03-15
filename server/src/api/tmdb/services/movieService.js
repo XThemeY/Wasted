@@ -1,4 +1,4 @@
-import { Movie } from '../../../database/models/index.js';
+import { Movie } from '#db/models/index.js';
 import {
   getMediaImages,
   getGenres,
@@ -6,8 +6,8 @@ import {
   getPeoples,
   getTags,
   getProdCompanies,
-} from '../../../utils/dbFields.js';
-import logEvents from '../../../middleware/logEvents.js';
+} from '#utils/dbFields.js';
+import { logEvents } from '#apiV1/middleware/index.js';
 
 class MovieService {
   async addMovieToDb(model, modelENG) {

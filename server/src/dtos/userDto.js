@@ -3,8 +3,6 @@ export class UserDto {
     this.username = model.username;
     this._id = model._id;
     this.id = model.id;
-    this.email = model.email;
-    this.isActivated = model.authentication.isActivated;
-    this.avatarUrl = model.avatarUrl;
+    this.userRoles = model.settings.userRoles;
   }
 }

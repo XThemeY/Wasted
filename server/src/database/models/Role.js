@@ -5,9 +5,7 @@ const roleSchema = new Schema({
     type: String,
     unique: true,
     required: true,
-    enum: ['User', 'Premium', 'Moderator', 'Admin'],
   },
-  category: { type: String },
   permissions: [{ type: String }],
 });
 

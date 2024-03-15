@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
-import ShowService from '../services/showService.js';
-import logEvents from '../../../middleware/logEvents.js';
+import ShowService from '#api/tmdb/services/showService.js';
+import { logEvents } from '#apiV1/middleware/index.js';
 
 const axiosShow = axios.create({
   baseURL: process.env.TMDB_API_URL,
