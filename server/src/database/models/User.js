@@ -131,9 +131,9 @@ userSchema.pre('save', async function (next) {
       .findOneAndUpdate(
         { _id: 'userid' },
         { $inc: { seq: 1 } },
-        { upsert: true },
-      );
-    this.id = counter.seq + 1;
+        { returnDocument: 'after', upsert: true },
+      ).seq;
+    this.id = counter.seq;
     this.wastedHistory = (
       await WastedHistory.create({ username: this.username })
     )._id;

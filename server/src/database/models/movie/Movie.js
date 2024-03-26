@@ -150,9 +150,9 @@ movieSchema.pre('save', async function (next) {
       .findOneAndUpdate(
         { _id: 'movieid' },
         { $inc: { seq: 1 } },
-        { upsert: true },
+        { returnDocument: 'after', upsert: true },
       );
-    this.id = counter.seq + 1;
+    this.id = counter.seq;
   }
   next();
 });

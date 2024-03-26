@@ -16,9 +16,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-if (process.env.NODE_ENV === 'development') {
-  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
-}
 
 app.use(logger);
 
