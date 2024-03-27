@@ -1,0 +1,37 @@
+@use "../../../scss/abstracts" as *;
+
+.controls {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.switcher {
+  display: flex;
+  gap: 5px;
+}
+.swithcher__btn {
+  width: 30px;
+  border: none;
+  background: none;
+  padding: 5px;
+  &:hover {
+    background: lightgray;
+    border-radius: 10px;
+  }
+
+  &.active {
+    background: lightgray;
+    border-radius: 10px;
+  }
+}
+
+.list_view {
+  display: none;
+  width: 100%;
+
+  &.active {
+    display: block;
+  }
+}
