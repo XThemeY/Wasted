@@ -7,3 +7,4 @@ export { default as searchController } from './searchController.js';
 export { default as favoriteController } from './favoriteController.js';
 export { default as wastedHistoryController } from './wastedHistoryController.js';
 export { default as episodeController } from './episodeController.js';
+export { default as commentController } from './commentController.js';

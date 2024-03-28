@@ -8,3 +8,4 @@ export { usernameExceptions } from './usenameExceptions.js';
 export { getStartYear, getEndYear, compareYears } from './yearOptions.js';
 export { ROLES } from './rolesOptions.js';
 export { getMediaReactions } from './mediaReactions.js';
+export { serverSettings } from './serverConfig.js';

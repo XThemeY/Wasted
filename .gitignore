@@ -10,7 +10,7 @@
 
 # production
 /build
-server/public/media
+server/public/
 /archive
 
 # misc

@@ -3,7 +3,6 @@ import { userController } from '#apiV1/controllers/index.js';
 import { authMiddleware, isOwner } from '#apiV1/middleware/index.js';
 
 const router = Router();
-const idRegExp = ':id(\\d+)';
 
 router.get('/users/', userController.getAllUsers);
 router.get('/:username', userController.getUser);

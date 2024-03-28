@@ -313,10 +313,11 @@ class MovieService {
   async setTotalReactions(id) {
     const movie = await Movie.findOne({ id }, 'reactions');
     let total_votes = 0;
-    Object.keys(movie.reactions).forEach((key) => {
+    const reactions = Object.keys(movie.reactions);
+    reactions.forEach((key) => {
       total_votes = total_votes + movie.reactions[key].vote_count;
     });
-    Object.keys(movie.reactions).forEach((key) => {
+    reactions.forEach((key) => {
       movie.reactions[key].value = (
         (100 * movie.reactions[key].vote_count) /
         total_votes

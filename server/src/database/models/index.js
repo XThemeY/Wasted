@@ -17,6 +17,7 @@ export { default as ProdCompany } from './ProdCompany.js';
 export { default as Favorites } from './Favorites.js';
 export { default as WastedHistory } from './WastedHistory.js';
 export { default as Comment } from './comments/Comment.js';
+export { default as UserCommentReactions } from './UserCommentReactions.js';
 export {
   CommentsMovie,
   CommentsShow,

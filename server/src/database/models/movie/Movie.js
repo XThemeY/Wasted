@@ -1,4 +1,5 @@
 import mongoose, { Schema, model } from 'mongoose';
+import { CommentsMovie } from '#db/models/index.js';
 
 const movieSchema = new Schema(
   {
@@ -153,6 +154,7 @@ movieSchema.pre('save', async function (next) {
         { returnDocument: 'after', upsert: true },
       );
     this.id = counter.seq;
+    this.comments = (await CommentsMovie.create({ media_id: this.id }))._id;
   }
   next();
 });

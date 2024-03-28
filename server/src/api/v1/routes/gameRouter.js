@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { gameController } from '#apiV1/controllers/index.js';
 
 const router = Router();
+
 // controller.addMovie(1);
 
 router.get('/', gameController.getGameAll);

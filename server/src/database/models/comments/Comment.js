@@ -4,8 +4,8 @@ const commentSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
     username: { type: String, required: true },
-    parents_comment_id: Number,
-    text: { type: String, required: true },
+    parent_comments_id: { type: Number, default: null },
+    comment_body: { type: String, required: true },
     images_url: [{ type: String }],
     reactions: {
       broken_heart: {
@@ -66,6 +66,7 @@ const commentSchema = new Schema(
       },
     },
     isDeleted: { type: Boolean, default: false },
+    isHidden: { type: Boolean, default: false },
   },
   {
     timestamps: true,

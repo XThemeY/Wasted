@@ -5,6 +5,7 @@ import {
   Favorites,
   UserRating,
   UserReactions,
+  UserCommentReactions,
 } from '#db/models/index.js';
 
 const timezones = moment.tz.names();
@@ -32,6 +33,11 @@ const userSchema = new Schema(
     wastedHistory: {
       type: Schema.Types.ObjectId,
       ref: 'WastedHistory',
+      unique: true,
+    },
+    commentReactions: {
+      type: Schema.Types.ObjectId,
+      ref: 'CommentReactions',
       unique: true,
     },
     socialProfiles: {
@@ -132,7 +138,7 @@ userSchema.pre('save', async function (next) {
         { _id: 'userid' },
         { $inc: { seq: 1 } },
         { returnDocument: 'after', upsert: true },
-      ).seq;
+      );
     this.id = counter.seq;
     this.wastedHistory = (
       await WastedHistory.create({ username: this.username })
@@ -141,6 +147,9 @@ userSchema.pre('save', async function (next) {
     this.ratings = (await UserRating.create({ username: this.username }))._id;
     this.reactions = (
       await UserReactions.create({ username: this.username })
+    )._id;
+    this.commentReactions = (
+      await UserCommentReactions.create({ username: this.username })
     )._id;
   }
   next();
