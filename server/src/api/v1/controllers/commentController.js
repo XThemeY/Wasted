@@ -16,8 +16,13 @@ class CommentController {
       const body = req.body;
       const files = req.files;
       const { username } = req.user;
-
-      const response = await commentService.addComment(body, files, username);
+      const fieldsIsValid = req.fieldsIsValid || false;
+      const response = await commentService.addComment(
+        body,
+        files,
+        username,
+        fieldsIsValid,
+      );
       return res.json(response);
     } catch (e) {
       next(e);

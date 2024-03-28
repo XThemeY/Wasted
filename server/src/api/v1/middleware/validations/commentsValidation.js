@@ -1,11 +1,9 @@
+import ApiError from '#utils/apiError.js';
+import mongoose from 'mongoose';
 import multer from 'multer';
 import { nanoid } from 'nanoid';
 import mime from 'mime-types';
-import { serverSettings } from '#apiV1/config/index.js';
-import ApiError from '#utils/apiError.js';
-import mongoose from 'mongoose';
-
-const types = ['movie', 'tvshow', 'season', 'episode', 'game'];
+import { serverSettings, commentMediaTypes } from '#apiV1/config/index.js';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -22,10 +20,10 @@ const fileFilter = async (req, file, cb) => {
   if (!req.body.comment_body.trim()) {
     return cb(ApiError.BadRequest('Комментарий не должен быть пустым'));
   }
-  if (!types.includes(type)) {
+  if (!commentMediaTypes.includes(type)) {
     return cb(
       ApiError.BadRequest(
-        `Поле "type" должно иметь одно из значений: ${types}`,
+        `Поле "type" должно иметь одно из значений: ${commentMediaTypes}`,
       ),
     );
   }
@@ -37,15 +35,15 @@ const fileFilter = async (req, file, cb) => {
       ApiError.BadRequest(`Объекта из "${type}" с таким id не существует.`),
     );
   }
-  console.log('counter', counter);
   const ext = mime.extension(file.mimetype);
   if (!ext.match(/(jpg|jpeg|png|gif|webp)$/)) {
     return cb(ApiError.BadRequest('Only images are allowed'), false);
   }
+  req.fieldsIsValid = true;
   cb(null, true);
 };
 
-export const upload = multer({
+export const commentsUploadValidation = multer({
   storage,
   fileFilter,
   limits: { fileSize: 1024 * 1024 * serverSettings.maxImgFileSize },

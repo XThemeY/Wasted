@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import {
   Comment,
   CommentsMovie,
@@ -6,16 +7,36 @@ import {
   CommentsEpisode,
 } from '#db/models/index.js';
 import ApiError from '#utils/apiError.js';
-import { EpisodeDto } from '#dtos/index.js';
-import { seasonService } from '#apiV1/services/index.js';
+import { commentMediaTypes } from '#apiV1/config/index.js';
 
 class CommentService {
   async getComments() {
     console.log('Comments have gotten');
   }
 
-  async addComment(body, files, username) {
-    if (body.type === 'movie') {
+  async addComment(body, files, username, fieldsIsValid) {
+    const type = body.type;
+    if (!fieldsIsValid) {
+      const counter = await mongoose.connection
+        .collection('counters')
+        .findOne({ _id: `${type}id` });
+
+      if (!body.comment_body.trim()) {
+        throw ApiError.BadRequest('Комментарий не должен быть пустым');
+      }
+      if (!commentMediaTypes.includes(type)) {
+        throw ApiError.BadRequest(
+          `Поле "type" должно иметь одно из значений: ${commentMediaTypes}`,
+        );
+      }
+      if (body.media_id > counter.seq) {
+        throw ApiError.BadRequest(
+          `Объекта из "${type}" с таким id не существует.`,
+        );
+      }
+    }
+
+    if (type === 'movie') {
       const comment = await Comment.create({
         username,
         comment_body: body.comment_body,
@@ -29,7 +50,7 @@ class CommentService {
       );
       return comment;
     }
-    if (body.type === 'tvshow') {
+    if (type === 'tvshow') {
       const comment = await Comment.create({
         username,
         comment_body: body.comment_body,
@@ -43,7 +64,7 @@ class CommentService {
       );
       return comment;
     }
-    if (body.type === 'season') {
+    if (type === 'season') {
       const comment = await Comment.create({
         username,
         comment_body: body.comment_body,
@@ -57,7 +78,7 @@ class CommentService {
       );
       return comment;
     }
-    if (body.type === 'episode') {
+    if (type === 'episode') {
       const comment = await Comment.create({
         username,
         comment_body: body.comment_body,
@@ -71,7 +92,7 @@ class CommentService {
       );
       return comment;
     }
-    return ApiError.BadRequest('Не удалось добавить комментарий');
+    throw ApiError.BadRequest('Не удалось добавить комментарий');
   }
 
   async editComment() {

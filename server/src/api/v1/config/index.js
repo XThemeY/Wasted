@@ -9,3 +9,4 @@ export { getStartYear, getEndYear, compareYears } from './yearOptions.js';
 export { ROLES } from './rolesOptions.js';
 export { getMediaReactions } from './mediaReactions.js';
 export { serverSettings } from './serverConfig.js';
+export { commentMediaTypes } from './commentMediaTypes.js';
