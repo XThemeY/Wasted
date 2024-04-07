@@ -1,11 +1,21 @@
-import ApiError from '#utils/apiError.js';
-import { getRatingOptions, getMediaReactions } from '#apiV1/config/index.js';
 import { commentService } from '#apiV1/services/index.js';
 
 class CommentController {
+  async getComment(req, res, next) {
+    try {
+      const { commentId } = req.query;
+      const comment = await commentService.getComment(commentId);
+      return res.json(comment);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async getComments(req, res, next) {
     try {
-      return res.json(response);
+      const { media_id, type } = req.query;
+      const comments = await commentService.getComments(media_id, type);
+      return res.json(comments);
     } catch (e) {
       next(e);
     }
@@ -13,16 +23,9 @@ class CommentController {
 
   async addComment(req, res, next) {
     try {
-      const body = req.body;
-      const files = req.files;
+      const { body, files } = req;
       const { username } = req.user;
-      const fieldsIsValid = req.fieldsIsValid || false;
-      const response = await commentService.addComment(
-        body,
-        files,
-        username,
-        fieldsIsValid,
-      );
+      const response = await commentService.addComment(body, files, username);
       return res.json(response);
     } catch (e) {
       next(e);
@@ -31,6 +34,12 @@ class CommentController {
 
   async editComment(req, res, next) {
     try {
+      const { body, files, query } = req;
+      const response = await commentService.editComment(
+        query.commentId,
+        body.comment_body,
+        files,
+      );
       return res.json(response);
     } catch (e) {
       next(e);
@@ -39,6 +48,8 @@ class CommentController {
 
   async delComment(req, res, next) {
     try {
+      const { commentId } = req.body;
+      const response = await commentService.delComment(commentId);
       return res.json(response);
     } catch (e) {
       next(e);

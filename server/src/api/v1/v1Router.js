@@ -11,7 +11,11 @@ import {
   commentRouter,
 } from '#apiV1/routes/index.js';
 import { searchController } from '#apiV1/controllers/index.js';
-import { authMiddleware, isOwner } from '#apiV1/middleware/index.js';
+import {
+  authMiddleware,
+  isOwner,
+  userDataMiddleware,
+} from '#apiV1/middleware/index.js';
 
 const router = Router();
 const idRegExp = ':id(\\d+)';
@@ -19,7 +23,7 @@ const idRegExp = ':id(\\d+)';
 router.use('/auth', authRouter);
 router.use('/movies', movieRouter);
 router.use('/shows', tvshowRouter);
-router.use('/comments', authMiddleware, commentRouter);
+router.use('/comments', userDataMiddleware, commentRouter);
 router.use(`/shows/${idRegExp}/episodes`, episodeRouter);
 router.use('/games', gameRouter);
 router.get('/search', searchController.search);

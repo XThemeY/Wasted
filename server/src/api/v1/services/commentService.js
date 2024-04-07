@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import {
   Comment,
   CommentsMovie,
@@ -10,41 +9,62 @@ import ApiError from '#utils/apiError.js';
 import { commentMediaTypes } from '#apiV1/config/index.js';
 
 class CommentService {
-  async getComments() {
-    console.log('Comments have gotten');
+  async getComment(commentId, username = {}) {
+    const comment = await Comment.findOne({ id: commentId, username });
+    return comment;
   }
 
-  async addComment(body, files, username, fieldsIsValid) {
-    const type = body.type;
-    if (!fieldsIsValid) {
-      const counter = await mongoose.connection
-        .collection('counters')
-        .findOne({ _id: `${type}id` });
+  async getUserComments(username) {
+    const comments = await Comment.find({ username });
+    return comments;
+  }
 
-      if (!body.comment_body.trim()) {
-        throw ApiError.BadRequest('Комментарий не должен быть пустым');
-      }
-      if (!commentMediaTypes.includes(type)) {
+  async getComments(media_id, type) {
+    let comments = [];
+    switch (type) {
+      case 'movie':
+        comments = await CommentsMovie.findOne({ media_id });
+        return comments;
+      case 'tvshow':
+        comments = await CommentsShow.findOne({ media_id });
+        return comments;
+      case 'season':
+        comments = await CommentsSeason.findOne({ media_id });
+        return comments;
+      case 'episode':
+        comments = await CommentsEpisode.findOne({ media_id });
+        return comments;
+      default:
         throw ApiError.BadRequest(
-          `Поле "type" должно иметь одно из значений: ${commentMediaTypes}`,
+          `Ошибка запроса. Поле "type" должно иметь одно из значений: [${commentMediaTypes}]`,
         );
-      }
-      if (body.media_id > counter.seq) {
-        throw ApiError.BadRequest(
-          `Объекта из "${type}" с таким id не существует.`,
-        );
+    }
+  }
+
+  async addComment(body, files, username) {
+    const { type, comment_body, parent_comments_id, media_id } = body;
+    const images_url = files?.map((item) => item.destination + item.filename);
+
+    if (parent_comments_id) {
+      const isExist = await Comment.exists({
+        media_id,
+        id: parent_comments_id,
+      });
+      if (!isExist) {
+        throw ApiError.BadRequest('Родительский комментарий не существует');
       }
     }
 
     if (type === 'movie') {
       const comment = await Comment.create({
         username,
-        comment_body: body.comment_body,
-        parent_comments_id: body.parent_comments_id,
-        images_url: files?.map((item) => item.path),
+        media_id,
+        comment_body: comment_body,
+        parent_comments_id: parent_comments_id,
+        images_url: images_url,
       });
       await CommentsMovie.findOneAndUpdate(
-        { media_id: body.media_id },
+        { media_id: media_id },
         { $push: { comments: comment._id } },
         { upsert: true },
       );
@@ -53,12 +73,13 @@ class CommentService {
     if (type === 'tvshow') {
       const comment = await Comment.create({
         username,
-        comment_body: body.comment_body,
-        parent_comments_id: body.parent_comments_id,
-        images_url: files?.map((item) => item.path),
+        media_id,
+        comment_body: comment_body,
+        parent_comments_id: parent_comments_id,
+        images_url: images_url,
       });
       await CommentsShow.findOneAndUpdate(
-        { media_id: body.media_id },
+        { media_id: media_id },
         { $push: { comments: comment._id } },
         { upsert: true },
       );
@@ -67,12 +88,13 @@ class CommentService {
     if (type === 'season') {
       const comment = await Comment.create({
         username,
-        comment_body: body.comment_body,
-        parent_comments_id: body.parent_comments_id,
-        images_url: files?.map((item) => item.path),
+        media_id,
+        comment_body: comment_body,
+        parent_comments_id: parent_comments_id,
+        images_url: images_url,
       });
       await CommentsSeason.findOneAndUpdate(
-        { media_id: body.media_id },
+        { media_id: media_id },
         { $push: { comments: comment._id } },
         { upsert: true },
       );
@@ -81,12 +103,13 @@ class CommentService {
     if (type === 'episode') {
       const comment = await Comment.create({
         username,
-        comment_body: body.comment_body,
-        parent_comments_id: body.parent_comments_id,
-        images_url: files?.map((item) => item.path),
+        media_id,
+        comment_body: comment_body,
+        parent_comments_id: parent_comments_id,
+        images_url: images_url,
       });
       await CommentsEpisode.findOneAndUpdate(
-        { media_id: body.media_id },
+        { media_id: media_id },
         { $push: { comments: comment._id } },
         { upsert: true },
       );
@@ -95,12 +118,40 @@ class CommentService {
     throw ApiError.BadRequest('Не удалось добавить комментарий');
   }
 
-  async editComment() {
-    console.log('Comment edited');
+  async editComment(commentId, comment_body, files) {
+    const comment = await Comment.findOne({ id: commentId });
+    if (!comment || comment.isDeleted) {
+      throw ApiError.BadRequest(
+        `Комментарий с таким id:${commentId} не существует или удален`,
+      );
+    }
+    const newComment = await Comment.findOneAndUpdate(
+      { id: commentId },
+      {
+        $set: {
+          comment_body,
+          images_url: files?.map((item) => item.destination + item.filename),
+        },
+      },
+      { new: true },
+    );
+    return newComment;
   }
 
-  async delComment() {
-    console.log('Comment edited');
+  async delComment(commentId) {
+    const comment = await Comment.findOne({ id: commentId });
+
+    if (!comment || comment.isDeleted) {
+      throw ApiError.BadRequest(
+        `Комментарий с таким id:${commentId} уже удален или не существует`,
+      );
+    }
+    const delComment = await Comment.findOneAndUpdate(
+      { id: commentId },
+      { $set: { isDeleted: true } },
+      { new: true },
+    );
+    return delComment;
   }
 
   async setReactionComment() {

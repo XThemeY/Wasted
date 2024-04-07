@@ -3,9 +3,10 @@ import mongoose, { Schema, model } from 'mongoose';
 const commentSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
+    media_id: { type: Number, required: true },
     username: { type: String, required: true },
     parent_comments_id: { type: Number, default: null },
-    comment_body: { type: String, required: true },
+    comment_body: { type: String, default: '' },
     images_url: [{ type: String }],
     reactions: {
       broken_heart: {
@@ -67,6 +68,7 @@ const commentSchema = new Schema(
     },
     isDeleted: { type: Boolean, default: false },
     isHidden: { type: Boolean, default: false },
+    isChanged: { type: Boolean, default: false },
   },
   {
     timestamps: true,
