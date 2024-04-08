@@ -1,0 +1,6 @@
+FROM node
+COPY . /TMDBServer
+WORKDIR /TMDBServer
+RUN npm install
+EXPOSE 5050
+CMD [ "npm", "run", "build" ]

@@ -1,0 +1,6 @@
+FROM node
+COPY . /wastedServer
+WORKDIR /wastedServer
+RUN npm install
+EXPOSE 5000
+CMD [ "npm", "run", "build" ]

@@ -3,11 +3,15 @@ import axios from 'axios';
 import MovieService from '#api/tmdb/services/movieService.js';
 import { logEvents } from '#apiV1/middleware/index.js';
 import { Movie } from '#db/models/index.js';
+
 const axiosMovie = axios.create({
   baseURL: process.env.TMDB_API_URL,
 });
 axiosMovie.defaults.headers.common['Authorization'] =
   `Bearer ${process.env.TMDB_API_TOKEN}`;
+
+const controller = new AbortController();
+const signal = controller.signal;
 
 class TmdbMovieAPI {
   async getMovie(req, res, next) {
@@ -75,6 +79,53 @@ class TmdbMovieAPI {
         error?.message || error,
       );
     }
+  }
+
+  async getMoviesAll(req, res, next) {
+    let latestTMDBId = 0;
+    let latestWastedId = 0;
+
+    try {
+      const lastMovieId = await Movie.findOne().sort({ $natural: -1 });
+      if (lastMovieId) {
+        latestWastedId = +lastMovieId.external_ids.tmdb + 1;
+      }
+      const response = await axiosMovie.get('/movie/latest');
+      latestTMDBId = response.data.id;
+    } catch (error) {
+      console.log(`Ошибка запроса LatestTMDBID`);
+    }
+
+    for (let i = latestWastedId; i < latestTMDBId; i++) {
+      try {
+        const response = await axiosMovie.get(
+          '/movie/' +
+            i +
+            '?language=ru-RU&append_to_response=external_ids,keywords,credits,images&include_image_language=ru,en',
+          { signal },
+        );
+
+        const responseENG = await axiosMovie.get(
+          '/movie/' + i + '?language=en-US',
+        );
+        await MovieService.addMovieToDb(response.data, responseENG.data);
+      } catch (error) {
+        logEvents(
+          `${'id:' + i + '-' + error?.name || error}: ${error?.message || error}`,
+          'movieReqLog.log',
+        );
+        console.log(`ID:${i} Ошибка запроса фильма`, error?.message || error);
+      }
+    }
+
+    res.json({ isOk: true });
+    console.log(`Список популярных фильмов получен`);
+  }
+
+  async abortMoviesAll(req, res, next) {
+    controller.abort();
+    console.log(`Получение всех фильмов отменено`);
+    res.json({ msg: 'Aborted' });
   }
 }
 export default new TmdbMovieAPI();
