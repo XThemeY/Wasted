@@ -1,5 +1,5 @@
 import { User } from '#db/models/index.js';
-import { UserSettings } from '#dtos/index.js';
+import { UserSettingsDto } from '#dtos/index.js';
 
 class UserService {
   async getAllUsers(params = {}) {
@@ -41,7 +41,7 @@ class UserService {
       },
     ).exec();
 
-    const newSettings = new UserSettings(settings);
+    const newSettings = new UserSettingsDto(settings);
     return newSettings;
   }
 }

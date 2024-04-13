@@ -1,4 +1,5 @@
 import mongoose, { Schema, model } from 'mongoose';
+import { CommentsSeason } from '#db/models/index.js';
 
 const seasonSchema = new Schema(
   {
@@ -56,7 +57,7 @@ const seasonSchema = new Schema(
       },
     },
     episodes: [{ type: Schema.Types.ObjectId, ref: 'Episode' }],
-    comments: [{ type: Schema.Types.ObjectId, ref: 'CommentsSeason' }],
+    comments: { type: Schema.Types.ObjectId, ref: 'CommentsSeason' },
   },
   {
     timestamps: true,
@@ -73,6 +74,7 @@ seasonSchema.pre('save', async function (next) {
         { returnDocument: 'after', upsert: true },
       );
     this.id = counter.seq;
+    this.comments = (await CommentsSeason.create({ media_id: this.id }))._id;
   }
   next();
 });

@@ -1,5 +1,6 @@
 import ApiError from '#utils/apiError.js';
 import { tokenService } from '#apiV1/services/index.js';
+import { ROLES } from '#apiV1/config/index.js';
 
 export async function authMiddleware(req, res, next) {
   try {
@@ -26,10 +27,13 @@ export async function isOwner(req, res, next) {
   try {
     const { username } = req.params;
     const currentUserName = req.user.username;
+    const roles = req.user.userRoles;
     if (!currentUserName) {
       return next(ApiError.Forbidden());
     }
-
+    if (roles.includes([ROLES.ADMIN, ROLES.MODERATOR])) {
+      return next();
+    }
     if (currentUserName !== username) {
       return next(ApiError.Forbidden());
     }

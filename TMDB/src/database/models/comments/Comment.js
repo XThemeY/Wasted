@@ -77,13 +77,11 @@ const commentSchema = new Schema(
 
 commentSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await mongoose.connection
-      .collection('counters')
-      .findOneAndUpdate(
-        { _id: 'commentId' },
-        { $inc: { seq: 1 } },
-        { returnDocument: 'after', upsert: true },
-      );
+    const counter = await Counters.findOneAndUpdate(
+      { _id: 'commentId' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
     this.id = counter.seq;
   }
   next();

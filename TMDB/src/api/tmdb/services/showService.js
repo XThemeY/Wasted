@@ -1,4 +1,4 @@
-import { TVShow } from '#db/models/index.js';
+import { TVShow, Season, Episode, People, Counters } from '#db/models/index.js';
 import { logEvents } from '#apiV1/middleware/index.js';
 import {
   getMediaImages,
@@ -84,5 +84,37 @@ class TVShowService {
       'showDBLog.log',
     );
   }
+
+  // async delShowFromDb(show_id) {
+  //   await People.updateMany(
+  //     { 'shows.id': show_id },
+  //     { $pull: { shows: { id: show_id } } },
+  //   );
+  //   const episodes = await Episode.deleteMany({ show_id });
+  //   console.log('Episodes deleteCount', episodes.deletedCount);
+  //   await Counters.findOneAndUpdate(
+  //     { _id: 'episodeid' },
+  //     { $inc: { seq: -episodes.deletedCount } },
+  //   );
+  //   const seasons = await Season.deleteMany({ show_id });
+  //   console.log('Seasons deleteCount', seasons.deletedCount);
+  //   await Counters.findOneAndUpdate(
+  //     { _id: 'seasonid' },
+  //     { $inc: { seq: -seasons.deletedCount } },
+  //   );
+  //   const show = await TVShow.findOneAndDelete({ id: show_id });
+  //   if (!show) {
+  //     console.log(`Шоу c id:${show_id} не существует в базе данных`);
+  //     return;
+  //   }
+  //   await Counters.findOneAndUpdate({ _id: 'tvshowid' }, { $inc: { seq: -1 } });
+  //   console.log(
+  //     `Шоу c tmdbID:${show.external_ids.tmdb} и id:${show.id} был удален из базы данных`,
+  //   );
+  //   logEvents(
+  //     `ACTION:Удален  ---  WastedId:${show.id} - tmdbID:${show.external_ids.tmdb} - Title:${show.title} `,
+  //     'showDBLog.log',
+  //   );
+  // }
 }
 export default new TVShowService();

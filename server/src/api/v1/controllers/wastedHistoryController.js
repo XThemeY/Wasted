@@ -28,8 +28,12 @@ class WastedHistoryController {
       const { episodeId } = req.body;
       const { id } = req.params;
       const username = req.user.username;
-      await wastedHistoryService.setEpisodeWasted(username, episodeId, +id);
-      return res.sendStatus(200);
+      const response = await wastedHistoryService.setEpisodeWasted(
+        username,
+        episodeId,
+        +id,
+      );
+      return res.json(response);
     } catch (e) {
       next(e);
     }

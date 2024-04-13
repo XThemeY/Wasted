@@ -1,5 +1,6 @@
 import axios from 'axios';
 import translate from 'translate';
+import ShowService from '#api/tmdb/services/showService.js';
 import {
   People,
   Genre,
@@ -83,23 +84,26 @@ export async function getMediaImages(id, mediaType, model) {
 
 export async function getPeoples(credits, type, id, mediaType) {
   const newPeoples = [];
-
+  let i = 0;
   switch (type) {
     case 'director':
       for (const people of credits.crew) {
         if (people.job === 'Director') {
           newPeoples.push(await addPeople(people, id, mediaType));
         }
+        console.log(`Director: ${++i} из ${credits.crew.length}`);
       }
       return newPeoples;
     case 'actor':
       for (const people of credits.cast) {
         newPeoples.push(await addPeople(people, id, mediaType));
+        console.log(`Cast: ${++i} из ${credits.cast.length}`);
       }
       return newPeoples;
     case 'creator':
       for (const people of credits) {
         newPeoples.push(await addPeople(people, id, mediaType));
+        console.log(`Creator: ${++i} из ${credits.length}`);
       }
       return newPeoples;
   }
@@ -112,14 +116,11 @@ async function addPeople(people, id, mediaType) {
       name: people.name,
     });
     newPeople = await People.findOne({ name: people.name });
-    newPeople.profile_img = people.profile_path
-      ? process.env.TMDB_IMG_URL + people.profile_path
-      : '';
-    // await createImgUrl(
-    //   newPeople.id,
-    //   'people',
-    //   people.profile_path,
-    // );
+    newPeople.profile_img = await createImgUrl(
+      newPeople.id,
+      'people',
+      people.profile_path,
+    );
   }
   if (mediaType === 'movie') {
     const movie = { id, role: people.character, job: people.job };
@@ -143,7 +144,6 @@ async function addPeople(people, id, mediaType) {
 
 export async function getTags(tags) {
   const newTags = [];
-
   for (const tag of tags) {
     let newTag = await Tag.findOne({ en: tag.name });
     if (!newTag) {
@@ -152,7 +152,6 @@ export async function getTags(tags) {
         en: tag.name,
       });
     }
-
     newTags.push(newTag.id);
   }
   return newTags;
@@ -160,7 +159,6 @@ export async function getTags(tags) {
 
 export async function getProdCompanies(companies) {
   const newCompanies = [];
-
   for (const company of companies) {
     let newCompany = await ProdCompany.findOne({ name: company.name });
     if (!newCompany) {
@@ -168,17 +166,13 @@ export async function getProdCompanies(companies) {
         name: company.name,
       });
       newCompany = await ProdCompany.findOne({ name: company.name });
-      newCompany.logo_url = company.logo_path
-        ? process.env.TMDB_IMG_URL + company.logo_path
-        : '';
-      // await createImgUrl(
-      //   newCompany.id,
-      //   'company',
-      //   company.logo_path,
-      // );
+      newCompany.logo_url = await createImgUrl(
+        newCompany.id,
+        'company',
+        company.logo_path,
+      );
       await newCompany.save();
     }
-
     newCompanies.push(newCompany.id);
   }
   return newCompanies;
@@ -186,7 +180,6 @@ export async function getProdCompanies(companies) {
 
 export async function getPlatforms(platforms) {
   const newPlatforms = [];
-
   for (const platform of platforms) {
     let newPlatform = await TVPlatform.findOne({ name: platform.name });
     if (!newPlatform) {
@@ -194,17 +187,13 @@ export async function getPlatforms(platforms) {
         name: platform.name,
       });
       newPlatform = await TVPlatform.findOne({ name: platform.name });
-      newPlatform.logo_url = platform.logo_path
-        ? process.env.TMDB_IMG_URL + platform.logo_path
-        : '';
-      // await createImgUrl(
-      //   newPlatform.id,
-      //   'platform',
-      //   platform.logo_path,
-      // );
+      newPlatform.logo_url = await createImgUrl(
+        newPlatform.id,
+        'platform',
+        platform.logo_path,
+      );
       await newPlatform.save();
     }
-
     newPlatforms.push(newPlatform.id);
   }
   return newPlatforms;
@@ -241,26 +230,21 @@ export async function getSeasons(id, seasons, seasonsENG, tmdbID) {
         tmdbID,
         newSeason.season_number,
       );
-      newSeason.poster_url = seasons[i].poster_path
-        ? process.env.TMDB_IMG_URL + seasons[i].poster_path
-        : '';
-      // await createImgUrl(
-      //   newSeason.id,
-      //   'season',
-      //   seasons[i].poster_path,
-      // );
+      newSeason.poster_url = await createImgUrl(
+        newSeason.id,
+        'season',
+        seasons[i].poster_path,
+      );
       await newSeason.save();
     }
-
+    console.log(`Season: ${i} из ${seasons.length - 1} шоу с id:${id}`);
     newSeasons.push(newSeason._id);
   }
-
   return newSeasons;
 }
 
 async function getEpisodes(id, tmdbID, seasonNumber) {
   const newEpisodes = [];
-
   try {
     const response = await axiosFields.get(
       '/tv/' + tmdbID + '/season/' + seasonNumber + '?language=ru-RU',
@@ -296,19 +280,17 @@ async function getEpisodes(id, tmdbID, seasonNumber) {
           season_number: episodes[i].season_number,
           episode_number: episodes[i].episode_number,
         });
-        newEpisode.poster_url = episodes[i].still_path
-          ? process.env.TMDB_IMG_URL + episodes[i].still_path
-          : '';
-
-        // await createImgUrl(
-        //   newEpisode.id,
-        //   'episode',
-        //   episodes[i].still_path,
-        // );
+        newEpisode.poster_url = await createImgUrl(
+          newEpisode.id,
+          'episode',
+          episodes[i].still_path,
+        );
         await newEpisode.save();
       }
+      console.log(`Episode: ${i} из ${episodes.length - 1} шоу с id:${id}`);
       newEpisodes.push(newEpisode._id);
     }
+    return newEpisodes;
   } catch (error) {
     logEvents(
       `${'id:' + tmdbID + '-' + error?.name || error}: ${error?.message || error}`,
@@ -318,6 +300,7 @@ async function getEpisodes(id, tmdbID, seasonNumber) {
       `ID:${tmdbID} Ошибка запроса эпизода `,
       error?.message || error,
     );
+    console.log('Episodes are deleting');
+    await ShowService.delShowFromDb(id);
   }
-  return newEpisodes;
 }

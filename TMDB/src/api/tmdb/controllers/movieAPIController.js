@@ -10,8 +10,7 @@ const axiosMovie = axios.create({
 axiosMovie.defaults.headers.common['Authorization'] =
   `Bearer ${process.env.TMDB_API_TOKEN}`;
 
-const controller = new AbortController();
-const signal = controller.signal;
+let abort = false;
 
 class TmdbMovieAPI {
   async getMovie(req, res, next) {
@@ -84,7 +83,7 @@ class TmdbMovieAPI {
   async getMoviesAll(req, res, next) {
     let latestTMDBId = 0;
     let latestWastedId = 0;
-
+    abort = false;
     try {
       const lastMovieId = await Movie.findOne().sort({ $natural: -1 });
       if (lastMovieId) {
@@ -96,13 +95,13 @@ class TmdbMovieAPI {
       console.log(`Ошибка запроса LatestTMDBID`);
     }
 
-    for (let i = latestWastedId; i < latestTMDBId; i++) {
+    for (let i = latestWastedId; i <= latestTMDBId; i++) {
+      if (abort) break;
       try {
         const response = await axiosMovie.get(
           '/movie/' +
             i +
             '?language=ru-RU&append_to_response=external_ids,keywords,credits,images&include_image_language=ru,en',
-          { signal },
         );
 
         const responseENG = await axiosMovie.get(
@@ -115,15 +114,15 @@ class TmdbMovieAPI {
           'movieReqLog.log',
         );
         console.log(`ID:${i} Ошибка запроса фильма`, error?.message || error);
+        //if (error?.response?.status !== 404) break;
       }
     }
-
     res.json({ isOk: true });
-    console.log(`Список популярных фильмов получен`);
+    console.log(`Все фильмы добавлены`);
   }
 
   async abortMoviesAll(req, res, next) {
-    controller.abort();
+    abort = true;
     console.log(`Получение всех фильмов отменено`);
     res.json({ msg: 'Aborted' });
   }

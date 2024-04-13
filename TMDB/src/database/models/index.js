@@ -1,3 +1,4 @@
+import { mongoose } from 'mongoose';
 export { default as Movie } from './movie/Movie.js';
 export { default as TVShow } from './tvShow/TVShow.js';
 export { default as TVPlatform } from './tvShow/TVPlatform.js';
@@ -15,4 +16,6 @@ export {
   CommentsShow,
   CommentsSeason,
   CommentsEpisode,
+  CommentsPeople,
 } from './comments/CommentsMedia.js';
+export const Counters = await mongoose.connection.collection('counters');

@@ -1,4 +1,5 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { Counters } from '#db/models/index.js';
 
 const prodCompanySchema = new Schema(
   {
@@ -13,13 +14,11 @@ const prodCompanySchema = new Schema(
 
 prodCompanySchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await mongoose.connection
-      .collection('counters')
-      .findOneAndUpdate(
-        { _id: 'prodCompanyid' },
-        { $inc: { seq: 1 } },
-        { returnDocument: 'after', upsert: true },
-      );
+    const counter = await Counters.findOneAndUpdate(
+      { _id: 'prodCompanyid' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
     this.id = counter.seq;
   }
   next();

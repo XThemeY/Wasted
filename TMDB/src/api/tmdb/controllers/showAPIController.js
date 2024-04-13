@@ -10,9 +10,7 @@ const axiosShow = axios.create({
 axiosShow.defaults.headers.common['Authorization'] =
   `Bearer ${process.env.TMDB_API_TOKEN}`;
 
-const controller = new AbortController();
-const signal = controller.signal;
-
+let abort = false;
 class TmdbShowAPI {
   async getShow(req, res, next) {
     const showId = req.params.id;
@@ -83,7 +81,7 @@ class TmdbShowAPI {
   async getShowsAll(req, res, next) {
     let latestTMDBId = 0;
     let latestWastedId = 0;
-
+    abort = false;
     try {
       const lastShowId = await TVShow.findOne().sort({ $natural: -1 });
       if (lastShowId) {
@@ -95,35 +93,38 @@ class TmdbShowAPI {
       console.log(`Ошибка запроса LatestTMDBID`);
     }
 
-    for (let i = latestWastedId; i < latestTMDBId; i++) {
+    for (let i = latestWastedId; i <= latestTMDBId; i++) {
+      if (abort) break;
       try {
         const response = await axiosShow.get(
           '/tv/' +
             i +
             '?language=ru-RU&append_to_response=external_ids,keywords,credits,images&include_image_language=ru,en',
-          { signal },
         );
 
         const responseENG = await axiosShow.get('/tv/' + i + '?language=en-US');
         await ShowService.addShowToDb(response.data, responseENG.data);
       } catch (error) {
         logEvents(
-          `${'id:' + i + '-' + error?.name || error}: ${error?.message || error}`,
+          `${'TMDBIDid:' + i + '-' + error?.name || error}: ${error?.message || error}`,
           'showReqLog.log',
         );
-        console.log(`ID:${i} Ошибка запроса шоу`, error?.message || error);
+        console.log(`TMDBID:${i} Ошибка запроса шоу`, error?.message || error); 
+        //if (error?.response?.status !== 404) break;       
       }
     }
 
     res.json({ isOk: true });
-    console.log(`Список популярных шоу получен`);
+    console.log(`Все шоу добавлены`);
   }
 
   async abortShowsAll(req, res, next) {
-    controller.abort();
+    abort = true;
     console.log(`Получение всех шоу отменено`);
     res.json({ msg: 'Aborted' });
   }
 }
 
 export default new TmdbShowAPI();
+
+//https://rating.kinopoisk.ru/404900.xml

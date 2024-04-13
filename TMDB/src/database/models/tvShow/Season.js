@@ -1,4 +1,5 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { CommentsSeason, Counters } from '#db/models/index.js';
 
 const seasonSchema = new Schema(
   {
@@ -56,7 +57,7 @@ const seasonSchema = new Schema(
       },
     },
     episodes: [{ type: Schema.Types.ObjectId, ref: 'Episode' }],
-    comments: [{ type: Schema.Types.ObjectId, ref: 'CommentsSeason' }],
+    //comments: { type: Schema.Types.ObjectId, ref: 'CommentsSeason' },
   },
   {
     timestamps: true,
@@ -65,14 +66,13 @@ const seasonSchema = new Schema(
 
 seasonSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await mongoose.connection
-      .collection('counters')
-      .findOneAndUpdate(
-        { _id: 'seasonid' },
-        { $inc: { seq: 1 } },
-        { returnDocument: 'after', upsert: true },
-      );
+    const counter = await Counters.findOneAndUpdate(
+      { _id: 'seasonid' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
     this.id = counter.seq;
+    //this.comments = (await CommentsSeason.create({ media_id: this.id }))._id;
   }
   next();
 });

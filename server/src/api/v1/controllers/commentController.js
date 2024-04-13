@@ -1,10 +1,11 @@
 import { commentService } from '#apiV1/services/index.js';
+import ApiError from '#utils/apiError.js';
 
 class CommentController {
   async getComment(req, res, next) {
     try {
-      const { commentId } = req.query;
-      const comment = await commentService.getComment(commentId);
+      const { id } = req.params;
+      const comment = await commentService.getComment(id);
       return res.json(comment);
     } catch (e) {
       next(e);
@@ -34,10 +35,15 @@ class CommentController {
 
   async editComment(req, res, next) {
     try {
-      const { body, files, query } = req;
+      const { body, files, params } = req;
+      const img_urls = body.images_urls?.split(',') || [];
+      if (!files?.length && !img_urls?.length && !body.comment_body) {
+        return next(ApiError.BadRequest('Комментарий не должен быть пустым'));
+      }
       const response = await commentService.editComment(
-        query.commentId,
-        body.comment_body,
+        params.id,
+        body.comment_body || '',
+        img_urls.length ? img_urls : [],
         files,
       );
       return res.json(response);
@@ -48,8 +54,18 @@ class CommentController {
 
   async delComment(req, res, next) {
     try {
-      const { commentId } = req.body;
-      const response = await commentService.delComment(commentId);
+      const { id } = req.params;
+      const response = await commentService.delComment(id);
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async restoreComment(req, res, next) {
+    try {
+      const { id } = req.params;
+      const response = await commentService.restoreComment(id);
       return res.json(response);
     } catch (e) {
       next(e);

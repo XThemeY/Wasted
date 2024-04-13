@@ -14,7 +14,7 @@ export async function createImgUrl(id, type, filename) {
   const url = process.env.TMDB_IMG_URL + filename;
   // const newFilename = `${nanoid()}_${id}.webp`;
   // await downloadImage(url, newFilename, id, type);
-  console.log(`Image + ${type}`, id);
+  // console.log(`Image + ${type}`, id);
   return url;
 }
 

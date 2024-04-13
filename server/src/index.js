@@ -5,7 +5,7 @@ import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { logger, errorHandler } from '#apiV1/middleware/index.js';
-import { corsOptions } from '#apiV1/config/index.js';
+import { corsOptions, limiter } from '#apiV1/config/index.js';
 import v1Router from '#apiV1/v1Router.js';
 import tmdbRouter from '#api/tmdb/routes/tmdbRouter.js';
 import igdbRouter from '#api/igdb/routes/igdbRouter.js';
@@ -17,13 +17,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(requestIp.mw());
-app.use(logger);
 
+app.use(limiter);
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
+app.use(logger);
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(
   '/public/media/m',

@@ -1,4 +1,5 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { CommentsShow, Counters } from '#db/models/index.js';
 
 const tvShowSchema = new Schema(
   {
@@ -16,7 +17,7 @@ const tvShowSchema = new Schema(
       },
       backdrop_url: { type: String, default: '' },
     },
-    start_date: { type: Date, required: true, index: true },
+    start_date: { type: Date, index: true },
     end_date: { type: Date, index: true },
     status: {
       type: String,
@@ -106,7 +107,7 @@ const tvShowSchema = new Schema(
         vote_count: { type: Number, default: 0 },
       },
     },
-    comments: [{ type: Schema.Types.ObjectId, ref: 'CommentsShow' }],
+    //comments: { type: Schema.Types.ObjectId, ref: 'CommentsShow' },
     external_ids: {
       tmdb: { type: String },
       imdb: { type: String },
@@ -155,14 +156,13 @@ tvShowSchema.virtual('platformsId', {
 
 tvShowSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await mongoose.connection
-      .collection('counters')
-      .findOneAndUpdate(
-        { _id: 'tvshowid' },
-        { $inc: { seq: 1 } },
-        { returnDocument: 'after', upsert: true },
-      );
+    const counter = await Counters.findOneAndUpdate(
+      { _id: 'tvshowid' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
     this.id = counter.seq;
+    //this.comments = (await CommentsShow.create({ media_id: this.id }))._id;
   }
   next();
 });

@@ -4,7 +4,11 @@ import multer from 'multer';
 import { nanoid } from 'nanoid';
 import mime from 'mime-types';
 import { commentService } from '#apiV1/services/index.js';
-import { serverSettings, commentMediaTypes } from '#apiV1/config/index.js';
+import {
+  serverSettings,
+  commentMediaTypes,
+  ROLES,
+} from '#apiV1/config/index.js';
 import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
@@ -13,6 +17,10 @@ import __dirname from '#utils/__dirname.js';
 const Counters = mongoose.connection.collection('counters');
 const urlPath = 'public/uploads/';
 const uploadPath = path.join(__dirname, urlPath);
+
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath);
+}
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -60,7 +68,7 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * serverSettings.maxImgFileSize },
 }).array('images', 5);
 
-export const fileUploadValidation = (req, res, next) => {
+export const fileUploadValidation = async (req, res, next) => {
   upload(req, res, (err) => {
     try {
       const { files } = req;
@@ -94,19 +102,18 @@ export const fileUploadValidation = (req, res, next) => {
 
 export const isCommentOwner = async (req, res, next) => {
   try {
-    const commentId = req.body?.commentId || req.query?.commentId;
+    const commentId = req.params.id;
     const currentUserName = req.user.username;
+    const roles = req.user.userRoles;
+
     if (!currentUserName) {
       return next(ApiError.Forbidden());
     }
-    const comment = await commentService.getComment(commentId, currentUserName);
-    if (!comment) {
-      return next(
-        ApiError.BadRequest(
-          `Комментарий пользователя ${currentUserName} с таким id:${commentId} не существует`,
-        ),
-      );
+
+    if (roles.includes([ROLES.ADMIN, ROLES.MODERATOR])) {
+      return next();
     }
+    await commentService.getComment(commentId, currentUserName);
     next();
   } catch (e) {
     return next(ApiError.Forbidden());

@@ -1,4 +1,4 @@
-export class UserSettings {
+export class UserSettingsDto {
   constructor(model) {
     this.username = model.username;
     this.email = model.email;

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import translate from 'translate';
+import ShowService from '#api/tmdb/services/showService.js';
 import {
   People,
   Genre,
@@ -83,23 +84,26 @@ export async function getMediaImages(id, mediaType, model) {
 
 export async function getPeoples(credits, type, id, mediaType) {
   const newPeoples = [];
-
+  let i = 0;
   switch (type) {
     case 'director':
       for (const people of credits.crew) {
         if (people.job === 'Director') {
           newPeoples.push(await addPeople(people, id, mediaType));
         }
+        console.log(`Director: ${++i} из ${credits.crew.length}`);
       }
       return newPeoples;
     case 'actor':
       for (const people of credits.cast) {
         newPeoples.push(await addPeople(people, id, mediaType));
+        console.log(`Cast: ${++i} из ${credits.cast.length}`);
       }
       return newPeoples;
     case 'creator':
       for (const people of credits) {
         newPeoples.push(await addPeople(people, id, mediaType));
+        console.log(`Creator: ${++i} из ${credits.length}`);
       }
       return newPeoples;
   }
@@ -140,7 +144,6 @@ async function addPeople(people, id, mediaType) {
 
 export async function getTags(tags) {
   const newTags = [];
-
   for (const tag of tags) {
     let newTag = await Tag.findOne({ en: tag.name });
     if (!newTag) {
@@ -149,7 +152,6 @@ export async function getTags(tags) {
         en: tag.name,
       });
     }
-
     newTags.push(newTag.id);
   }
   return newTags;
@@ -157,7 +159,6 @@ export async function getTags(tags) {
 
 export async function getProdCompanies(companies) {
   const newCompanies = [];
-
   for (const company of companies) {
     let newCompany = await ProdCompany.findOne({ name: company.name });
     if (!newCompany) {
@@ -172,7 +173,6 @@ export async function getProdCompanies(companies) {
       );
       await newCompany.save();
     }
-
     newCompanies.push(newCompany.id);
   }
   return newCompanies;
@@ -180,7 +180,6 @@ export async function getProdCompanies(companies) {
 
 export async function getPlatforms(platforms) {
   const newPlatforms = [];
-
   for (const platform of platforms) {
     let newPlatform = await TVPlatform.findOne({ name: platform.name });
     if (!newPlatform) {
@@ -195,7 +194,6 @@ export async function getPlatforms(platforms) {
       );
       await newPlatform.save();
     }
-
     newPlatforms.push(newPlatform.id);
   }
   return newPlatforms;
@@ -205,50 +203,51 @@ export async function getSeasons(id, seasons, seasonsENG, tmdbID) {
   const newSeasons = [];
 
   for (let i = 0; i < seasons.length; i++) {
-    let newSeason = await Season.findOne({
-      show_id: id,
-      season_number: seasons[i].season_number,
-    });
-    if (!newSeason) {
-      await Season.create({
-        show_id: id,
-        title: seasons[i].name,
-        title_original: seasonsENG[i].name,
-        season_number: seasons[i].season_number,
-        episode_count: seasons[i].episode_count,
-        description: seasons[i].overview,
-        description_original: seasonsENG[i].overview,
-        air_date: seasons[i].air_date,
-        rating: seasons[i].vote_average,
-      });
-
-      newSeason = await Season.findOne({
+    
+      let newSeason = await Season.findOne({
         show_id: id,
         season_number: seasons[i].season_number,
       });
+      if (!newSeason) {
+        await Season.create({
+          show_id: id,
+          title: seasons[i].name,
+          title_original: seasonsENG[i].name,
+          season_number: seasons[i].season_number,
+          episode_count: seasons[i].episode_count,
+          description: seasons[i].overview,
+          description_original: seasonsENG[i].overview,
+          air_date: seasons[i].air_date,
+          rating: seasons[i].vote_average,
+        });
 
-      newSeason.episodes = await getEpisodes(
-        id,
-        tmdbID,
-        newSeason.season_number,
-      );
-      newSeason.poster_url = await createImgUrl(
-        newSeason.id,
-        'season',
-        seasons[i].poster_path,
-      );
-      await newSeason.save();
-    }
+        newSeason = await Season.findOne({
+          show_id: id,
+          season_number: seasons[i].season_number,
+        });
 
-    newSeasons.push(newSeason._id);
+        newSeason.episodes = await getEpisodes(
+          id,
+          tmdbID,
+          newSeason.season_number,
+        );
+
+        newSeason.poster_url = await createImgUrl(
+          newSeason.id,
+          'season',
+          seasons[i].poster_path,
+        );
+        await newSeason.save();
+      }
+      console.log(`Season: ${i} из ${seasons.length - 1} шоу с id:${id}`);
+      newSeasons.push(newSeason._id);
+    
   }
-
   return newSeasons;
 }
 
 async function getEpisodes(id, tmdbID, seasonNumber) {
   const newEpisodes = [];
-
   try {
     const response = await axiosFields.get(
       '/tv/' + tmdbID + '/season/' + seasonNumber + '?language=ru-RU',
@@ -258,13 +257,14 @@ async function getEpisodes(id, tmdbID, seasonNumber) {
     );
     const episodes = response.data.episodes;
     const episodesENG = responseENG.data.episodes;
-
+    
     for (let i = 0; i < episodes.length; i++) {
       let newEpisode = await Episode.findOne({
         show_id: id,
         season_number: episodes[i].season_number,
         episode_number: episodes[i].episode_number,
       });
+          
       if (!newEpisode) {
         await Episode.create({
           show_id: id,
@@ -290,9 +290,12 @@ async function getEpisodes(id, tmdbID, seasonNumber) {
           episodes[i].still_path,
         );
         await newEpisode.save();
-      }
+      }      
+      console.log(`Episode c id:${newEpisode.id}: № ${i} из ${episodes.length - 1} шоу с id:${id}`);
+      
       newEpisodes.push(newEpisode._id);
     }
+    return newEpisodes;
   } catch (error) {
     logEvents(
       `${'id:' + tmdbID + '-' + error?.name || error}: ${error?.message || error}`,
@@ -302,6 +305,7 @@ async function getEpisodes(id, tmdbID, seasonNumber) {
       `ID:${tmdbID} Ошибка запроса эпизода `,
       error?.message || error,
     );
+    // console.log('Episodes are deleting');
+    // await ShowService.delShowFromDb(id);
   }
-  return newEpisodes;
 }

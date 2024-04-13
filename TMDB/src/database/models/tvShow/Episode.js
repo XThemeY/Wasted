@@ -1,11 +1,12 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { CommentsEpisode, Counters } from '#db/models/index.js';
 
 const episodeSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
     show_id: { type: Number, required: true },
     poster_url: { type: String, default: '' },
-    title: { type: String, required: true },
+    title: { type: String, required: true, default: ''  },
     title_original: { type: String, default: '' },
     episode_type: { type: String },
     season_number: { type: Number },
@@ -68,7 +69,7 @@ const episodeSchema = new Schema(
         vote_count: { type: Number, default: 0 },
       },
     },
-    comments: [{ type: Schema.Types.ObjectId, ref: 'CommentsEpisode' }],
+    //comments: { type: Schema.Types.ObjectId, ref: 'CommentsEpisode' },
   },
   {
     timestamps: true,
@@ -83,14 +84,13 @@ episodeSchema.virtual('tagsId', {
 
 episodeSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await mongoose.connection
-      .collection('counters')
-      .findOneAndUpdate(
-        { _id: 'episodeid' },
-        { $inc: { seq: 1 } },
-        { returnDocument: 'after', upsert: true },
-      );
+    const counter = await Counters.findOneAndUpdate(
+      { _id: 'episodeid' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
     this.id = counter.seq;
+    //this.comments = (await CommentsEpisode.create({ media_id: this.id }))._id;
   }
   next();
 });

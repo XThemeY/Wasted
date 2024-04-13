@@ -1,4 +1,5 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { CommentsPeople, Counters } from '#db/models/index.js';
 
 const peopleSchema = new Schema(
   {
@@ -23,6 +24,7 @@ const peopleSchema = new Schema(
         job: { type: String },
       },
     ],
+    //comments: { type: Schema.Types.ObjectId, ref: 'CommentsPeople' },
   },
   {
     timestamps: true,
@@ -31,14 +33,13 @@ const peopleSchema = new Schema(
 
 peopleSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await mongoose.connection
-      .collection('counters')
-      .findOneAndUpdate(
-        { _id: 'peopleid' },
-        { $inc: { seq: 1 } },
-        { returnDocument: 'after', upsert: true },
-      );
+    const counter = await Counters.findOneAndUpdate(
+      { _id: 'peopleid' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
     this.id = counter.seq;
+    //this.comments = (await CommentsPeople.create({ media_id: this.id }))._id;
   }
   next();
 });

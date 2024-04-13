@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 import axios from 'axios';
-import { nanoid } from 'nanoid';
+//import { nanoid } from 'nanoid';
 import fsPromises from 'fs/promises';
 import { logEvents } from '#apiV1/middleware/index.js';
 
@@ -12,10 +12,10 @@ export async function createImgUrl(id, type, filename) {
     return '';
   }
   const url = process.env.TMDB_IMG_URL + filename;
-  const newFilename = `${nanoid()}_${id}.webp`;
-  await downloadImage(url, newFilename, id, type);
-  console.log('Image', id);
-  return '/' + newFilename;
+  // const newFilename = `${nanoid()}_${id}.webp`;
+  // await downloadImage(url, newFilename, id, type);
+  // console.log(`Image + ${type}`, id);
+  return url;
 }
 
 export function getImgPath(items, lang) {

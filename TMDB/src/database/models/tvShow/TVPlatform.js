@@ -1,4 +1,5 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { Counters } from '#db/models/index.js';
 
 const tvPlatformSchema = new Schema({
   id: { type: Number, unique: true, immutable: true },
@@ -8,13 +9,11 @@ const tvPlatformSchema = new Schema({
 
 tvPlatformSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await mongoose.connection
-      .collection('counters')
-      .findOneAndUpdate(
-        { _id: 'tvplatformid' },
-        { $inc: { seq: 1 } },
-        { returnDocument: 'after', upsert: true },
-      );
+    const counter = await Counters.findOneAndUpdate(
+      { _id: 'tvplatformid' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
     this.id = counter.seq;
   }
   next();

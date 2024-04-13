@@ -1,5 +1,5 @@
-import mongoose, { Schema, model } from 'mongoose';
-import { CommentsMovie } from '#db/models/index.js';
+import { Schema, model } from 'mongoose';
+import { CommentsMovie, Counters } from '#db/models/index.js';
 
 const movieSchema = new Schema(
   {
@@ -103,7 +103,7 @@ const movieSchema = new Schema(
         vote_count: { type: Number, default: 0 },
       },
     },
-    comments: [{ type: Schema.Types.ObjectId, ref: 'CommentsMovie' }],
+    //comments: { type: Schema.Types.ObjectId, ref: 'CommentsMovie' },
     external_ids: {
       tmdb: { type: String },
       imdb: { type: String },
@@ -146,15 +146,13 @@ movieSchema.virtual('tagsId', {
 
 movieSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await mongoose.connection
-      .collection('counters')
-      .findOneAndUpdate(
-        { _id: 'movieid' },
-        { $inc: { seq: 1 } },
-        { returnDocument: 'after', upsert: true },
-      );
+    const counter = await Counters.findOneAndUpdate(
+      { _id: 'movieid' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
     this.id = counter.seq;
-    this.comments = (await CommentsMovie.create({ media_id: this.id }))._id;
+    //this.comments = (await CommentsMovie.create({ media_id: this.id }))._id;
   }
   next();
 });

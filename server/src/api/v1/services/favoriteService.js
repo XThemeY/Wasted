@@ -82,7 +82,7 @@ class FavoriteService {
       );
       return {
         status: 'added',
-        message: `Эпизод с id:${itemId} добавлен в Избранное`,
+        message: `Эпизод с id:${episodeId} добавлен в Избранное`,
       };
     }
     await Favorites.updateOne(
@@ -91,7 +91,7 @@ class FavoriteService {
     );
     return {
       status: 'del',
-      message: `Эпизод с id:${itemId} удален из Избранного`,
+      message: `Эпизод с id:${episodeId} удален из Избранного`,
     };
   }
 }

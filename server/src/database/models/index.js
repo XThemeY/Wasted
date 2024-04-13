@@ -23,4 +23,5 @@ export {
   CommentsShow,
   CommentsSeason,
   CommentsEpisode,
+  CommentsPeople,
 } from './comments/CommentsMedia.js';

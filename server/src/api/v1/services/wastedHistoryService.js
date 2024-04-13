@@ -1,4 +1,10 @@
-import { Episode, Movie, TVShow, WastedHistory } from '#db/models/index.js';
+import {
+  Episode,
+  Movie,
+  TVShow,
+  Season,
+  WastedHistory,
+} from '#db/models/index.js';
 import {
   movieService,
   showService,
@@ -138,13 +144,14 @@ class WastedHistoryService {
         { runValidators: true },
       );
       await episodeService.setWatchCount(episodeId);
-      return;
+      return { msg: 'Эпизод добавлен в просмотренное' };
     }
     await WastedHistory.updateOne(
       { username, 'tvShows.itemId': showId },
       { $pull: { 'tvShows.$.watchedEpisodes': { itemId: episodeId } } },
     );
     await episodeService.setWatchCount(episodeId);
+    return { msg: 'Эпизод удален из просмотренного' };
   }
 
   async getWastedIds(username, type) {
@@ -161,6 +168,55 @@ class WastedHistoryService {
 
     return wastedIds;
   }
+
+  // async setSeasonWasted(username, seasonId, status) {
+  //   const isSeasonExists = await Season.exists({
+  //     id: seasonId,
+  //   });
+  //   if (!isSeasonExists) {
+  //     throw ApiError.BadRequest(`Сезон с таким id:${seasonId} не существует`);
+  //   }
+  //   const isWasted = await WastedHistory.findOne(
+  //     {
+  //       username,
+  //       'tvShows.watchedSeasons.seasonId': seasonId,
+  //     },
+  //     { 'tvShows.$': seasonId },
+  //   ).exec();
+
+  //   if (!isWasted) {
+  //     await WastedHistory.updateOne(
+  //       {
+  //         username,
+  //       },
+  //       {
+  //         $push: {
+  //           'tvShows.watchedSeasons': [
+  //             {
+  //               seasonId,
+  //               status,
+  //             },
+  //           ],
+  //         },
+  //       },
+  //       { upsert: true, runValidators: true },
+  //     );
+  //     await seasonService.setTotalSeasonReactions(seasonId);
+  //     return;
+  //   }
+  //   const season = await Season.findOne(
+  //     {
+  //       id: seasonId,
+  //     },
+  //     'watched episode_count',
+  //   ).exec();
+  //   if (!season) {
+  //     throw ApiError.BadRequest(`Сезон с таким id:${seasonId} не существует`);
+  //   }
+  //   season.watched = status;
+  //   season.episode_count = season.episode_count - 1;
+  //   await season.save();
+  // }
 }
 
 export default new WastedHistoryService();

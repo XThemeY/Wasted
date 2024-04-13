@@ -15,7 +15,7 @@ router.get(`/${idRegExp}`, movieController.getMovie);
 router.patch(
   `/${idRegExp}`,
   authMiddleware,
-  roleMiddleware([ROLES.ADMIN]),
+  roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
   movieController.updateMovie,
 );
 router.post(

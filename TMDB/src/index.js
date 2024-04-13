@@ -30,7 +30,7 @@ app.use(errorHandler);
 
 const start = async () => {
   try {
-    await mongoose.connect(process.env.DB_URL);
+    await mongoose.connect(process.env.DB_URL_TMDBMain);
     app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
   } catch (e) {
     console.log(e);
