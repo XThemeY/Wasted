@@ -1,5 +1,5 @@
 # Logs
-**/logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -8,13 +8,13 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Dependencies
-**/node_modules/
+node_modules/
 
 # Testing 
 coverage
 
 # Transpiled files
-**/build/
+build/
 
 # VS Code
 .vscode
@@ -37,6 +37,3 @@ coverage
 .env.test.local
 .env.production.local
 *.local
-docker-compose.yml
-**/public/
-/misc
