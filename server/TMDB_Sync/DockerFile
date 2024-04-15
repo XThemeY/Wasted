@@ -1,5 +1,0 @@
-FROM node
-WORKDIR /TMDBServer
-COPY . .
-RUN npm install
-CMD [ "npm", "run", "build" ]
