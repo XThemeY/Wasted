@@ -36,7 +36,7 @@ coverage
 .env.development.local
 .env.test.local
 .env.production.local
+*.yml
 *.local
-docker-compose.yml
 **/public/
 /misc
