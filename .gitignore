@@ -10,8 +10,7 @@
 
 # production
 /build
-server/public/
-old
+
 
 # misc
 .DS_Store
@@ -20,11 +19,13 @@ old
 .env.development.local
 .env.test.local
 .env.production.local
-/Медиа
+**/public/
+/misc
+old
 logs
 *.log
 *.local
-DB
+docker-compose.yml
 
 
 
