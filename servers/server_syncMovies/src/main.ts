@@ -1,36 +1,57 @@
-/**
- * Some predefined delay values (in milliseconds).
- */
-export enum Delays {
-  Short = 500,
-  Medium = 2000,
-  Long = 5000,
-}
+import 'dotenv/config';
+import express from 'express'; //, { Request, Response, NextFunction }
+import mongoose from 'mongoose';
+import {
+  logger,
+  errorLogger,
+  invalidPathHandler,
+  errorResponder,
+} from '#/middleware/index.js';
+import { pinoHttp } from 'pino-http';
+import cors from 'cors';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import { corsOptions, logNames } from '#/config/index.js';
 
-/**
- * Returns a Promise<string> that resolves after a given time.
- *
- * @param {string} name - A name.
- * @param {number=} [delay=Delays.Medium] - A number of milliseconds to delay resolution of the Promise.
- * @returns {Promise<string>}
- */
-function delayedHello(
-  name: string,
-  delay: number = Delays.Medium,
-): Promise<string> {
-  console.log('Hello, ' + name);
-  return new Promise((resolve: (value?: string) => void) =>
-    setTimeout(() => resolve(`Hello, ${name}`), delay),
-  );
-}
+const PORT = process.env.PORT || 8010;
+const appLogger = logger(logNames.app);
+const reqLogger = logger(logNames.req);
+const app = express();
 
-// Please see the comment in the .eslintrc.json file about the suppressed rule!
-// Below is an example of how to use ESLint errors suppression. You can read more
-// at https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules
+//Http Logger
+app.use(pinoHttp({ logger: reqLogger }));
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export async function greeter(name: any) {
-  // eslint-disable-line @typescript-eslint/no-explicit-any
-  // The name parameter should be of type string. Any is used only to trigger the rule.
-  return await delayedHello(name, Delays.Long);
-}
+//Settings
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(compression());
+
+// Routes
+// app.use('/tmdb', tmdbRouter);
+
+// Error handler
+app.use(errorLogger);
+app.use(invalidPathHandler);
+app.use(errorResponder);
+
+const start = async (): Promise<void> => {
+  try {
+    await mongoose.connect(process.env.DB_URL_TEST);
+    app.listen(PORT, () => appLogger.info(`Server started on port ${PORT}`));
+  } catch (e) {
+    appLogger.error(e);
+  }
+};
+
+const db = mongoose.connection;
+db.on(
+  'error',
+  appLogger.error.bind(appLogger.error, 'MongoDB connection error:'),
+);
+db.once('open', () => {
+  appLogger.info('Connected to MongoDB');
+});
+
+start();
