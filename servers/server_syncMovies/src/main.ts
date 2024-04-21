@@ -12,6 +12,7 @@ import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { corsOptions, logNames } from '#/config/index.js';
+import ApiError from './utils/apiError';
 
 const PORT = process.env.PORT || 8010;
 const appLogger = logger(logNames.app);
@@ -33,7 +34,7 @@ app.use(compression());
 
 // Error handler
 app.use(errorLogger);
-app.use(invalidPathHandler);
+app.use('*', invalidPathHandler);
 app.use(errorResponder);
 
 const start = async (): Promise<void> => {
