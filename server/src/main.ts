@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express'; //, { Request, Response, NextFunction }
 import mongoose from 'mongoose';
+
 import {
   logger,
   errorLogger,
@@ -12,7 +13,6 @@ import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { corsOptions, logNames } from '#/config/index.js';
-import ApiError from './utils/apiError';
 
 const PORT = process.env.PORT || 8010;
 const appLogger = logger(logNames.app);

@@ -1,5 +1,5 @@
 {
-  "name": "wasted-server_syncmovies",
+  "name": "wasted_server",
   "version": "1.0.0",
   "description": "Sync movies server for WastedPro.",
   "type": "module",
@@ -46,7 +46,6 @@
     "@types/node": "^20",
     "@typescript-eslint/eslint-plugin": "^7.6",
     "@typescript-eslint/parser": "^7.6",
-    "errorhandler": "^1.5.1",
     "eslint": "^8.56",
     "eslint-config-prettier": "^9.1",
     "eslint-plugin-jest": "^28.2",
