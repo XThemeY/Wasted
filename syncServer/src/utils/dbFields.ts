@@ -24,9 +24,12 @@ import {
 } from '#/interfaces/IFields';
 import { IMediaModel } from '#/interfaces/IModel';
 import { Types } from 'mongoose';
-// import { logger } from '#/middleware/index.js';
+import { logger } from '#/middleware/index.js';
+import { logNames } from '#/config/index.js';
+import ApiError from './apiError.js';
 
-// const logEvents = logger('events.log');
+const fieldsLogger = logger(logNames.dbFields).child({ module: 'dbFields' });
+
 const axiosFields = tmdbApiConfig();
 
 export async function getCountries(countries: ICountry[]): Promise<ICountry[]> {
@@ -112,19 +115,19 @@ export async function getPeoples(
         if (people.job === 'Director') {
           newPeoples.push(await addPeople(people, id, mediaType));
         }
-        console.log(`Director: ${++i} из ${credits.crew.length}`);
+        fieldsLogger.info(`Director: ${++i} из ${credits.crew.length}`);
       }
       return newPeoples;
     case 'actor':
       for (const people of credits.cast) {
         newPeoples.push(await addPeople(people, id, mediaType));
-        console.log(`Cast: ${++i} из ${credits.cast.length}`);
+        fieldsLogger.info(`Cast: ${++i} из ${credits.cast.length}`);
       }
       return newPeoples;
     case 'creator':
       for (const people of credits) {
         newPeoples.push(await addPeople(people, id, mediaType));
-        console.log(`Creator: ${++i} из ${credits.length}`);
+        fieldsLogger.info(`Creator: ${++i} из ${credits.length}`);
       }
       return newPeoples;
     default:
@@ -286,7 +289,7 @@ export async function getSeasons(
       );
       await newSeason.save();
     }
-    console.log(`Season: ${i} из ${seasons.length - 1} шоу с id:${id}`);
+    fieldsLogger.info(`Season: ${i} из ${seasons.length - 1} шоу с id:${id}`);
     newSeasons.push(newSeason._id);
   }
   return newSeasons;
@@ -341,18 +344,16 @@ async function getEpisodes(
         );
         await newEpisode.save();
       }
-      console.log(
+      fieldsLogger.info(
         `Episode c id:${newEpisode.id}: № ${i} из ${episodes.length - 1} шоу с id:${id}`,
       );
-
       newEpisodes.push(newEpisode._id);
     }
     return newEpisodes;
   } catch (error) {
-    console.log(
-      `ID:${tmdbID} Ошибка запроса эпизода `,
+    throw ApiError.BadRequest(
+      'Ошибка запроса эпизодов',
       error?.message || error,
     );
-    return newEpisodes;
   }
 }

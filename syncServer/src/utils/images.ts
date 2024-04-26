@@ -2,7 +2,7 @@
 // import path from 'path';
 // import sharp, { Sharp } from 'sharp';
 // import axios from 'axios';
-//import { nanoid } from 'nanoid';
+// import { nanoid } from 'nanoid';
 // import fsPromises from 'fs/promises';
 import { IPathImage } from '#/interfaces/IFields';
 
