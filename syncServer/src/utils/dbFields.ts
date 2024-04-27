@@ -21,6 +21,7 @@ import {
   IProdCompany,
   ISeason,
   ITag,
+  ILogs,
 } from '#/interfaces/IFields';
 import { IMediaModel } from '#/interfaces/IModel';
 import { Types } from 'mongoose';
@@ -108,26 +109,40 @@ export async function getPeoples(
   mediaType: string,
 ): Promise<IPeople[]> {
   const newPeoples = [];
-  let i = 0;
   switch (type) {
     case 'director':
-      for (const people of credits.crew) {
+      for (const [index, people] of credits.crew.entries()) {
         if (people.job === 'Director') {
-          newPeoples.push(await addPeople(people, id, mediaType));
+          newPeoples.push(
+            await addPeople(people, id, mediaType, {
+              type,
+              index,
+              length: credits.crew.length,
+            }),
+          );
         }
-        fieldsLogger.info(`Director: ${++i} из ${credits.crew.length}`);
       }
       return newPeoples;
     case 'actor':
-      for (const people of credits.cast) {
-        newPeoples.push(await addPeople(people, id, mediaType));
-        fieldsLogger.info(`Cast: ${++i} из ${credits.cast.length}`);
+      for (const [index, people] of credits.cast.entries()) {
+        newPeoples.push(
+          await addPeople(people, id, mediaType, {
+            type,
+            index,
+            length: credits.cast.length,
+          }),
+        );
       }
       return newPeoples;
     case 'creator':
-      for (const people of credits) {
-        newPeoples.push(await addPeople(people, id, mediaType));
-        fieldsLogger.info(`Creator: ${++i} из ${credits.length}`);
+      for (const [index, people] of credits.entries()) {
+        newPeoples.push(
+          await addPeople(people, id, mediaType, {
+            type,
+            index,
+            length: credits.length,
+          }),
+        );
       }
       return newPeoples;
     default:
@@ -139,6 +154,7 @@ async function addPeople(
   people: IPeople,
   id: number,
   mediaType: string,
+  logs: ILogs,
 ): Promise<IPeople> {
   let newPeople = await People.findOne({ name: people.name });
   if (!newPeople) {
@@ -151,6 +167,7 @@ async function addPeople(
       'people',
       people.profile_path,
     );
+    fieldsLogger.info(`${logs.type}: ${logs.index} из ${logs.length}`);
   }
   if (
     mediaType === 'movie' &&
@@ -247,8 +264,8 @@ export async function getPlatforms(
 
 export async function getSeasons(
   id: number,
-  seasons: ISeason[],
-  seasonsENG: ISeason[],
+  seasons: ISeason[] | Types.ObjectId[],
+  seasonsENG: ISeason[] | Types.ObjectId[],
   tmdbID: number,
 ): Promise<Types.ObjectId[]> {
   const newSeasons = [];

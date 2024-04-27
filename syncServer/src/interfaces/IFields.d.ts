@@ -30,9 +30,9 @@ export interface IPeople {
 }
 
 export interface ICredits {
+  entries(): IterableIterator<[number, IPeople]>;
   crew?: IPeople[];
   cast?: IPeople[];
-  [Symbol.iterator](): IterableIterator<IPeople>;
   length?: number;
 }
 
@@ -68,4 +68,9 @@ export interface ISeason {
   poster_path?: string;
   vote_average: number;
   vote_count: number;
+}
+export interface ILogs {
+  type: string;
+  index: number;
+  length: number;
 }

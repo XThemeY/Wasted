@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { CommentsShow, Counters } from '#db/models/index.js';
+import { IShow } from '#/interfaces/IModel';
 
 const tvShowSchema = new Schema(
   {
@@ -167,6 +168,6 @@ tvShowSchema.pre('save', async function (next) {
   next();
 });
 
-const TVShow = model('TVShow', tvShowSchema);
+const TVShow = model<IShow>('TVShow', tvShowSchema);
 
 export default TVShow;

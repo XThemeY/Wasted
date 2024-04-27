@@ -11,10 +11,7 @@ export default class ApiError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 
-  public static BadRequest(
-    message: string,
-    errors: Error[] | void = [],
-  ): ApiError {
+  public static BadRequest(message: string, errors: Error[] | []): ApiError {
     return new ApiError(400, message, errors);
   }
   public static NotAuthorized(): ApiError {

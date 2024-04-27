@@ -26,8 +26,9 @@ class RequestHandler {
     }
     try {
       const response = await this.axiosMedia.get(
-        `/${type}/` + id + config ? this.reqConfig : '',
+        `/${type}/` + id + `${config ? this.reqConfig : ''}`,
       );
+
       return response;
     } catch (error) {
       throw ApiError.BadRequest(

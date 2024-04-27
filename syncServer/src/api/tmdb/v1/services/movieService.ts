@@ -7,7 +7,7 @@ import {
   getTags,
   getProdCompanies,
 } from '#/utils/dbFields.js';
-import { IMediaModel, IMovie } from '#/interfaces/IModel';
+import { IMovieModel, IMovie } from '#/interfaces/IModel';
 import { logger } from '#/middleware/logger';
 import { logNames } from '#/config/index';
 
@@ -29,8 +29,8 @@ class MovieService {
   }
 
   async addMovieToDb(
-    model: IMediaModel,
-    modelENG?: IMediaModel,
+    model: IMovieModel,
+    modelENG?: IMovieModel,
     latestTMDBId?: number,
   ): Promise<void> {
     const oldMovie = await Movie.findOne({ 'external_ids.tmdb': model.id });
@@ -85,8 +85,8 @@ class MovieService {
   }
 
   async syncMovie(
-    model: IMediaModel,
-    modelENG?: IMediaModel,
+    model: IMovieModel,
+    modelENG?: IMovieModel,
     latestTMDBId?: number,
   ): Promise<void> {
     const movie = await Movie.findOne({ 'external_ids.tmdb': model.id });
@@ -146,7 +146,7 @@ class MovieService {
     );
   }
 
-  async syncRatings(model: IMediaModel): Promise<void | { message: string }> {
+  async syncRatings(model: IMovieModel): Promise<void | { message: string }> {
     const movie = await Movie.findOne({ 'external_ids.tmdb': model.id });
     if (!movie) {
       movieLogger.info(`Фильм с tmdbID:${model.id} не найден`);

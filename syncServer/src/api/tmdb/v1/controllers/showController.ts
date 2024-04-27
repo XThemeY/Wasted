@@ -1,28 +1,25 @@
-import axios from 'axios';
+import { logNames } from '#/config/logNames';
+import { logger } from '#/middleware/index.js';
 import ShowService from '#api/tmdb/v1/services/showService.js';
-
 import { TVShow } from '#db/models/index.js';
+import { NextFunction, Request, Response } from 'express';
+import ApiError from '#/utils/apiError';
+import RequestHandler from '#/api/ApiConfigs.js';
 
-const axiosShow = axios.create({
-  baseURL: process.env.TMDB_API_URL,
-});
-axiosShow.defaults.headers.common['Authorization'] =
-  `Bearer ${process.env.TMDB_API_TOKEN}`;
+const showLogger = logger(logNames.movie).child({ module: 'TmdbMovieAPI' });
 
-let abort = false;
 class TmdbShowAPI {
-  async getShow(req, res, next) {
-    const showId = req.params.id;
+  private abort = false;
 
+  async addShow(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    const showId = req.params.id;
     try {
-      const response = await axiosShow.get(
-        '/tv/' +
-          showId +
-          '?language=ru-RU&append_to_response=external_ids,keywords,credits,images&include_image_language=ru,en',
-      );
-      const responseENG = await axiosShow.get(
-        '/tv/' + showId + '?language=en-US',
-      );
+      const response = await RequestHandler.reqMedia('tv', showId);
+      const responseENG = await RequestHandler.reqMedia('tv', showId, true);
       await ShowService.addShowToDb(response.data, responseENG.data);
 
       res.json(response.data);
@@ -129,5 +126,3 @@ class TmdbShowAPI {
 }
 
 export default new TmdbShowAPI();
-
-//https://rating.kinopoisk.ru/404900.xml

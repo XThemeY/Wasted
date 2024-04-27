@@ -1,9 +1,9 @@
 import { logNames } from '#/config/index.js';
 import { logger } from '#/middleware/index.js';
 import ApiError from '#/utils/apiError';
+import RequestHandler from '#/api/ApiConfigs.js';
 import MovieService from '#api/tmdb/v1/services/movieService.js';
 import { Request, Response, NextFunction } from 'express';
-import RequestHandler from '#/api/ApiConfigs.js';
 
 const movieLogger = logger(logNames.movie).child({ module: 'TmdbMovieAPI' });
 
@@ -21,12 +21,7 @@ class TmdbMovieAPI {
       await MovieService.addMovieToDb(response.data, responseENG.data);
       return res.status(200);
     } catch (error) {
-      return next(
-        ApiError.BadRequest(
-          'Ошибка добавления фильма',
-          error?.message || error,
-        ),
-      );
+      return next(ApiError.BadRequest(error?.message, error.errors || error));
     }
   }
 
@@ -117,7 +112,7 @@ class TmdbMovieAPI {
 
   async abortMoviesAll(req: Request, res: Response): Promise<void> {
     this.abort = true;
-    movieLogger.info(`Получение всех фильмов отменено`);
+    movieLogger.info(`Получение фильмов отменено`);
     res.status(200).json({ msg: 'Aborted' });
   }
 }
