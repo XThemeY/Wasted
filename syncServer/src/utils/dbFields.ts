@@ -22,6 +22,7 @@ import {
   ISeason,
   ITag,
   ILogs,
+  IEpisode,
 } from '#/interfaces/IFields';
 import { IMediaModel } from '#/interfaces/IModel';
 import { Types } from 'mongoose';
@@ -43,6 +44,10 @@ export async function getCountries(countries: ICountry[]): Promise<ICountry[]> {
         short_name: country.iso_3166_1,
         name: country.name,
       });
+      fieldsLogger.info(
+        { countryId: newCountry.id },
+        `Country: ${newCountry.id} был добавлен`,
+      );
     }
     newCountries.push(newCountry.id);
   }
@@ -64,6 +69,10 @@ export async function getGenres(
         ru: genres[i].name,
         en: genresENG[i].name,
       });
+      fieldsLogger.info(
+        { genreId: genre.id },
+        `Genre: ${genre.id} был добавлен`,
+      );
     }
 
     newGenres.push(genre.id);
@@ -167,18 +176,20 @@ async function addPeople(
       'people',
       people.profile_path,
     );
-    fieldsLogger.info(`${logs.type}: ${logs.index} из ${logs.length}`);
+    fieldsLogger.info(
+      { peopleId: newPeople.id },
+      `${logs.type}: ${logs.index} из ${logs.length} был добавлен`,
+    );
   }
   if (
     mediaType === 'movie' &&
     !newPeople.movies.find((item) => item.id === id)
   ) {
     const movie = { id, role: people.character, job: people.job };
-    newPeople.movies = [...newPeople.movies, movie] as Types.DocumentArray<{
-      id?: number;
-      role?: string;
-      job?: string;
-    }>;
+    newPeople.movies = [
+      ...newPeople.movies,
+      movie,
+    ] as Types.DocumentArray<IPeople>;
     await newPeople.save();
   }
   if (mediaType === 'show' && !newPeople.shows.find((item) => item.id === id)) {
@@ -187,11 +198,10 @@ async function addPeople(
       role: people.character,
       job: !people.character ? 'Creator' : people.job,
     };
-    newPeople.shows = [...newPeople.shows, show] as Types.DocumentArray<{
-      id?: number;
-      role?: string;
-      job?: string;
-    }>;
+    newPeople.shows = [
+      ...newPeople.shows,
+      show,
+    ] as Types.DocumentArray<IPeople>;
     await newPeople.save();
   }
   return {
@@ -210,6 +220,10 @@ export async function getTags(tags: ITag[]): Promise<ITag[]> {
         ru: await translate(tag.name, 'ru'),
         en: tag.name,
       });
+      fieldsLogger.info(
+        { newTag: newTag.id },
+        `Tag: ${newTag.id} был добавлен`,
+      );
     }
     newTags.push(newTag.id);
   }
@@ -233,6 +247,10 @@ export async function getProdCompanies(
         company.logo_path,
       );
       await newCompany.save();
+      fieldsLogger.info(
+        { companyId: newCompany.id },
+        `Company: ${newCompany.id} была добавлена`,
+      );
     }
     newCompanies.push(newCompany.id);
   }
@@ -256,6 +274,10 @@ export async function getPlatforms(
         platform.logo_path,
       );
       await newPlatform.save();
+      fieldsLogger.info(
+        { platformId: newPlatform.id },
+        `Platform: ${newPlatform.id} была добавлена`,
+      );
     }
     newPlatforms.push(newPlatform.id);
   }
@@ -264,10 +286,10 @@ export async function getPlatforms(
 
 export async function getSeasons(
   id: number,
-  seasons: ISeason[] | Types.ObjectId[],
-  seasonsENG: ISeason[] | Types.ObjectId[],
+  seasons: ISeason[],
+  seasonsENG: ISeason[],
   tmdbID: number,
-): Promise<Types.ObjectId[]> {
+): Promise<ISeason[]> {
   const newSeasons = [];
 
   for (let i = 0; i < seasons.length; i++) {
@@ -276,7 +298,7 @@ export async function getSeasons(
       season_number: seasons[i].season_number,
     });
     if (!newSeason) {
-      await Season.create({
+      newSeason = await Season.create({
         show_id: id,
         title: seasons[i].name,
         title_original: seasonsENG[i].name,
@@ -288,25 +310,18 @@ export async function getSeasons(
         rating: seasons[i].vote_average,
       });
 
-      newSeason = await Season.findOne({
-        show_id: id,
-        season_number: seasons[i].season_number,
-      });
-
-      newSeason.episodes = await getEpisodes(
-        id,
-        tmdbID,
-        newSeason.season_number,
-      );
-
       newSeason.poster_url = await createImgUrl(
         newSeason.id,
         'season',
         seasons[i].poster_path,
       );
-      await newSeason.save();
+      fieldsLogger.info(
+        { showId: newSeason.show_id, seasonId: newSeason.id },
+        `Season: ${i} из ${seasons.length - 1} шоу с id:${id} добавлен`,
+      );
     }
-    fieldsLogger.info(`Season: ${i} из ${seasons.length - 1} шоу с id:${id}`);
+    newSeason.episodes = await getEpisodes(id, tmdbID, newSeason.season_number);
+    await newSeason.save();
     newSeasons.push(newSeason._id);
   }
   return newSeasons;
@@ -316,7 +331,7 @@ async function getEpisodes(
   id: number,
   tmdbID: number,
   seasonNumber: number,
-): Promise<Types.ObjectId[]> {
+): Promise<IEpisode[]> {
   const newEpisodes = [];
   try {
     const response = await axiosFields.get(
@@ -360,10 +375,10 @@ async function getEpisodes(
           episodes[i].still_path,
         );
         await newEpisode.save();
+        fieldsLogger.info(
+          `Episode c id:${newEpisode.id}: № ${i} из ${episodes.length - 1} шоу с id:${id} добавлен`,
+        );
       }
-      fieldsLogger.info(
-        `Episode c id:${newEpisode.id}: № ${i} из ${episodes.length - 1} шоу с id:${id}`,
-      );
       newEpisodes.push(newEpisode._id);
     }
     return newEpisodes;

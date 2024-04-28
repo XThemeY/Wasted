@@ -9,9 +9,29 @@ import {
   getPlatforms,
   getSeasons,
 } from '#/utils/dbFields.js';
-import { IMediaModel } from '#/interfaces/IModel';
+import { IMediaModel, IShow } from '#/interfaces/IModel';
+import { logger } from '#/middleware/index';
+import { logNames } from '#/config/index';
+
+const showLogger = logger(logNames.show).child({ module: 'ShowService' });
 
 class TVShowService {
+  async getShow(id: number): Promise<IShow | void> {
+    const show = await TVShow.findOne({ 'external_ids.tmdb': id });
+    if (!show) {
+      showLogger.info(
+        { tmdbID: id },
+        `ACTION: Шоу c tmdbID:${id} не существует в базе данных`,
+      );
+      return;
+    }
+    showLogger.info(
+      { tmdbID: show.external_ids.tmdb, wastedId: show.id },
+      `ACTION: Шоу c tmdbID:${show.external_ids.tmdb} уже существует в базе данных под id:${show.id}`,
+    );
+    return show;
+  }
+
   async addShowToDb(
     model: IMediaModel,
     modelENG: IMediaModel,
@@ -69,23 +89,113 @@ class TVShowService {
         model.id,
       );
       await show.save();
-      console.log(
-        `Шоу c tmdbID:${show.external_ids.tmdb} из ${latestTMDBId} был добавлен в базу под id:${show.id}`,
+      showLogger.info(
+        { tmdbID: show.external_ids.tmdb, wastedId: show.id },
+        `ACTION: Фильм c tmdbID:${show.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${show.id}.`,
       );
-      logEvents(
-        `ACTION:Добавлен в базу  ---  WastedId:${show.id} - tmdbID:${show.external_ids.tmdb} - Title:${show.title} `,
-        'showDBLog.log',
+      return;
+    }
+    showLogger.info(
+      { tmdbID: oldShow.external_ids.tmdb, wastedId: oldShow.id },
+      `Шоу c tmdbID:${oldShow.external_ids.tmdb} уже существует в базе данных под id:${oldShow.id}`,
+    );
+  }
+
+  async syncShow(model: IMediaModel, modelENG: IMediaModel): Promise<void> {
+    const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
+    if (!show) {
+      showLogger.info(
+        { tmdbID: model.id },
+        `ACTION: Шоу c tmdbID:${model.id} не существует в базе данных`,
       );
       return;
     }
 
-    console.log(
-      `Шоу c tmdbID:${show.external_ids.tmdb} уже существует в базе данных под id:${show.id}`,
+    show.title = model.name;
+    show.title_original = model.original_name;
+    show.start_date = model.first_air_date;
+    show.end_date = model.last_air_date;
+    show.description = model.overview;
+    show.description_original = modelENG.overview;
+    show.status = model.status;
+    show.episode_duration = model.episode_run_time[0];
+    show.number_of_seasons = model.number_of_seasons;
+    show.number_of_episodes = model.number_of_episodes;
+    show.popularity = model.popularity;
+    show.images = await getMediaImages(show.id, 'show', model);
+    show.genres = await getGenres(model.genres, modelENG.genres);
+    show.countries = await getCountries(model.production_countries);
+    show.creators = await getPeoples(
+      model.created_by,
+      'creator',
+      show.id,
+      'show',
     );
-    logEvents(
-      `ACTION:Уже существует  ---  WastedId:${show.id} - tmdbID:${show.external_ids.tmdb} - Title:${show.title} `,
-      'showDBLog.log',
+    show.cast = await getPeoples(model.credits, 'actor', show.id, 'show');
+    show.tags = await getTags(model.keywords.results);
+    show.platforms = await getPlatforms(model.networks);
+    show.production_companies = await getProdCompanies(
+      model.production_companies,
     );
+    show.seasons = await getSeasons(
+      show.id,
+      model.seasons,
+      modelENG.seasons,
+      model.id,
+    );
+    show.updatedAt = new Date();
+    await show.save();
+    showLogger.info(
+      { wastedId: show.id },
+      `ACTION: Шоу c id:${show.id} было обновлено.`,
+    );
+  }
+
+  async syncRatings(model: IMediaModel): Promise<void> {
+    const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
+    if (!show) {
+      showLogger.info(
+        { tmdbID: model.id },
+        `Фильм с tmdbID:${model.id} не найден`,
+      );
+      return;
+    }
+    const tomorrow = new Date(show.updatedAt);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    const now = new Date();
+    if (tomorrow < now) {
+      show.ratings.tmdb = {
+        rating: model.vote_average,
+        vote_count: model.vote_count,
+      };
+      show.ratings.imdb = {
+        rating: 0,
+        vote_count: 0,
+      };
+      show.ratings.kinopoisk = {
+        rating: 0,
+        vote_count: 0,
+      };
+      show.updatedAt = new Date();
+      await show.save();
+      showLogger.info(
+        { wastedId: model.id },
+        `ACTION: Рейтинг шоу с id:${show.id} обновлен.`,
+      );
+      return;
+    }
+    showLogger.info(
+      { wastedId: model.id },
+      `ACTION: Рейтинг шоу с id:${show.id} уже обновлен. Рейтинг обновляется каждые сутки.`,
+    );
+  }
+
+  async getLastShowId(): Promise<number> {
+    const lastShowId = await TVShow.findOne().sort({ $natural: -1 });
+    if (!lastShowId) {
+      return 0;
+    }
+    return +lastShowId.external_ids.tmdb + 1;
   }
 
   // async delShowFromDb(show_id) {

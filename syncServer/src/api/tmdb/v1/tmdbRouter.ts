@@ -7,8 +7,8 @@ const router = Router();
 //const idRegExp = ':id(\\d+)';
 
 //router.use('/auth', authRouter);
-router.use('/movies', movieRouter);
-router.use('/shows', tvshowRouter);
+router.use('/movie', movieRouter);
+router.use('/show', tvshowRouter);
 //router.use(`/shows/${idRegExp}/episodes`, episodeRouter);
 
 export default router;

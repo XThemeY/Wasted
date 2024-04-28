@@ -11,40 +11,61 @@ export const tmdbApiConfig = (): AxiosInstance => {
 };
 
 class RequestHandler {
-  private axiosMedia = tmdbApiConfig();
-  private reqConfig =
-    '?language=ru-RU&append_to_response=keywords,credits,images&include_image_language=ru,en';
-
+  private _axiosMedia = tmdbApiConfig();
+  private _reqConfig =
+    '&append_to_response=keywords,credits,images&include_image_language=ru,en';
+  private _reqEngConfig = '?language=en-US';
+  private _reqRuConfig = '?language=ru-RU';
+  private _reqPopularConfig = '&sort_by=popularity.desc&vote_count.gte=100';
   public async reqMedia(
     type: string,
     id: string | number,
     eng: boolean = false,
     config: boolean = true,
   ): Promise<AxiosResponse> {
-    if (eng) {
-      this.reqConfig = '?language=en-US';
-    }
+    const langConfig = eng ? this._reqEngConfig : this._reqRuConfig;
+    const url =
+      `/${type}/` + id + langConfig + `${config ? this._reqConfig : ''}`;
     try {
-      const response = await this.axiosMedia.get(
-        `/${type}/` + id + `${config ? this.reqConfig : ''}`,
-      );
-
+      const response = await this._axiosMedia.get(url);
       return response;
     } catch (error) {
       throw ApiError.BadRequest(
-        `Ошибка запроса "${'/' + type + '/' + id + this.reqConfig}"`,
+        `Ошибка запроса "${url}"`,
         error?.message || error,
       );
     }
   }
 
   public async reqLatestMedia(type: string): Promise<AxiosResponse> {
+    const url = `/${type}/` + 'latest';
     try {
-      const response = await this.axiosMedia.get(`/${type}/` + 'latest');
+      const response = await this._axiosMedia.get(url);
       return response;
     } catch (error) {
       throw ApiError.BadRequest(
-        `Ошибка запроса "${'/' + type + '/' + 'latest'}"`,
+        `Ошибка запроса "${url}"`,
+        error?.message || error,
+      );
+    }
+  }
+
+  public async reqPopularMedia(
+    type: string,
+    page: number,
+  ): Promise<AxiosResponse> {
+    const url =
+      `/discover/${type}/` +
+      this._reqRuConfig +
+      '&page=' +
+      page +
+      this._reqPopularConfig;
+    try {
+      const response = await this._axiosMedia.get(url);
+      return response;
+    } catch (error) {
+      throw ApiError.BadRequest(
+        `Ошибка запроса "${url}"`,
         error?.message || error,
       );
     }

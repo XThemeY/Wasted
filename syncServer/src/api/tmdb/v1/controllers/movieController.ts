@@ -8,7 +8,9 @@ import { Request, Response, NextFunction } from 'express';
 const movieLogger = logger(logNames.movie).child({ module: 'TmdbMovieAPI' });
 
 class TmdbMovieAPI {
-  private abort = false;
+  private static _abort = false;
+  private static _type = 'movie';
+
   async addMovie(
     req: Request,
     res: Response,
@@ -16,8 +18,15 @@ class TmdbMovieAPI {
   ): Promise<Response | void> {
     const movieId = req.params.id;
     try {
-      const response = await RequestHandler.reqMedia('movie', movieId);
-      const responseENG = await RequestHandler.reqMedia('movie', movieId, true);
+      const response = await RequestHandler.reqMedia(
+        TmdbMovieAPI._type,
+        movieId,
+      );
+      const responseENG = await RequestHandler.reqMedia(
+        TmdbMovieAPI._type,
+        movieId,
+        true,
+      );
       await MovieService.addMovieToDb(response.data, responseENG.data);
       return res.status(200);
     } catch (error) {
@@ -31,9 +40,19 @@ class TmdbMovieAPI {
     next: NextFunction,
   ): Promise<Response | void> {
     const movieId = req.params.id;
+
     try {
-      const response = await RequestHandler.reqMedia('movie', movieId);
-      await MovieService.syncMovie(response.data);
+      const response = await RequestHandler.reqMedia(
+        TmdbMovieAPI._type,
+        movieId,
+      );
+      const responseENG = await RequestHandler.reqMedia(
+        TmdbMovieAPI._type,
+        movieId,
+        true,
+        false,
+      );
+      await MovieService.syncMovie(response.data, responseENG.data);
       return res.status(200);
     } catch (error) {
       return next(
@@ -53,7 +72,7 @@ class TmdbMovieAPI {
     const movieId = req.params.id;
     try {
       const response = await RequestHandler.reqMedia(
-        'movie',
+        TmdbMovieAPI._type,
         movieId,
         false,
         false,
@@ -63,7 +82,47 @@ class TmdbMovieAPI {
     } catch (error) {
       return next(
         ApiError.BadRequest(
-          'Ошибка синхронизации рейтинга',
+          'Ошибка синхронизации рейтинга фильма с id:' + movieId,
+          error?.message || error,
+        ),
+      );
+    }
+  }
+
+  async getPopularMovies(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    const pages = +req.query.pages;
+    const popularIDs = [];
+    const wastedIds = [];
+    try {
+      for (let page = 1; page <= pages; page++) {
+        const response = await RequestHandler.reqPopularMedia('tv', page);
+        for (const item of response.data.results) {
+          popularIDs.push(item.id);
+        }
+      }
+      for (const item of popularIDs) {
+        const newResponse = await RequestHandler.reqMedia('tv', item);
+        const responseENG = await RequestHandler.reqMedia(
+          'tv',
+          item,
+          true,
+          false,
+        );
+        const id = await MovieService.addMovieToDb(
+          newResponse.data,
+          responseENG.data,
+        );
+        wastedIds.push(id);
+      }
+      return res.status(200).json({ movieIds: wastedIds });
+    } catch (error) {
+      return next(
+        ApiError.BadRequest(
+          'Ошибка получения популярных фильмов',
           error?.message || error,
         ),
       );
@@ -75,17 +134,23 @@ class TmdbMovieAPI {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    this.abort = false;
+    TmdbMovieAPI._abort = false;
     try {
       const latestWastedId = await MovieService.getLastMovieId();
-      const latestTMDBId = (await RequestHandler.reqLatestMedia('movie')).data
-        .id;
+      const latestTMDBId = (
+        await RequestHandler.reqLatestMedia(TmdbMovieAPI._type)
+      ).data.id;
 
       for (let i = latestWastedId; i <= latestTMDBId; i++) {
-        if (this.abort) break;
+        if (TmdbMovieAPI._abort) break;
         try {
-          const response = await RequestHandler.reqMedia('movie', i);
-          const responseENG = await RequestHandler.reqMedia('movie', i, true);
+          const response = await RequestHandler.reqMedia(TmdbMovieAPI._type, i);
+          const responseENG = await RequestHandler.reqMedia(
+            TmdbMovieAPI._type,
+            i,
+            true,
+            false,
+          );
           await MovieService.addMovieToDb(
             response.data,
             responseENG.data,
@@ -111,9 +176,9 @@ class TmdbMovieAPI {
   }
 
   async abortMoviesAll(req: Request, res: Response): Promise<void> {
-    this.abort = true;
+    TmdbMovieAPI._abort = true;
     movieLogger.info(`Получение фильмов отменено`);
-    res.status(200).json({ msg: 'Aborted' });
+    res.status(200);
   }
 }
 export default new TmdbMovieAPI();

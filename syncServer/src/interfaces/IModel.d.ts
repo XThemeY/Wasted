@@ -27,7 +27,7 @@ export interface IMediaModel extends Document {
   number_of_seasons: number;
   number_of_episodes: number;
   overview: string;
-  runtime: string;
+  runtime: number;
   duration: number;
   vote_average: number;
   vote_count: number;
@@ -41,9 +41,12 @@ export interface IMediaModel extends Document {
   };
   created_by: IPeople[];
   genres: IGenre[];
-  keywords: { results: ITag[] };
+  keywords: {
+    keywords: ITag[];
+    results: ITag[];
+  };
   credits: ICredits;
-  seasons: ISeason[] | Types.ObjectId[];
+  seasons: ISeason[];
   networks: IPlatform[];
   production_companies: IProdCompany[];
   production_countries: ICountry[];
@@ -135,6 +138,9 @@ export interface IShow extends IMediaModel {
   countries: ICountry[];
   director: IPeople[];
   cast: IPeople[];
+  start_date: Date;
+  end_date: Date;
+  episode_duration: number;
   watch_count: number;
   description: string;
   description_original: string;

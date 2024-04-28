@@ -1,15 +1,15 @@
-import { logNames } from '#/config/logNames';
+import { logNames } from '#/config/index';
 import { logger } from '#/middleware/index.js';
 import ShowService from '#api/tmdb/v1/services/showService.js';
-import { TVShow } from '#db/models/index.js';
 import { NextFunction, Request, Response } from 'express';
 import ApiError from '#/utils/apiError';
 import RequestHandler from '#/api/ApiConfigs.js';
 
-const showLogger = logger(logNames.movie).child({ module: 'TmdbMovieAPI' });
+const showLogger = logger(logNames.movie).child({ module: 'TmdbShowAPI' });
 
 class TmdbShowAPI {
-  private abort = false;
+  private static _abort = false;
+  private static _type = 'tv';
 
   async addShow(
     req: Request,
@@ -18,110 +18,166 @@ class TmdbShowAPI {
   ): Promise<Response | void> {
     const showId = req.params.id;
     try {
-      const response = await RequestHandler.reqMedia('tv', showId);
-      const responseENG = await RequestHandler.reqMedia('tv', showId, true);
-      await ShowService.addShowToDb(response.data, responseENG.data);
-
-      res.json(response.data);
-    } catch (error) {
-      logEvents(
-        `${'id:' + showId + '-' + error?.name || error}: ${error?.message || error}`,
-        'showReqLog.log',
+      const response = await RequestHandler.reqMedia(TmdbShowAPI._type, showId);
+      const responseENG = await RequestHandler.reqMedia(
+        TmdbShowAPI._type,
+        showId,
+        true,
+        false,
       );
-      console.log(
-        `ID:${showId} Ошибка запроса фильма`,
-        error?.message || error,
+      await ShowService.addShowToDb(response.data, responseENG.data);
+      return res.json(response.data);
+    } catch (error) {
+      next(ApiError.BadRequest(error?.message, error.errors || error));
+    }
+  }
+
+  async syncShow(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    const showId = req.params.id;
+    try {
+      const response = await RequestHandler.reqMedia(TmdbShowAPI._type, showId);
+      const responseENG = await RequestHandler.reqMedia(
+        TmdbShowAPI._type,
+        showId,
+        true,
+        false,
+      );
+      await ShowService.syncShow(response.data, responseENG.data);
+      return res.sendStatus(200);
+    } catch (error) {
+      return next(
+        ApiError.BadRequest(
+          'Ошибка синхронизации шоу',
+          error?.message || error,
+        ),
       );
     }
   }
 
-  async getPopularShows(req, res, next) {
+  async syncRatings(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    const showId = req.params.id;
+    try {
+      const response = await RequestHandler.reqMedia(
+        TmdbShowAPI._type,
+        showId,
+        false,
+        false,
+      );
+      await ShowService.syncRatings(response.data);
+      return res.sendStatus(200);
+    } catch (error) {
+      return next(
+        ApiError.BadRequest(
+          'Ошибка синхронизации рейтинга шоу c id:' + showId,
+          error?.message || error,
+        ),
+      );
+    }
+  }
+
+  async getPopularShows(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
     const pages = +req.query.pages;
     const popularIDs = [];
-
+    const wastedIds = [];
     try {
       for (let page = 1; page <= pages; page++) {
-        const response = await axiosShow.get(
-          '/discover/tv' +
-            '?language=ru-RU&page=' +
-            page +
-            '&sort_by=popularity.desc&vote_count.gte=100',
+        const response = await RequestHandler.reqPopularMedia(
+          TmdbShowAPI._type,
+          page,
         );
         for (const item of response.data.results) {
           popularIDs.push(item.id);
         }
       }
-      res.json(popularIDs);
       for (const item of popularIDs) {
-        const newResponse = await axiosShow.get(
-          '/tv/' +
-            item +
-            '?language=ru-RU&append_to_response=external_ids,keywords,credits,images&include_image_language=ru,en',
+        const newResponse = await RequestHandler.reqMedia(
+          TmdbShowAPI._type,
+          item,
         );
-        const responseENG = await axiosShow.get(
-          '/tv/' + item + '?language=en-US',
+        const responseENG = await RequestHandler.reqMedia(
+          TmdbShowAPI._type,
+          item,
+          true,
+          false,
         );
-        await ShowService.addShowToDb(newResponse.data, responseENG.data);
-      }
-      console.log(`Список популярных шоу получен`);
-    } catch (error) {
-      logEvents(
-        `${error?.name || error}: ${error?.message || error}`,
-        'showReqLog.log',
-      );
-
-      console.log(`Ошибка получения популярных шоу`, error?.message || error);
-    }
-  }
-
-  async getShowsAll(req, res, next) {
-    let latestTMDBId = 0;
-    let latestWastedId = 0;
-    abort = false;
-    try {
-      const lastShowId = await TVShow.findOne().sort({ $natural: -1 });
-      if (lastShowId) {
-        latestWastedId = +lastShowId.external_ids.tmdb + 1;
-      }
-      const response = await axiosShow.get('/tv/latest');
-      latestTMDBId = response.data.id;
-    } catch (error) {
-      console.log(`Ошибка запроса LatestTMDBID`);
-    }
-
-    for (let i = latestWastedId; i <= latestTMDBId; i++) {
-      if (abort) break;
-      try {
-        const response = await axiosShow.get(
-          '/tv/' +
-            i +
-            '?language=ru-RU&append_to_response=external_ids,keywords,credits,images&include_image_language=ru,en',
-        );
-
-        const responseENG = await axiosShow.get('/tv/' + i + '?language=en-US');
-        await ShowService.addShowToDb(
-          response.data,
+        const id = await ShowService.addShowToDb(
+          newResponse.data,
           responseENG.data,
-          latestTMDBId,
         );
-      } catch (error) {
-        logEvents(
-          `${'TMDBIDid:' + i + '-' + error?.name || error}: ${error?.message || error}`,
-          'showReqLog.log',
-        );
-        console.log(`TMDBID:${i} Ошибка запроса шоу`, error?.message || error);
-        //if (error?.response?.status !== 404) break;
+        wastedIds.push(id);
       }
+      return res.status(200).json({ showIds: wastedIds });
+    } catch (error) {
+      return next(
+        ApiError.BadRequest(
+          'Ошибка получения популярных шоу',
+          error?.message || error,
+        ),
+      );
     }
-
-    res.json({ isOk: true });
-    console.log(`Все шоу добавлены`);
   }
 
-  async abortShowsAll(req, res, next) {
-    abort = true;
-    console.log(`Получение всех шоу отменено`);
-    res.json({ msg: 'Aborted' });
+  async getShowsAll(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response> {
+    TmdbShowAPI._abort = false;
+    try {
+      const latestWastedId = await ShowService.getLastShowId();
+      const latestTMDBId = (
+        await RequestHandler.reqLatestMedia(TmdbShowAPI._type)
+      ).data.id;
+
+      for (let i = latestWastedId; i <= latestTMDBId; i++) {
+        if (TmdbShowAPI._abort) break;
+        try {
+          const response = await RequestHandler.reqMedia(TmdbShowAPI._type, i);
+          const responseENG = await RequestHandler.reqMedia(
+            TmdbShowAPI._type,
+            i,
+            true,
+          );
+          await ShowService.addShowToDb(
+            response.data,
+            responseENG.data,
+            latestTMDBId,
+          );
+        } catch (error) {
+          showLogger.error(
+            `ID:${i} Ошибка запроса фильма`,
+            error?.message || error,
+          );
+        }
+      }
+      showLogger.info(`Все шоу добавлены`);
+      return res.sendStatus(200);
+    } catch (error) {
+      next(
+        ApiError.BadRequest(
+          'Ошибка получения фильмов',
+          error?.message || error,
+        ),
+      );
+    }
+  }
+
+  async abortShowsAll(req: Request, res: Response): Promise<Response> {
+    TmdbShowAPI._abort = true;
+    showLogger.info(`Получение шоу отменено`);
+    return res.sendStatus(200);
   }
 }
 
