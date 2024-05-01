@@ -2,10 +2,9 @@ import { logNames } from '#/config/index';
 import { logger } from '#/middleware/index.js';
 import ShowService from '#api/tmdb/v1/services/showService.js';
 import { NextFunction, Request, Response } from 'express';
-import ApiError from '#/utils/apiError';
 import RequestHandler from '#/api/ApiConfigs.js';
 
-const showLogger = logger(logNames.movie).child({ module: 'TmdbShowAPI' });
+const showLogger = logger(logNames.show).child({ module: 'TmdbShowAPI' });
 
 class TmdbShowAPI {
   private static _abort = false;
@@ -28,7 +27,7 @@ class TmdbShowAPI {
       await ShowService.addShowToDb(response.data, responseENG.data);
       return res.json(response.data);
     } catch (error) {
-      next(ApiError.BadRequest(error?.message, error.errors || error));
+      next(error);
     }
   }
 
@@ -46,15 +45,11 @@ class TmdbShowAPI {
         true,
         false,
       );
+
       await ShowService.syncShow(response.data, responseENG.data);
       return res.sendStatus(200);
     } catch (error) {
-      return next(
-        ApiError.BadRequest(
-          'Ошибка синхронизации шоу',
-          error?.message || error,
-        ),
-      );
+      return next(error);
     }
   }
 
@@ -74,12 +69,7 @@ class TmdbShowAPI {
       await ShowService.syncRatings(response.data);
       return res.sendStatus(200);
     } catch (error) {
-      return next(
-        ApiError.BadRequest(
-          'Ошибка синхронизации рейтинга шоу c id:' + showId,
-          error?.message || error,
-        ),
-      );
+      return next(error);
     }
   }
 
@@ -120,12 +110,7 @@ class TmdbShowAPI {
       }
       return res.status(200).json({ showIds: wastedIds });
     } catch (error) {
-      return next(
-        ApiError.BadRequest(
-          'Ошибка получения популярных шоу',
-          error?.message || error,
-        ),
-      );
+      return next(error);
     }
   }
 
@@ -133,7 +118,7 @@ class TmdbShowAPI {
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<Response> {
+  ): Promise<Response | void> {
     TmdbShowAPI._abort = false;
     try {
       const latestWastedId = await ShowService.getLastShowId();
@@ -165,12 +150,7 @@ class TmdbShowAPI {
       showLogger.info(`Все шоу добавлены`);
       return res.sendStatus(200);
     } catch (error) {
-      next(
-        ApiError.BadRequest(
-          'Ошибка получения фильмов',
-          error?.message || error,
-        ),
-      );
+      return next(error);
     }
   }
 

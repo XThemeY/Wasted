@@ -8,10 +8,10 @@ import {
   getProdCompanies,
   getPlatforms,
   getSeasons,
-} from '#/utils/dbFields.js';
-import { IMediaModel, IShow } from '#/interfaces/IModel';
-import { logger } from '#/middleware/index';
-import { logNames } from '#/config/index';
+} from '#utils/dbFields.js';
+import { IMediaModel, IShow } from '#interfaces/IModel';
+import { logger } from '#middleware/index';
+import { logNames } from '#config/index';
 
 const showLogger = logger(logNames.show).child({ module: 'ShowService' });
 
@@ -26,7 +26,7 @@ class TVShowService {
       return;
     }
     showLogger.info(
-      { tmdbID: show.external_ids.tmdb, wastedId: show.id },
+      { tmdbID: +show.external_ids.tmdb, wastedId: show.id },
       `ACTION: Шоу c tmdbID:${show.external_ids.tmdb} уже существует в базе данных под id:${show.id}`,
     );
     return show;
@@ -90,13 +90,13 @@ class TVShowService {
       );
       await show.save();
       showLogger.info(
-        { tmdbID: show.external_ids.tmdb, wastedId: show.id },
+        { tmdbID: +show.external_ids.tmdb, wastedId: show.id },
         `ACTION: Фильм c tmdbID:${show.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${show.id}.`,
       );
       return;
     }
     showLogger.info(
-      { tmdbID: oldShow.external_ids.tmdb, wastedId: oldShow.id },
+      { tmdbID: +oldShow.external_ids.tmdb, wastedId: oldShow.id },
       `Шоу c tmdbID:${oldShow.external_ids.tmdb} уже существует в базе данных под id:${oldShow.id}`,
     );
   }

@@ -1,4 +1,4 @@
-import ApiError from '#/utils/apiError';
+import ApiError from '#utils/apiError';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 export const tmdbApiConfig = (): AxiosInstance => {
@@ -55,7 +55,7 @@ class RequestHandler {
     page: number,
   ): Promise<AxiosResponse> {
     const url =
-      `/discover/${type}/` +
+      `/discover/${type}` +
       this._reqRuConfig +
       '&page=' +
       page +

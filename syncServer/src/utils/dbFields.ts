@@ -1,5 +1,5 @@
 import translate from 'translate';
-import { tmdbApiConfig } from '#/api/ApiConfigs.js';
+import { tmdbApiConfig } from '#api/ApiConfigs.js';
 import {
   People,
   Genre,
@@ -11,7 +11,7 @@ import {
   Episode,
 } from '#db/models/index.js';
 import { createImgUrl, getImgPath } from './images.js';
-import {
+import type {
   ICountry,
   ICredits,
   IImages,
@@ -23,11 +23,11 @@ import {
   ITag,
   ILogs,
   IEpisode,
-} from '#/interfaces/IFields';
-import { IMediaModel } from '#/interfaces/IModel';
+} from '#interfaces/IFields.d.ts';
+import type { IMediaModel } from '#interfaces/IModel.d.ts';
 import { Types } from 'mongoose';
-import { logger } from '#/middleware/index.js';
-import { logNames } from '#/config/index.js';
+import { logger } from '#middleware/index.js';
+import { logNames } from '#config/index.js';
 import ApiError from './apiError.js';
 
 const fieldsLogger = logger(logNames.dbFields).child({ module: 'dbFields' });

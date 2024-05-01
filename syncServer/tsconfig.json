@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "NodeNext",
     "lib": ["ESNext"],
-    "moduleResolution": "Node",
+    "moduleResolution": "NodeNext",
     "rootDir": ".",
     "outDir": "build",
     "allowSyntheticDefaultImports": true,
@@ -13,18 +13,22 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noImplicitAny": false,
     "noImplicitThis": false,
     "strictNullChecks": false,
     "esModuleInterop": true,
     "baseUrl": "./",
     "paths": {
-      "#/*": ["./src/*"],
+      "#*": ["./src/*"],
+      "#middleware/*": ["./src/middleware/*"],
+      "#utils/*": ["./src/utils/*"],
+      "#config/*": ["./src/config/*"],
       "#db/*": ["./src/database/*"],
       "#api/*": ["./src/api/*"]
     }
   },
-  "include": ["src/**/*", "__tests__/**/*", "src/main.ts", "main.d.ts"]
+  "types": ["@types/jest"],
+  "include": ["src/**/*", "src/__tests__/**/*", "src/main.ts", "main.d.ts"]
 }

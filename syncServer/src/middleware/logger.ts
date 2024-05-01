@@ -1,5 +1,5 @@
 import { pino, TransportTargetOptions, DestinationStream, Logger } from 'pino';
-import __dirname from '../utils/__dirname.js';
+import __dirname from '#utils/__dirname.js';
 import path from 'path';
 
 export const logger = (logName: string): Logger => {

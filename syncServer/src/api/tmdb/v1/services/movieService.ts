@@ -24,7 +24,7 @@ class MovieService {
       return;
     }
     movieLogger.info(
-      { tmdbID: movie.external_ids.tmdb, wastedId: movie.id },
+      { tmdbID: +movie.external_ids.tmdb, wastedId: movie.id },
       `ACTION: Фильм c tmdbID:${movie.external_ids.tmdb} уже существует в базе данных под id:${movie.id}`,
     );
     return movie;
@@ -77,13 +77,13 @@ class MovieService {
       );
       await movie.save();
       movieLogger.info(
-        { tmdbID: oldMovie.external_ids.tmdb, wastedId: oldMovie.id },
+        { tmdbID: +movie.external_ids.tmdb, wastedId: movie.id },
         `ACTION: Фильм c tmdbID:${movie.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${movie.id}.`,
       );
       return movie.id;
     }
     movieLogger.info(
-      { tmdbID: oldMovie.external_ids.tmdb, wastedId: oldMovie.id },
+      { tmdbID: +oldMovie.external_ids.tmdb, wastedId: oldMovie.id },
       `ACTION: Фильм c tmdbID:${oldMovie.external_ids.tmdb} уже существует под id:${oldMovie.id}.`,
     );
     return oldMovie.id;
@@ -120,6 +120,7 @@ class MovieService {
     movie.production_companies = await getProdCompanies(
       model.production_companies,
     );
+    await this.syncRatings(model);
     movie.updatedAt = new Date();
     await movie.save();
     movieLogger.info(
@@ -183,12 +184,8 @@ class MovieService {
   //     );
   //     return;
   //   }
-  //   console.log(
+  //   console.log( { tmdbID: +movie.external_ids.tmdb, wastedId: movie.id }
   //     `Фильм c tmdbID:${movie.external_ids.tmdb} и id:${movie.id} был удален из базы данных`,
-  //   );
-  //   logEvents(
-  //     `ACTION:Удален  ---  WastedId:${movie.id} - tmdbID:${movie.external_ids.tmdb} - Title:${movie.title} `,
-  //     'movieDBLog.log',
   //   );
   // }
 }

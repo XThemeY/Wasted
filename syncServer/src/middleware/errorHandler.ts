@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { logger } from '#/middleware/index.js';
-import ApiError from '#/utils/apiError.js';
-import { logNames } from '#/config/index.js';
+import { logger } from '#middleware/index.js';
+import ApiError from '#utils/apiError.js';
+import { logNames } from '#config/index.js';
 
 const errLogger = logger(logNames.err);
 
@@ -11,7 +11,7 @@ export const errorLogger = (
   res: Response,
   next: NextFunction,
 ): void => {
-  errLogger.error(err, err.stack, err.message);
+  errLogger.error(err, err.message);
   return next(err);
 };
 
@@ -23,6 +23,7 @@ export const errorResponder = (
   err: ApiError | Error,
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Response => {
   if (err instanceof ApiError) {
     return res.status(err.status).json({ message: err.message });

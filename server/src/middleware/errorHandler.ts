@@ -7,8 +7,8 @@ const errLogger = logger(logNames.err);
 
 export const errorLogger = (
   err: Error | ApiError,
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction,
 ): void => {
   errLogger.error(err, err.stack, err.message);
@@ -21,7 +21,7 @@ export const invalidPathHandler = (req: Request, res: Response): Response => {
 
 export const errorResponder = (
   err: ApiError | Error,
-  req: Request,
+  _req: Request,
   res: Response,
 ): Response => {
   if (err instanceof ApiError) {

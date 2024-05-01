@@ -1,7 +1,6 @@
-import { logNames } from '#/config/index.js';
-import { logger } from '#/middleware/index.js';
-import ApiError from '#/utils/apiError';
-import RequestHandler from '#/api/ApiConfigs.js';
+import { logNames } from '#config/index.js';
+import { logger } from '#middleware/index.js';
+import RequestHandler from '#api/ApiConfigs.js';
 import MovieService from '#api/tmdb/v1/services/movieService.js';
 import { Request, Response, NextFunction } from 'express';
 
@@ -30,7 +29,7 @@ class TmdbMovieAPI {
       await MovieService.addMovieToDb(response.data, responseENG.data);
       return res.status(200);
     } catch (error) {
-      return next(ApiError.BadRequest(error?.message, error.errors || error));
+      return next(error);
     }
   }
 
@@ -55,12 +54,7 @@ class TmdbMovieAPI {
       await MovieService.syncMovie(response.data, responseENG.data);
       return res.status(200);
     } catch (error) {
-      return next(
-        ApiError.BadRequest(
-          'Ошибка синхронизации фильма',
-          error?.message || error,
-        ),
-      );
+      return next(error);
     }
   }
 
@@ -80,12 +74,7 @@ class TmdbMovieAPI {
       await MovieService.syncRatings(response.data);
       return res.status(200);
     } catch (error) {
-      return next(
-        ApiError.BadRequest(
-          'Ошибка синхронизации рейтинга фильма с id:' + movieId,
-          error?.message || error,
-        ),
-      );
+      return next(error);
     }
   }
 
@@ -97,17 +86,24 @@ class TmdbMovieAPI {
     const pages = +req.query.pages;
     const popularIDs = [];
     const wastedIds = [];
+
     try {
       for (let page = 1; page <= pages; page++) {
-        const response = await RequestHandler.reqPopularMedia('tv', page);
+        const response = await RequestHandler.reqPopularMedia(
+          TmdbMovieAPI._type,
+          page,
+        );
         for (const item of response.data.results) {
           popularIDs.push(item.id);
         }
       }
       for (const item of popularIDs) {
-        const newResponse = await RequestHandler.reqMedia('tv', item);
+        const newResponse = await RequestHandler.reqMedia(
+          TmdbMovieAPI._type,
+          item,
+        );
         const responseENG = await RequestHandler.reqMedia(
-          'tv',
+          TmdbMovieAPI._type,
           item,
           true,
           false,
@@ -120,17 +116,12 @@ class TmdbMovieAPI {
       }
       return res.status(200).json({ movieIds: wastedIds });
     } catch (error) {
-      return next(
-        ApiError.BadRequest(
-          'Ошибка получения популярных фильмов',
-          error?.message || error,
-        ),
-      );
+      return next(error);
     }
   }
 
   async getMoviesAll(
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -166,16 +157,11 @@ class TmdbMovieAPI {
       res.status(200);
       movieLogger.info(`Все фильмы добавлены`);
     } catch (error) {
-      next(
-        ApiError.BadRequest(
-          'Ошибка получения фильмов',
-          error?.message || error,
-        ),
-      );
+      next(error);
     }
   }
 
-  async abortMoviesAll(req: Request, res: Response): Promise<void> {
+  async abortMoviesAll(_req: Request, res: Response): Promise<void> {
     TmdbMovieAPI._abort = true;
     movieLogger.info(`Получение фильмов отменено`);
     res.status(200);

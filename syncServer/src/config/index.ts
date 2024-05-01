@@ -1,2 +1,2 @@
-export { logNames } from './logNames.js';
-export { corsOptions } from './corsOptions.js';
+export { logNames } from '#config/logNames.js';
+export { corsOptions } from '#config/corsOptions.js';

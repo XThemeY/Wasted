@@ -7,22 +7,23 @@ import {
   errorLogger,
   invalidPathHandler,
   errorResponder,
-} from '#/middleware/index.js';
-//import { pinoHttp } from 'pino-http';
+} from '#middleware/index';
+import { pinoHttp } from 'pino-http';
 import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import { corsOptions, logNames } from '#/config/index.js';
-import tmdbRouter from '#/api/tmdb/v1/tmdbRouter.js';
+import { corsOptions, logNames } from '#config/index.js';
+import tmdbRouter from '#api/tmdb/v1/tmdbRouter.js';
 
 const PORT = process.env.PORT || 8010;
 const appLogger = logger(logNames.app);
-//const reqLogger = logger(logNames.req);
+const reqLogger = logger(logNames.req);
 const app = express();
 
 //Http Logger
-//app.use(pinoHttp({ logger: reqLogger }));
-
+if (process.env.NODE_ENV === 'production') {
+  app.use(pinoHttp({ logger: reqLogger }));
+}
 //Settings
 app.use(cors(corsOptions));
 app.use(cookieParser());
@@ -57,5 +58,5 @@ db.on(
 db.once('open', () => {
   appLogger.info('Connected to MongoDB');
 });
-
+export default app;
 start();

@@ -1,5 +1,5 @@
 import { Document, Types } from 'mongoose';
-import {
+import type {
   ICountry,
   ICredits,
   IGenre,
@@ -9,7 +9,7 @@ import {
   IProdCompany,
   ISeason,
   ITag,
-} from './IFields';
+} from './IFields.d.ts';
 
 export interface IMediaModel extends Document {
   title: string;

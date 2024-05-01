@@ -4,11 +4,11 @@
 // import axios from 'axios';
 // import { nanoid } from 'nanoid';
 // import fsPromises from 'fs/promises';
-import { IPathImage } from '#/interfaces/IFields';
+import type { IPathImage } from '#interfaces/IFields.d.ts';
 
 export async function createImgUrl(
-  id: number,
-  type: string,
+  _id: number,
+  _type: string,
   filename?: string,
 ): Promise<string> {
   if (!filename) {
