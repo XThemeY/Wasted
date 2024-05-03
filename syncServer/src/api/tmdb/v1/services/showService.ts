@@ -9,9 +9,9 @@ import {
   getPlatforms,
   getSeasons,
 } from '#utils/dbFields.js';
-import { IMediaModel, IShow } from '#interfaces/IModel';
-import { logger } from '#middleware/index';
-import { logNames } from '#config/index';
+import type { IMediaModel, IShow } from '#interfaces/IModel.d.ts';
+import { logger } from '#middleware/index.js';
+import { logNames } from '#config/index.js';
 
 const showLogger = logger(logNames.show).child({ module: 'ShowService' });
 
@@ -38,6 +38,7 @@ class TVShowService {
     latestTMDBId?: number,
   ): Promise<void> {
     const oldShow = await TVShow.findOne({ 'external_ids.tmdb': model.id });
+
     if (!oldShow) {
       const show = await TVShow.create({
         title: model.name,
@@ -91,7 +92,7 @@ class TVShowService {
       await show.save();
       showLogger.info(
         { tmdbID: +show.external_ids.tmdb, wastedId: show.id },
-        `ACTION: Фильм c tmdbID:${show.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${show.id}.`,
+        `ACTION: Шоу c tmdbID:${show.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${show.id}.`,
       );
       return;
     }
@@ -156,7 +157,7 @@ class TVShowService {
     if (!show) {
       showLogger.info(
         { tmdbID: model.id },
-        `Фильм с tmdbID:${model.id} не найден`,
+        `Шоу с tmdbID:${model.id} не найден`,
       );
       return;
     }

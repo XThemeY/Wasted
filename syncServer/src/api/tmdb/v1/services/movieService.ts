@@ -6,10 +6,10 @@ import {
   getPeoples,
   getTags,
   getProdCompanies,
-} from '#/utils/dbFields.js';
-import { IMediaModel, IMovie } from '#/interfaces/IModel';
-import { logger } from '#/middleware/index';
-import { logNames } from '#/config/index';
+} from '#utils/dbFields.js';
+import type { IMediaModel, IMovie } from '#interfaces/IModel.d.ts';
+import { logger } from '#middleware/index.js';
+import { logNames } from '#config/index.js';
 
 const movieLogger = logger(logNames.movie).child({ module: 'MovieService' });
 

@@ -4,12 +4,16 @@
   "description": "Sync server for WastedPro.",
   "type": "module",
   "engines": {
-    "node": ">= 20.9 < 21"
+    "node": ">= 22.0"
   },
   "scripts": {
     "dev": "tsx watch src/main.ts",
+    "devComm": "tsx watch src/utils/addCommentsID.ts",
+    "devComm1": "tsx watch src/utils/addCommentsID1.ts",
+    "devComm2": "tsx watch src/utils/addCommentsID2.ts",
+    "devComm3": "tsx watch src/utils/addCommentsID3.ts",
     "dev1": "nodemon --exec node --no-warnings=ExperimentalWarning --loader ts-node/esm src/main.ts",
-    "start": "node build/src/main.js",
+    "start": "node ./src/main.js",
     "clean": "rimraf coverage build tmp",
     "prebuild": "npm run lint",
     "build": "tsc -p tsconfig.json",
@@ -55,6 +59,15 @@
     "tslib": "^2.6",
     "tsx": "^4.7.2",
     "typescript": "^5.4"
+  },
+  "baseUrl": "./",
+  "imports": {
+    "#*": "./src/*",
+    "#middleware/*": "./src/middleware/*",
+    "#utils/*": "./src/utils/*",
+    "#config/*": "./src/config/*",
+    "#db/*": "./src/database/*",
+    "#api/*": "./src/api/*"
   },
   "author": "XTheme",
   "license": "Apache-2.0",

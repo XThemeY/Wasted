@@ -7,7 +7,7 @@ import {
   errorLogger,
   invalidPathHandler,
   errorResponder,
-} from '#middleware/index';
+} from '#middleware/index.js';
 import { pinoHttp } from 'pino-http';
 import cors from 'cors';
 import compression from 'compression';

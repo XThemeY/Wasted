@@ -1,8 +1,8 @@
-import { logNames } from '#/config/index';
-import { logger } from '#/middleware/index.js';
+import { logNames } from '#config/index.js';
+import { logger } from '#middleware/index.js';
 import ShowService from '#api/tmdb/v1/services/showService.js';
 import { NextFunction, Request, Response } from 'express';
-import RequestHandler from '#/api/ApiConfigs.js';
+import RequestHandler from '#api/ApiConfigs.js';
 
 const showLogger = logger(logNames.show).child({ module: 'TmdbShowAPI' });
 
@@ -39,6 +39,7 @@ class TmdbShowAPI {
     const showId = req.params.id;
     try {
       const response = await RequestHandler.reqMedia(TmdbShowAPI._type, showId);
+
       const responseENG = await RequestHandler.reqMedia(
         TmdbShowAPI._type,
         showId,
@@ -114,19 +115,21 @@ class TmdbShowAPI {
     }
   }
 
-  async getShowsAll(
+  async syncShowsAll(
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     TmdbShowAPI._abort = false;
     try {
-      const latestWastedId = await ShowService.getLastShowId();
-      const latestTMDBId = (
-        await RequestHandler.reqLatestMedia(TmdbShowAPI._type)
-      ).data.id;
+      const startWastedId =
+        +req.query.startAt || (await ShowService.getLastShowId());
 
-      for (let i = latestWastedId; i <= latestTMDBId; i++) {
+      const latestTMDBId =
+        +req.query.endAt ||
+        (await RequestHandler.reqLatestMedia(TmdbShowAPI._type)).data.id;
+
+      for (let i = startWastedId; i <= latestTMDBId; i++) {
         if (TmdbShowAPI._abort) break;
         try {
           const response = await RequestHandler.reqMedia(TmdbShowAPI._type, i);
@@ -142,8 +145,8 @@ class TmdbShowAPI {
           );
         } catch (error) {
           showLogger.error(
-            `ID:${i} Ошибка запроса фильма`,
-            error?.message || error,
+            `ID:${i} Ошибка запроса шоу - ${error?.message}`,
+            error,
           );
         }
       }

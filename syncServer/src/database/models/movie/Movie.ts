@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { CommentsMovie, Counters } from '#db/models/index.js';
-import { IMovie } from '#/interfaces/IModel';
+import type { IMovie } from '#interfaces/IModel.d.ts';
 
 const movieSchema = new Schema(
   {

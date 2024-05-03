@@ -25,7 +25,6 @@ import type {
   IEpisode,
 } from '#interfaces/IFields.d.ts';
 import type { IMediaModel } from '#interfaces/IModel.d.ts';
-import { Types } from 'mongoose';
 import { logger } from '#middleware/index.js';
 import { logNames } from '#config/index.js';
 import ApiError from './apiError.js';
@@ -165,44 +164,51 @@ async function addPeople(
   mediaType: string,
   logs: ILogs,
 ): Promise<IPeople> {
-  let newPeople = await People.findOne({ name: people.name });
+  let newPeople = await People.findOne({ original_name: people.original_name });
   if (!newPeople) {
-    await People.create({
-      name: people.name,
+    newPeople = await People.create({
+      name: await translate(people.original_name, 'ru'),
+      original_name: people.original_name,
     });
-    newPeople = await People.findOne({ name: people.name });
     newPeople.profile_img = await createImgUrl(
       newPeople.id,
       'people',
       people.profile_path,
     );
+
     fieldsLogger.info(
       { peopleId: newPeople.id },
       `${logs.type}: ${logs.index} из ${logs.length} был добавлен`,
     );
   }
-  if (
-    mediaType === 'movie' &&
-    !newPeople.movies.find((item) => item.id === id)
-  ) {
-    const movie = { id, role: people.character, job: people.job };
-    newPeople.movies = [
-      ...newPeople.movies,
-      movie,
-    ] as Types.DocumentArray<IPeople>;
-    await newPeople.save();
-  }
-  if (mediaType === 'show' && !newPeople.shows.find((item) => item.id === id)) {
-    const show = {
-      id,
-      role: people.character,
-      job: !people.character ? 'Creator' : people.job,
-    };
-    newPeople.shows = [
-      ...newPeople.shows,
-      show,
-    ] as Types.DocumentArray<IPeople>;
-    await newPeople.save();
+
+  switch (mediaType) {
+    case 'movie':
+      if (!newPeople.movies.find((item) => item.id === id)) {
+        const movie = { id, role: people.character, job: people.job };
+        await People.findOneAndUpdate(
+          { name: people.name },
+          { $push: { movies: movie } },
+          { upsert: true },
+        );
+      }
+      break;
+    case 'show':
+      if (!newPeople.shows.find((item) => item.id === id)) {
+        const show = {
+          id,
+          role: people.character,
+          job: !people.character ? 'Creator' : people.job,
+        };
+        await People.findOneAndUpdate(
+          { name: people.name },
+          { $push: { shows: show } },
+          { upsert: true },
+        );
+      }
+      break;
+    default:
+      break;
   }
   return {
     person: newPeople._id,
@@ -237,10 +243,9 @@ export async function getProdCompanies(
   for (const company of companies) {
     let newCompany = await ProdCompany.findOne({ name: company.name });
     if (!newCompany) {
-      await ProdCompany.create({
+      newCompany = await ProdCompany.create({
         name: company.name,
       });
-      newCompany = await ProdCompany.findOne({ name: company.name });
       newCompany.logo_url = await createImgUrl(
         newCompany.id,
         'company',
@@ -264,10 +269,9 @@ export async function getPlatforms(
   for (const platform of platforms) {
     let newPlatform = await TVPlatform.findOne({ name: platform.name });
     if (!newPlatform) {
-      await TVPlatform.create({
+      newPlatform = await TVPlatform.create({
         name: platform.name,
       });
-      newPlatform = await TVPlatform.findOne({ name: platform.name });
       newPlatform.logo_url = await createImgUrl(
         newPlatform.id,
         'platform',
@@ -351,7 +355,7 @@ async function getEpisodes(
       });
 
       if (!newEpisode) {
-        await Episode.create({
+        newEpisode = await Episode.create({
           show_id: id,
           title: episodes[i].name,
           title_original: episodesENG[i].name,
@@ -363,11 +367,6 @@ async function getEpisodes(
           rating: episodes[i].vote_average,
           duration: episodes[i].runtime,
           episode_type: episodes[i].episode_type,
-        });
-        newEpisode = await Episode.findOne({
-          show_id: id,
-          season_number: episodes[i].season_number,
-          episode_number: episodes[i].episode_number,
         });
         newEpisode.poster_url = await createImgUrl(
           newEpisode.id,

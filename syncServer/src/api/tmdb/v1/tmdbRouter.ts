@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { movieRouter, tvshowRouter } from '#/api/tmdb/v1/routes/index.js';
+import { movieRouter, tvshowRouter } from '#api/tmdb/v1/routes/index.js';
 
 //import { authMiddleware } from 'Main/src/api/v1/middleware/index.js';
 

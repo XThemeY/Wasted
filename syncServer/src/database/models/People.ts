@@ -9,6 +9,7 @@ const peopleSchema = new Schema(
       immutable: true,
     },
     name: { type: String, required: true, index: true },
+    original_name: { type: String, default: '' },
     profile_img: { type: String },
     movies: [
       {

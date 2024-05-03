@@ -1,4 +1,4 @@
-import ApiError from '#utils/apiError';
+import ApiError from '#utils/apiError.js';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 export const tmdbApiConfig = (): AxiosInstance => {
@@ -13,7 +13,7 @@ export const tmdbApiConfig = (): AxiosInstance => {
 class RequestHandler {
   private _axiosMedia = tmdbApiConfig();
   private _reqConfig =
-    '&append_to_response=keywords,credits,images&include_image_language=ru,en';
+    '&append_to_response=external_ids,keywords,credits,images&include_image_language=ru,en';
   private _reqEngConfig = '?language=en-US';
   private _reqRuConfig = '?language=ru-RU';
   private _reqPopularConfig = '&sort_by=popularity.desc&vote_count.gte=100';

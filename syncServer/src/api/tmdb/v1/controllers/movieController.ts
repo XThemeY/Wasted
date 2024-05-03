@@ -27,7 +27,7 @@ class TmdbMovieAPI {
         true,
       );
       await MovieService.addMovieToDb(response.data, responseENG.data);
-      return res.status(200);
+      return res.sendStatus(200);
     } catch (error) {
       return next(error);
     }
@@ -120,19 +120,22 @@ class TmdbMovieAPI {
     }
   }
 
-  async getMoviesAll(
-    _req: Request,
+  async syncMoviesAll(
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
     TmdbMovieAPI._abort = false;
+
     try {
-      const latestWastedId = await MovieService.getLastMovieId();
+      const startWastedId =
+        +req.query.startAt || (await MovieService.getLastMovieId());
+
       const latestTMDBId = (
         await RequestHandler.reqLatestMedia(TmdbMovieAPI._type)
       ).data.id;
 
-      for (let i = latestWastedId; i <= latestTMDBId; i++) {
+      for (let i = startWastedId; i <= latestTMDBId; i++) {
         if (TmdbMovieAPI._abort) break;
         try {
           const response = await RequestHandler.reqMedia(TmdbMovieAPI._type, i);

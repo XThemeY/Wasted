@@ -21,6 +21,7 @@ export interface IPathImage {
 }
 
 export interface IPeople {
+  original_name?: string;
   person: number | Types.ObjectId;
   name?: string;
   profile_path?: string;

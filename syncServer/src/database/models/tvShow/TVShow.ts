@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { CommentsShow, Counters } from '#db/models/index.js';
-import { IShow } from '#/interfaces/IModel';
+import type { IShow } from '#interfaces/IModel.d.ts';
 
 const tvShowSchema = new Schema(
   {
@@ -18,11 +18,18 @@ const tvShowSchema = new Schema(
       },
       backdrop_url: { type: String, default: '' },
     },
-    start_date: { type: Date, required: true, index: true },
+    start_date: { type: Date, index: true },
     end_date: { type: Date, index: true },
     status: {
       type: String,
-      // enum: ['onair', 'ended', 'pause', 'new', 'soon_release'],
+      enum: [
+        'Canceled',
+        'Ended',
+        'Returning Series',
+        'Pilot',
+        'In Production',
+        'Planned',
+      ],
       default: '',
     },
     genres: [Number],

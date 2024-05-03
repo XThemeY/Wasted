@@ -4,7 +4,7 @@
     "module": "NodeNext",
     "lib": ["ESNext"],
     "moduleResolution": "NodeNext",
-    "rootDir": ".",
+    "rootDir": "./src",
     "outDir": "build",
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
@@ -29,6 +29,5 @@
       "#api/*": ["./src/api/*"]
     }
   },
-  "types": ["@types/jest"],
   "include": ["src/**/*", "src/__tests__/**/*", "src/main.ts", "main.d.ts"]
 }
