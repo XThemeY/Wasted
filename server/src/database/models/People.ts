@@ -1,14 +1,24 @@
 import { Schema, model } from 'mongoose';
-import { CommentsPeople, Counters } from '#db/models/index.js';
+import { CommentsPeople } from '#db/models/index.js';
 
 const peopleSchema = new Schema(
   {
     id: {
       type: Number,
       unique: true,
-      immutable: true,
+      immutable: false,
     },
-    name: { type: String, required: true, index: true },
+    original_name: { type: String, default: '' },
+    translations: {
+      ru: {
+        type: String,
+        default: '',
+      },
+      en: {
+        type: String,
+        default: '',
+      },
+    },
     profile_img: { type: String },
     movies: [
       {
@@ -24,6 +34,7 @@ const peopleSchema = new Schema(
         job: { type: String },
       },
     ],
+    tmdb_id: { type: Number, unique: true, immutable: true },
     comments: { type: Schema.Types.ObjectId, ref: 'CommentsPeople' },
   },
   {
@@ -33,12 +44,7 @@ const peopleSchema = new Schema(
 
 peopleSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await Counters.findOneAndUpdate(
-      { _id: 'peopleid' },
-      { $inc: { seq: 1 } },
-      { returnDocument: 'after', upsert: true },
-    );
-    this.id = counter.seq;
+    this.id = (await People.countDocuments()) + 1;
     this.comments = (await CommentsPeople.create({ media_id: this.id }))._id;
   }
   next();

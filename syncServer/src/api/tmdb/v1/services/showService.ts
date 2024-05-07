@@ -102,6 +102,18 @@ class TVShowService {
     );
   }
 
+  async syncPeoples(model: IMediaModel): Promise<void> {
+    const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
+    show.creators = await getPeoples(
+      model.created_by,
+      'creator',
+      show.id,
+      'show',
+    );
+    show.cast = await getPeoples(model.credits, 'actor', show.id, 'show');
+    await show.save();
+  }
+
   async syncShow(model: IMediaModel, modelENG: IMediaModel): Promise<void> {
     const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
     if (!show) {

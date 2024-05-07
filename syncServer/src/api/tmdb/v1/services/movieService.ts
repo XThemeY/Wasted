@@ -129,6 +129,18 @@ class MovieService {
     );
   }
 
+  async syncPeoples(model: IMediaModel): Promise<void> {
+    const movie = await Movie.findOne({ 'external_ids.tmdb': model.id });
+    movie.director = await getPeoples(
+      model.credits,
+      'director',
+      movie.id,
+      'movie',
+    );
+    movie.cast = await getPeoples(model.credits, 'actor', movie.id, 'movie');
+    await movie.save();
+  }
+
   async syncRatings(model: IMediaModel): Promise<void> {
     const movie = await Movie.findOne({ 'external_ids.tmdb': model.id });
     if (!movie) {

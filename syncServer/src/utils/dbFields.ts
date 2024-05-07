@@ -164,11 +164,15 @@ async function addPeople(
   mediaType: string,
   logs: ILogs,
 ): Promise<IPeople> {
-  let newPeople = await People.findOne({ original_name: people.original_name });
+  let newPeople = await People.findOne({ tmdb_id: people.id });
   if (!newPeople) {
     newPeople = await People.create({
-      name: await translate(people.original_name, 'ru'),
       original_name: people.original_name,
+      translations: {
+        ru: await translate(people.original_name, { from: 'en', to: 'ru' }),
+        en: await translate(people.original_name, { from: 'ru', to: 'ru' }),
+      },
+      tmdb_id: people.id,
     });
     newPeople.profile_img = await createImgUrl(
       newPeople.id,
@@ -178,7 +182,7 @@ async function addPeople(
 
     fieldsLogger.info(
       { peopleId: newPeople.id },
-      `${logs.type}: ${logs.index} из ${logs.length} был добавлен`,
+      `${logs.type}: ${logs.index} из ${logs.length - 1} был добавлен`,
     );
   }
 
@@ -187,7 +191,7 @@ async function addPeople(
       if (!newPeople.movies.find((item) => item.id === id)) {
         const movie = { id, role: people.character, job: people.job };
         await People.findOneAndUpdate(
-          { name: people.name },
+          { tmdb_id: people.id },
           { $push: { movies: movie } },
           { upsert: true },
         );
@@ -201,7 +205,7 @@ async function addPeople(
           job: !people.character ? 'Creator' : people.job,
         };
         await People.findOneAndUpdate(
-          { name: people.name },
+          { tmdb_id: people.id },
           { $push: { shows: show } },
           { upsert: true },
         );

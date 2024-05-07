@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { CommentsMovie, Counters } from '#db/models/index.js';
+import { CommentsMovie } from '#db/models/index.js';
 import type { IMovie } from '#interfaces/IModel.d.ts';
 
 const movieSchema = new Schema(
@@ -147,12 +147,7 @@ movieSchema.virtual('tagsId', {
 
 movieSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await Counters.findOneAndUpdate(
-      { _id: 'movieid' },
-      { $inc: { seq: 1 } },
-      { returnDocument: 'after', upsert: true },
-    );
-    this.id = counter.seq;
+    this.id = (await Movie.countDocuments()) + 1;
     this.comments = (await CommentsMovie.create({ media_id: this.id }))._id;
   }
   next();

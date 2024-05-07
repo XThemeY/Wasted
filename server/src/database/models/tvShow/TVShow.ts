@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
-import { CommentsShow, Counters } from '#db/models/index.js';
+import { CommentsShow } from '#db/models/index.js';
+import type { IShow } from '#interfaces/IModel.d.ts';
 
 const tvShowSchema = new Schema(
   {
@@ -17,11 +18,18 @@ const tvShowSchema = new Schema(
       },
       backdrop_url: { type: String, default: '' },
     },
-    start_date: { type: Date, required: true, index: true },
+    start_date: { type: Date, index: true },
     end_date: { type: Date, index: true },
     status: {
       type: String,
-      // enum: ['onair', 'ended', 'pause', 'new', 'soon_release'],
+      enum: [
+        'Canceled',
+        'Ended',
+        'Returning Series',
+        'Pilot',
+        'In Production',
+        'Planned',
+      ],
       default: '',
     },
     genres: [Number],
@@ -156,17 +164,12 @@ tvShowSchema.virtual('platformsId', {
 
 tvShowSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await Counters.findOneAndUpdate(
-      { _id: 'tvshowid' },
-      { $inc: { seq: 1 } },
-      { returnDocument: 'after', upsert: true },
-    );
-    this.id = counter.seq;
+    this.id = (await TVShow.countDocuments()) + 1;
     this.comments = (await CommentsShow.create({ media_id: this.id }))._id;
   }
   next();
 });
 
-const TVShow = model('TVShow', tvShowSchema);
+const TVShow = model<IShow>('TVShow', tvShowSchema);
 
 export default TVShow;

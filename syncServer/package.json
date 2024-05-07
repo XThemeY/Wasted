@@ -8,10 +8,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "devComm": "tsx watch src/utils/addCommentsID.ts",
-    "devComm1": "tsx watch src/utils/addCommentsID1.ts",
-    "devComm2": "tsx watch src/utils/addCommentsID2.ts",
-    "devComm3": "tsx watch src/utils/addCommentsID3.ts",
+    "devFix": "tsx src/utils/fixer.ts",
     "dev1": "nodemon --exec node --no-warnings=ExperimentalWarning --loader ts-node/esm src/main.ts",
     "start": "node ./src/main.js",
     "clean": "rimraf coverage build tmp",

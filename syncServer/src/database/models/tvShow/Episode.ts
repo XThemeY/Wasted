@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { CommentsEpisode, Counters } from '#db/models/index.js';
+import { CommentsEpisode } from '#db/models/index.js';
 
 const episodeSchema = new Schema(
   {
@@ -84,12 +84,7 @@ episodeSchema.virtual('tagsId', {
 
 episodeSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await Counters.findOneAndUpdate(
-      { _id: 'episodeid' },
-      { $inc: { seq: 1 } },
-      { returnDocument: 'after', upsert: true },
-    );
-    this.id = counter.seq;
+    this.id = (await Episode.countDocuments()) + 1;
     this.comments = (await CommentsEpisode.create({ media_id: this.id }))._id;
   }
   next();

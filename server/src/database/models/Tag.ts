@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { Counters } from '#db/models/index.js';
 
 const tagSchema = new Schema({
   id: { type: Number, unique: true, immutable: true },
@@ -9,12 +8,7 @@ const tagSchema = new Schema({
 
 tagSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await Counters.findOneAndUpdate(
-      { _id: 'tagid' },
-      { $inc: { seq: 1 } },
-      { returnDocument: 'after', upsert: true },
-    );
-    this.id = counter.seq;
+    this.id = (await Tag.countDocuments()) + 1;
   }
   next();
 });

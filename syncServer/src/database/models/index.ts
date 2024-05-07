@@ -1,4 +1,3 @@
-export { default as Counters } from './Counters.js';
 export { default as Movie } from './movie/Movie.js';
 export { default as TVShow } from './tvShow/TVShow.js';
 export { default as TVPlatform } from './tvShow/TVPlatform.js';

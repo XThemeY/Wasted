@@ -21,9 +21,12 @@
     "esModuleInterop": true,
     "baseUrl": "./",
     "paths": {
-      "#/*": ["./src/*"],
+      "#*": ["./src/*"],
+      "#middleware/*": ["./src/middleware/*"],
+      "#utils/*": ["./src/utils/*"],
+      "#config/*": ["./src/config/*"],
       "#db/*": ["./src/database/*"],
-      "#apiV1/*": ["./src/api/v1/*"]
+      "#api/*": ["./src/api/*"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*", "src/main.ts"]

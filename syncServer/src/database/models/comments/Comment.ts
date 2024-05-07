@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { Counters } from '#db/models/index.js';
 
 const commentSchema = new Schema(
   {
@@ -78,12 +77,7 @@ const commentSchema = new Schema(
 
 commentSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await Counters.findOneAndUpdate(
-      { _id: 'commentId' },
-      { $inc: { seq: 1 } },
-      { returnDocument: 'after', upsert: true },
-    );
-    this.id = counter.seq;
+    this.id = (await Comment.countDocuments()) + 1;
   }
   next();
 });

@@ -37,6 +37,22 @@ class RequestHandler {
     }
   }
 
+  public async reqPeoples(
+    type: string,
+    id: string | number,
+  ): Promise<AxiosResponse> {
+    const url = `/${type}/` + id + `?language=en-US&append_to_response=credits`;
+    try {
+      const response = await this._axiosMedia.get(url);
+      return response;
+    } catch (error) {
+      throw ApiError.BadRequest(
+        `Ошибка запроса "${url}"`,
+        error?.message || error,
+      );
+    }
+  }
+
   public async reqLatestMedia(type: string): Promise<AxiosResponse> {
     const url = `/${type}/` + 'latest';
     try {

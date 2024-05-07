@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { CommentsShow, Counters } from '#db/models/index.js';
+import { CommentsShow } from '#db/models/index.js';
 import type { IShow } from '#interfaces/IModel.d.ts';
 
 const tvShowSchema = new Schema(
@@ -164,12 +164,7 @@ tvShowSchema.virtual('platformsId', {
 
 tvShowSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const counter = await Counters.findOneAndUpdate(
-      { _id: 'tvshowid' },
-      { $inc: { seq: 1 } },
-      { returnDocument: 'after', upsert: true },
-    );
-    this.id = counter.seq;
+    this.id = (await TVShow.countDocuments()) + 1;
     this.comments = (await CommentsShow.create({ media_id: this.id }))._id;
   }
   next();
