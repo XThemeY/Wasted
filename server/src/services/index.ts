@@ -1,0 +1,11 @@
+export { default as authService } from './authService.js';
+export { default as episodeService } from './episodeService.js';
+export { default as favoriteService } from './favoriteService.js';
+export { default as mailService } from './mailService.js';
+export { default as movieService } from './movieService.js';
+export { default as showService } from './showService.js';
+export { default as tokenService } from './tokenService.js';
+export { default as userService } from './userService.js';
+export { default as wastedHistoryService } from './wastedHistoryService.js';
+export { default as seasonService } from './seasonService.js';
+export { default as commentService } from './commentService.js';

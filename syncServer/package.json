@@ -32,10 +32,9 @@
     "mongoose": "^8.0.3",
     "nanoid": "^5.0.4",
     "pino": "^8.20.0",
-    "pino-http": "^9.0.0",
     "pino-pretty": "^11.0.0",
     "sharp": "^0.33.2",
-    "translate": "^2.0.2"
+    "translate": "^3.0.0"
   },
   "devDependencies": {
     "@types/compression": "^1.7.5",

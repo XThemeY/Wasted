@@ -8,7 +8,6 @@ import {
   invalidPathHandler,
   errorResponder,
 } from '#middleware/index.js';
-import { pinoHttp } from 'pino-http';
 import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -17,13 +16,8 @@ import tmdbRouter from '#api/tmdb/v1/tmdbRouter.js';
 
 const PORT = process.env.PORT || 8010;
 const appLogger = logger(logNames.app);
-const reqLogger = logger(logNames.req);
 const app = express();
 
-//Http Logger
-if (process.env.NODE_ENV === 'production') {
-  app.use(pinoHttp({ logger: reqLogger }));
-}
 //Settings
 app.use(cors(corsOptions));
 app.use(cookieParser());
@@ -41,7 +35,7 @@ app.use(errorResponder);
 
 const start = async (): Promise<void> => {
   try {
-    await mongoose.connect(process.env.DB_URL_TEST);
+    await mongoose.connect(process.env.DB_URL_TMDBMain);
     app.listen(PORT, () =>
       appLogger.info(`Sync server started on port ${PORT}`),
     );

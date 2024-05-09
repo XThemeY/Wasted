@@ -29,5 +29,11 @@
       "#api/*": ["./src/api/*"]
     }
   },
-  "include": ["src/**/*", "src/__tests__/**/*", "src/main.ts", "main.d.ts"]
+  "include": [
+    "src/**/*",
+    "src/__tests__/**/*",
+    "src/main.ts",
+    "main.d.ts",
+    "../server/src/utils/dtos"
+  ]
 }

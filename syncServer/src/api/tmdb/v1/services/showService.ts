@@ -67,29 +67,35 @@ class TVShowService {
         },
         popularity: model.popularity,
       });
+      await TVShow.findOneAndUpdate(
+        { 'external_ids.tmdb': model.id },
+        {
+          $set: {
+            images: await getMediaImages(show.id, 'show', model),
+            genres: await getGenres(model.genres, modelENG.genres),
+            countries: await getCountries(model.production_countries),
+            creators: await getPeoples(
+              model.created_by,
+              'creator',
+              show.id,
+              'show',
+            ),
+            cast: await getPeoples(model.credits, 'actor', show.id, 'show'),
+            tags: await getTags(model.keywords.results),
+            platforms: await getPlatforms(model.networks),
+            production_companies: await getProdCompanies(
+              model.production_companies,
+            ),
+            seasons: await getSeasons(
+              show.id,
+              model.seasons,
+              modelENG.seasons,
+              model.id,
+            ),
+          },
+        },
+      );
 
-      show.images = await getMediaImages(show.id, 'show', model);
-      show.genres = await getGenres(model.genres, modelENG.genres);
-      show.countries = await getCountries(model.production_countries);
-      show.creators = await getPeoples(
-        model.created_by,
-        'creator',
-        show.id,
-        'show',
-      );
-      show.cast = await getPeoples(model.credits, 'actor', show.id, 'show');
-      show.tags = await getTags(model.keywords.results);
-      show.platforms = await getPlatforms(model.networks);
-      show.production_companies = await getProdCompanies(
-        model.production_companies,
-      );
-      show.seasons = await getSeasons(
-        show.id,
-        model.seasons,
-        modelENG.seasons,
-        model.id,
-      );
-      await show.save();
       showLogger.info(
         { tmdbID: +show.external_ids.tmdb, wastedId: show.id },
         `ACTION: Шоу c tmdbID:${show.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${show.id}.`,
@@ -104,14 +110,18 @@ class TVShowService {
 
   async syncPeoples(model: IMediaModel): Promise<void> {
     const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
-    show.creators = await getPeoples(
-      model.created_by,
-      'creator',
-      show.id,
-      'show',
+    await TVShow.findOneAndUpdate(
+      { 'external_ids.tmdb': model.id },
+      {
+        creators: await getPeoples(
+          model.created_by,
+          'creator',
+          show.id,
+          'show',
+        ),
+        cast: await getPeoples(model.credits, 'actor', show.id, 'show'),
+      },
     );
-    show.cast = await getPeoples(model.credits, 'actor', show.id, 'show');
-    await show.save();
   }
 
   async syncShow(model: IMediaModel, modelENG: IMediaModel): Promise<void> {
@@ -123,41 +133,47 @@ class TVShowService {
       );
       return;
     }
+    await TVShow.findOneAndUpdate(
+      { 'external_ids.tmdb': model.id },
+      {
+        $set: {
+          title: model.name,
+          title_original: model.original_name,
+          start_date: model.first_air_date,
+          end_date: model.last_air_date,
+          description: model.overview,
+          description_original: modelENG.overview,
+          status: model.status,
+          episode_duration: model.episode_run_time[0],
+          number_of_seasons: model.number_of_seasons,
+          number_of_episodes: model.number_of_episodes,
+          popularity: model.popularity,
+          images: await getMediaImages(show.id, 'show', model),
+          genres: await getGenres(model.genres, modelENG.genres),
+          countries: await getCountries(model.production_countries),
+          creators: await getPeoples(
+            model.created_by,
+            'creator',
+            show.id,
+            'show',
+          ),
+          cast: await getPeoples(model.credits, 'actor', show.id, 'show'),
+          tags: await getTags(model.keywords.results),
+          platforms: await getPlatforms(model.networks),
+          production_companies: await getProdCompanies(
+            model.production_companies,
+          ),
+          seasons: await getSeasons(
+            show.id,
+            model.seasons,
+            modelENG.seasons,
+            model.id,
+          ),
+          updatedAt: new Date(),
+        },
+      },
+    );
 
-    show.title = model.name;
-    show.title_original = model.original_name;
-    show.start_date = model.first_air_date;
-    show.end_date = model.last_air_date;
-    show.description = model.overview;
-    show.description_original = modelENG.overview;
-    show.status = model.status;
-    show.episode_duration = model.episode_run_time[0];
-    show.number_of_seasons = model.number_of_seasons;
-    show.number_of_episodes = model.number_of_episodes;
-    show.popularity = model.popularity;
-    show.images = await getMediaImages(show.id, 'show', model);
-    show.genres = await getGenres(model.genres, modelENG.genres);
-    show.countries = await getCountries(model.production_countries);
-    show.creators = await getPeoples(
-      model.created_by,
-      'creator',
-      show.id,
-      'show',
-    );
-    show.cast = await getPeoples(model.credits, 'actor', show.id, 'show');
-    show.tags = await getTags(model.keywords.results);
-    show.platforms = await getPlatforms(model.networks);
-    show.production_companies = await getProdCompanies(
-      model.production_companies,
-    );
-    show.seasons = await getSeasons(
-      show.id,
-      model.seasons,
-      modelENG.seasons,
-      model.id,
-    );
-    show.updatedAt = new Date();
-    await show.save();
     showLogger.info(
       { wastedId: show.id },
       `ACTION: Шоу c id:${show.id} было обновлено.`,
@@ -177,20 +193,26 @@ class TVShowService {
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
     const now = new Date();
     if (tomorrow < now) {
-      show.ratings.tmdb = {
-        rating: model.vote_average,
-        vote_count: model.vote_count,
-      };
-      show.ratings.imdb = {
-        rating: 0,
-        vote_count: 0,
-      };
-      show.ratings.kinopoisk = {
-        rating: 0,
-        vote_count: 0,
-      };
-      show.updatedAt = new Date();
-      await show.save();
+      await TVShow.findOneAndUpdate(
+        { 'external_ids.tmdb': model.id },
+        {
+          $set: {
+            'ratings.tmdb': {
+              rating: model.vote_average,
+              vote_count: model.vote_count,
+            },
+            'ratings.imdb': {
+              rating: 0,
+              vote_count: 0,
+            },
+            'ratings.kinopoisk': {
+              rating: 0,
+              vote_count: 0,
+            },
+            updatedAt: new Date(),
+          },
+        },
+      );
       showLogger.info(
         { wastedId: model.id },
         `ACTION: Рейтинг шоу с id:${show.id} обновлен.`,

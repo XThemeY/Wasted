@@ -1,3 +1,5 @@
+import { ValidationError } from 'express-validator';
+
 export default class ApiError extends Error {
   public message: string;
   public status: number;
@@ -13,7 +15,7 @@ export default class ApiError extends Error {
 
   public static BadRequest(
     message: string,
-    errors: Error[] | void = [],
+    errors: Error[] | ValidationError[] | [] = [],
   ): ApiError {
     return new ApiError(400, message, errors);
   }
