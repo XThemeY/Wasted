@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { Token } from '#db/models/index.js';
-import type { IToken } from '#interfaces/IFields';
+import type { IJwtPayload } from '#interfaces/IFields';
 import type { DeleteResult } from 'mongodb';
 import type { Types } from 'mongoose';
+import type { ITokenModel } from '#interfaces/IModel';
 
 class TokenService {
   generateTokens(payload: jwt.JwtPayload): jwt.JwtPayload {
@@ -15,18 +16,24 @@ class TokenService {
     return { accessToken, refreshToken };
   }
 
-  validateAccessToken(token: string): string | jwt.JwtPayload {
+  validateAccessToken(token: string): IJwtPayload {
     try {
-      const userData = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      const userData = jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET,
+      ) as IJwtPayload;
       return userData;
     } catch (e) {
       return null;
     }
   }
 
-  validateRefreshToken(token: string): string | jwt.JwtPayload {
+  validateRefreshToken(token: string): IJwtPayload {
     try {
-      const userData = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+      const userData = jwt.verify(
+        token,
+        process.env.REFRESH_TOKEN_SECRET,
+      ) as IJwtPayload;
       return userData;
     } catch (e) {
       return null;
@@ -36,7 +43,7 @@ class TokenService {
   async saveToken(
     userId: Types.ObjectId,
     refreshToken: string,
-  ): Promise<IToken> {
+  ): Promise<ITokenModel> {
     const tokenData = await Token.findOne({ user: userId });
     if (tokenData) {
       tokenData.refreshToken = refreshToken;
@@ -51,7 +58,7 @@ class TokenService {
     return tokenData;
   }
 
-  async findToken(refreshToken: string): Promise<IToken> {
+  async findToken(refreshToken: string): Promise<ITokenModel> {
     const tokenData = await Token.findOne({ refreshToken });
     return tokenData;
   }

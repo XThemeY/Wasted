@@ -1,3 +1,4 @@
+import type { ITVPlatformModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const tvPlatformSchema = new Schema({
@@ -13,6 +14,6 @@ tvPlatformSchema.pre('save', async function (next) {
   next();
 });
 
-const TVPlatform = model('TVPlatform', tvPlatformSchema);
+const TVPlatform = model<ITVPlatformModel>('TVPlatform', tvPlatformSchema);
 
 export default TVPlatform;

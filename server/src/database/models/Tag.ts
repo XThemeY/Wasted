@@ -1,3 +1,4 @@
+import type { ITagModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const tagSchema = new Schema({
@@ -13,6 +14,6 @@ tagSchema.pre('save', async function (next) {
   next();
 });
 
-const Tag = model('Tag', tagSchema);
+const Tag = model<ITagModel>('Tag', tagSchema);
 
 export default Tag;

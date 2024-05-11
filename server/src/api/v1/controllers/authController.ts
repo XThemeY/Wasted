@@ -1,6 +1,4 @@
-import { validationResult } from 'express-validator';
 import { authService } from '#services/index.js';
-import ApiError from '#utils/apiError.js';
 import { NextFunction, Request, Response } from 'express';
 
 class AuthController {
@@ -10,12 +8,6 @@ class AuthController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(
-          ApiError.BadRequest('Ошибка при валидации', errors.array()),
-        );
-      }
       const { username, email, password } = req.body;
       const userData = await authService.registration(
         username,

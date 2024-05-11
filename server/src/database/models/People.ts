@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { CommentsPeople } from '#db/models/index.js';
+import type { IPeopleModel } from '#interfaces/IModel';
 
 const peopleSchema = new Schema(
   {
@@ -50,6 +51,6 @@ peopleSchema.pre('save', async function (next) {
   next();
 });
 
-const People = model('People', peopleSchema);
+const People = model<IPeopleModel>('People', peopleSchema);
 
 export default People;

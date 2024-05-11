@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { CommentsSeason } from '#db/models/index.js';
+import type { ISeasonModel } from '#interfaces/IModel';
 
 const seasonSchema = new Schema(
   {
@@ -72,6 +73,6 @@ seasonSchema.pre('save', async function (next) {
   next();
 });
 
-const Season = model('Season', seasonSchema);
+const Season = model<ISeasonModel>('Season', seasonSchema);
 
 export default Season;

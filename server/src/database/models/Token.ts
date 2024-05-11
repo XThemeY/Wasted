@@ -1,3 +1,4 @@
+import type { ITokenModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const tokenSchema = new Schema({
@@ -5,6 +6,6 @@ const tokenSchema = new Schema({
   refreshToken: { type: String, required: true },
 });
 
-const Token = model('Token', tokenSchema);
+const Token = model<ITokenModel>('Token', tokenSchema);
 
 export default Token;

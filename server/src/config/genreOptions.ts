@@ -1,8 +1,8 @@
 import { Genre } from '#db/models/index.js';
 import ApiError from '#utils/apiError.js';
 
-export async function getGenreOptions(query) {
-  const genres = (await Genre.find({})).map((item) => item.id);
+export async function getGenreOptions(query: string): Promise<number[]> {
+  const genres = (await Genre.find({})).map((item) => item.id) as number[];
 
   if (!query) {
     return genres;

@@ -1,7 +1,7 @@
 import { Movie, TVShow } from '#db/models/index.js';
 import ApiError from '#utils/apiError.js';
 
-export async function getStartYear(query): Promise<Date> {
+export async function getStartYear(query: number): Promise<Date> {
   const { release_date } = await Movie.findOne({})
     .sort({ release_date: 1 })
     .select({ release_date: 1 });
@@ -18,18 +18,22 @@ export async function getStartYear(query): Promise<Date> {
   if (!query) {
     return minDate;
   }
+  const maxDate = (await getEndYear(null)).getUTCFullYear();
+  const queryDate = new Date(query.toString());
 
-  const queryDate = new Date(query);
-  if (queryDate.getUTCFullYear() >= minDate.getUTCFullYear()) {
+  if (
+    queryDate.getUTCFullYear() >= minDate.getUTCFullYear() &&
+    queryDate.getUTCFullYear() <= maxDate
+  ) {
     return queryDate;
   }
 
   throw ApiError.BadRequest(
-    `Ошибка запроса. Параметр "start_year" может быть пустым или не меньше, чем ${minDate.getUTCFullYear()}`,
+    `Ошибка запроса. Параметр "start_year" может быть пустым, меньше, чем ${minDate.getUTCFullYear()} и больше, чем ${maxDate}`,
   );
 }
 
-export async function getEndYear(query): Promise<Date> {
+export async function getEndYear(query: number | null): Promise<Date> {
   const { release_date } = await Movie.findOne({})
     .sort({ release_date: -1 })
     .select({ release_date: 1 });

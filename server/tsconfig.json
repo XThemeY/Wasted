@@ -30,5 +30,6 @@
       "#api/*": ["./src/api/*"]
     }
   },
+  "typeRoots": ["./node_module/@types", "./src/types"],
   "include": ["src/**/*", "__tests__/**/*", "src/main.ts"]
 }

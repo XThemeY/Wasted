@@ -1,3 +1,4 @@
+import type { IProdCompanyModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const prodCompanySchema = new Schema(
@@ -18,6 +19,6 @@ prodCompanySchema.pre('save', async function (next) {
   next();
 });
 
-const ProdCompany = model('ProdCompany', prodCompanySchema);
+const ProdCompany = model<IProdCompanyModel>('ProdCompany', prodCompanySchema);
 
 export default ProdCompany;

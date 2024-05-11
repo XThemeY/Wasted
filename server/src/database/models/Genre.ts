@@ -1,3 +1,4 @@
+import type { IGenreModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const genreSchema = new Schema({
@@ -13,6 +14,6 @@ genreSchema.pre('save', async function (next) {
   next();
 });
 
-const Genre = model('Genre', genreSchema);
+const Genre = model<IGenreModel>('Genre', genreSchema);
 
 export default Genre;

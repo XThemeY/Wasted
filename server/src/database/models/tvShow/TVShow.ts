@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { CommentsShow } from '#db/models/index.js';
-import type { IShow } from '#interfaces/IModel.d.ts';
+import type { IShowModel } from '#interfaces/IModel.d.ts';
 
 const tvShowSchema = new Schema(
   {
@@ -20,6 +20,7 @@ const tvShowSchema = new Schema(
     },
     start_date: { type: Date, index: true },
     end_date: { type: Date, index: true },
+    duration: { type: Number, default: 0 },
     status: {
       type: String,
       enum: [
@@ -170,6 +171,6 @@ tvShowSchema.pre('save', async function (next) {
   next();
 });
 
-const TVShow = model<IShow>('TVShow', tvShowSchema);
+const TVShow = model<IShowModel>('TVShow', tvShowSchema);
 
 export default TVShow;

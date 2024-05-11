@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { CommentsEpisode } from '#db/models/index.js';
+import type { IEpisodeModel } from '#interfaces/IModel';
 
 const episodeSchema = new Schema(
   {
@@ -90,6 +91,6 @@ episodeSchema.pre('save', async function (next) {
   next();
 });
 
-const Episode = model('Episode', episodeSchema);
+const Episode = model<IEpisodeModel>('Episode', episodeSchema);
 
 export default Episode;

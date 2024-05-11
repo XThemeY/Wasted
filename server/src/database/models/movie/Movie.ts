@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { CommentsMovie } from '#db/models/index.js';
-import type { IMovie } from '#interfaces/IModel.d.ts';
+import type { IMovieModel } from '#interfaces/IModel.d.ts';
 
 const movieSchema = new Schema(
   {
@@ -153,6 +153,6 @@ movieSchema.pre('save', async function (next) {
   next();
 });
 
-const Movie = model<IMovie>('Movie', movieSchema);
+const Movie = model<IMovieModel>('Movie', movieSchema);
 
 export default Movie;

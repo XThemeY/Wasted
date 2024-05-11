@@ -1,7 +1,40 @@
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import type { JwtPayload } from 'jsonwebtoken';
+import type {
+  ICountryModel,
+  IGenreModel,
+  IPeopleModel,
+  IProdCompanyModel,
+  ITVPlatformModel,
+  ITagModel,
+} from './IModel';
+export interface IRatings {
+  tmdb: {
+    rating: number;
+    vote_count: number;
+  };
+  imdb: {
+    rating: number;
+    vote_count: number;
+  };
+  kinopoisk: {
+    rating: number;
+    vote_count: number;
+  };
+}
+
+export interface IPerson {
+  person: IPeopleModel;
+  role: string;
+}
+
+export interface IPersonJob {
+  id: number;
+  role: string;
+  job: string;
+}
+
 export interface IImages {
-  backdrop_url: string;
   poster_url: {
     ru: string;
     en: string;
@@ -10,73 +43,7 @@ export interface IImages {
     ru: string;
     en: string;
   };
-  logos?: IPathImage[];
-  backdrops?: IPathImage[];
-  posters?: IPathImage[];
-}
-
-export interface IPathImage {
-  iso_639_1: string;
-  file_path: string;
-}
-
-export interface IPeople {
-  id?: number;
-  original_name?: string;
-  person: number | Types.ObjectId;
-  profile_path?: string;
-  character?: string;
-  tmdb_id?: number;
-  role: string;
-  job?: string;
-}
-
-export interface ICredits {
-  entries(): IterableIterator<[number, IPeople]>;
-  crew?: IPeople[];
-  cast?: IPeople[];
-  length?: number;
-}
-
-export interface ICountry {
-  iso_3166_1?: string;
-  name?: string;
-}
-
-export interface IGenre {
-  name: string;
-}
-
-export interface ITag {
-  name: string;
-}
-
-export interface IProdCompany {
-  name: string;
-  logo_path?: string;
-}
-
-export interface IPlatform {
-  name: string;
-  logo_path?: string;
-}
-
-export interface IEpisode extends Types.ObjectId {}
-
-export interface ISeason extends Types.ObjectId {
-  season_number: number;
-  name: string;
-  overview: string;
-  air_date: Date;
-  episode_count: number;
-  poster_path?: string;
-  vote_average: number;
-  vote_count: number;
-}
-export interface ILogs {
-  type: string;
-  index: number;
-  length: number;
+  backdrop_url: string;
 }
 
 export interface IReactions {
@@ -122,11 +89,100 @@ export interface IReactions {
   };
 }
 
-export interface IToken extends Document {
-  user?: Types.ObjectId;
-  refreshToken: string;
-  _id: Types.ObjectId;
+export interface ICommentReactions {
+  broken_heart: {
+    value: number;
+    vote_count: number;
+  };
+  clown_face: {
+    value: number;
+    vote_count: number;
+  };
+  dislike: {
+    value: number;
+    vote_count: number;
+  };
+  dizzy_face: {
+    value: number;
+    vote_count: number;
+  };
+  face_vomiting: {
+    value: number;
+    vote_count: number;
+  };
+  fire: {
+    value: number;
+    vote_count: number;
+  };
+  grin: {
+    value: number;
+    vote_count: number;
+  };
+  heart_eyes: {
+    value: number;
+    vote_count: number;
+  };
+  heart: {
+    value: number;
+    vote_count: number;
+  };
+  joy: {
+    value: number;
+    vote_count: number;
+  };
+  like: {
+    value: number;
+    vote_count: number;
+  };
+  muscle: {
+    value: number;
+    vote_count: number;
+  };
+  neutral_face: {
+    value: number;
+    vote_count: number;
+  };
+  rude_face: {
+    value: number;
+    vote_count: number;
+  };
 }
+
+export interface ITag extends ITagModel {
+  id: number;
+  ru: string;
+  en: string;
+}
+
+export interface IGenre extends IGenreModel {
+  id: number;
+  ru: string;
+  en: string;
+}
+
+export interface ICountry extends ICountryModel {
+  id: number;
+  short_name: string;
+  name: string;
+}
+
+export interface IProdCompany extends IProdCompanyModel {
+  id: number;
+  name: string;
+  logo_url: string;
+}
+export interface IExternalIds {
+  tmdb: string;
+  imdb: string;
+  kinopoisk: string;
+}
+
+export interface ITVPlatform extends ITVPlatformModel {
+  id: number;
+  name: string;
+  logo_url: string;
+}
+
 export interface IUserDto {
   username: string;
   _id: Types.ObjectId;
@@ -143,10 +199,7 @@ export interface ICookies {
 
 export interface IJwtPayload extends JwtPayload {
   _id: Types.ObjectId;
-}
-export interface IReqWithUserData extends Request {
-  user?: IJwtPayload;
-  headers: IHeaders;
+  username: string;
 }
 interface IHeaders extends Headers {
   authorization: string;

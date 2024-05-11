@@ -16,6 +16,7 @@ import { corsOptions, logNames, limiter } from '#config/index.js';
 import favicon from 'serve-favicon';
 import path from 'path';
 import __dirname from '#utils/__dirname.js';
+import { errors } from 'celebrate';
 
 const PORT = process.env.PORT || 8010;
 const appLogger = logger(logNames.app);
@@ -44,6 +45,7 @@ app.use(
 app.use('/v1', v1Router);
 
 // Error handler
+app.use(errors());
 app.use('*', invalidPathHandler);
 app.use(errorLogger);
 app.use(errorResponder);

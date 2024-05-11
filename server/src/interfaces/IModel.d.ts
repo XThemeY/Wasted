@@ -1,219 +1,158 @@
-import { Document, Types } from 'mongoose';
+import type { Document, Types } from 'mongoose';
+import type { Response } from 'express';
 import type {
-  ICountry,
-  ICredits,
-  IGenre,
   IImages,
-  IPeople,
-  IPlatform,
-  IProdCompany,
-  ISeason,
-  ITag,
+  IReactions,
+  IRatings,
+  ICommentReactions,
+  IPersonJob,
+  IPerson,
 } from './IFields.d.ts';
 
 export interface IMediaModel extends Document {
-  title: string;
-  original_title: string;
-  //imdb: { type: Number, default: 0 },
-  //kinopoisk: { type: Number, default: 0 },
-  imdb_id: number;
-  name: string;
-  original_name: string;
-  release_date: Date;
-  first_air_date: Date;
-  last_air_date: Date;
-  status: string;
-  episode_run_time: number;
-  number_of_seasons: number;
-  number_of_episodes: number;
-  overview: string;
-  runtime: number;
-  duration: number;
-  vote_average: number;
-  vote_count: number;
-  images: IImages;
-  poster_path?: string;
-  backdrop_path?: string;
   id: number;
-  external_ids: {
-    imdb_id: number;
-    tmdb: number;
-  };
-  created_by: IPeople[];
-  genres: IGenre[];
-  keywords: {
-    keywords: ITag[];
-    results: ITag[];
-  };
-  credits: ICredits;
-  seasons: ISeason[];
-  networks: IPlatform[];
-  production_companies: IProdCompany[];
-  production_countries: ICountry[];
-  popularity: number;
-}
-
-export interface IMovie extends IMediaModel {
+  title: string;
   title_original: string;
-  countries: ICountry[];
-  director: IPeople[];
-  cast: IPeople[];
+  images: IImages;
+  genres?: number[];
+  genresId: IGenreModel[];
+  countries?: number[];
+  countriesId: ICountryModel[];
+  cast: IPerson[];
   watch_count: number;
   description: string;
   description_original: string;
-  tags: ITag[];
+  tags?: number[];
+  tagsId: ITagModel[];
+  duration: number;
+  production_companies?: number[];
+  production_companiesId: IProdCompanyModel[];
   rating: number;
-  ratings: {
-    wasted: {
-      beer: number;
-      favorite: number;
-      good: number;
-      pokerface: number;
-      poop: number;
-      vote_count: number;
-    };
-    tmdb: {
-      rating: number;
-      vote_count: number;
-    };
-    imdb: {
-      rating: number;
-      vote_count: number;
-    };
-    kinopoisk: {
-      rating: number;
-      vote_count: number;
-    };
+  ratings: IRatings;
+  reactions: IReactions;
+  comments: ICommentModel[];
+  external_ids: {
+    tmdb: string;
+    imdb: string;
+    kinopoisk: string;
   };
-  reactions: {
-    shocked: {
-      value: number;
-      vote_count: number;
-    };
-    thrilled: {
-      value: number;
-      vote_count: number;
-    };
-    scared: {
-      value: number;
-      vote_count: number;
-    };
-    sad: {
-      value: number;
-      vote_count: number;
-    };
-    touched: {
-      value: number;
-      vote_count: number;
-    };
-    bored: {
-      value: number;
-      vote_count: number;
-    };
-    confused: {
-      value: number;
-      vote_count: number;
-    };
-    amused: {
-      value: number;
-      vote_count: number;
-    };
-    tense: {
-      value: number;
-      vote_count: number;
-    };
-    reflective: {
-      value: number;
-      vote_count: number;
-    };
-  };
-  comments: Types.ObjectId;
   type: string;
-  createdAt: Date;
-  updatedAt: Date;
+  popularity: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface IShow extends IMediaModel {
-  title_original: string;
-  countries: ICountry[];
-  director: IPeople[];
-  cast: IPeople[];
+export interface IShowModel extends IMediaModel {
   start_date: Date;
   end_date: Date;
+  status: string;
+  creators: IPerson[];
+  total_episodes_time: number;
   episode_duration: number;
-  watch_count: number;
-  description: string;
-  description_original: string;
-  tags: ITag[];
-  rating: number;
-  ratings: {
-    wasted: {
-      beer: number;
-      favorite: number;
-      good: number;
-      pokerface: number;
-      poop: number;
-      vote_count: number;
-    };
-    tmdb: {
-      rating: number;
-      vote_count: number;
-    };
-    imdb: {
-      rating: number;
-      vote_count: number;
-    };
-    kinopoisk: {
-      rating: number;
-      vote_count: number;
-    };
+  episodes_count: number;
+  number_of_seasons: number;
+  number_of_episodes: number;
+  platforms?: number[];
+  platformsId: ITVPlatformModel[];
+  seasons: Types.ObjectId[];
+}
+
+export interface IMovieModel extends IMediaModel {
+  release_date: Date;
+  director: IPerson[];
+}
+
+export interface ISeasonModel extends IMediaModel {
+  show_id: number;
+  poster_url: string;
+  season_number: number;
+  episode_count: number;
+  air_date: Date;
+  episodes: Types.ObjectId[];
+}
+
+export interface IEpisodeModel {
+  show_id: number;
+  poster_url: string;
+  episode_type: string;
+  season_number: number;
+  episode_number: number;
+  air_date: Date;
+}
+
+export interface IPeopleModel {
+  _id?: Types.ObjectId;
+  id: number;
+  original_name: string;
+  translations: {
+    ru: string;
+    en: string;
   };
-  reactions: {
-    shocked: {
-      value: number;
-      vote_count: number;
-    };
-    thrilled: {
-      value: number;
-      vote_count: number;
-    };
-    scared: {
-      value: number;
-      vote_count: number;
-    };
-    sad: {
-      value: number;
-      vote_count: number;
-    };
-    touched: {
-      value: number;
-      vote_count: number;
-    };
-    bored: {
-      value: number;
-      vote_count: number;
-    };
-    confused: {
-      value: number;
-      vote_count: number;
-    };
-    amused: {
-      value: number;
-      vote_count: number;
-    };
-    tense: {
-      value: number;
-      vote_count: number;
-    };
-    reflective: {
-      value: number;
-      vote_count: number;
-    };
-  };
-  creators: IPeople[];
+  profile_img: string;
+  movies: IPersonJob[];
+  shows: IPersonJob[];
+  tmdb_id: number;
   comments: Types.ObjectId;
-  type: string;
-  platforms: IPlatform[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  __v?: number;
+}
+export interface ICommentModel {
+  id: number;
+  media_id: number;
+  username: string;
+  parent_comments_id: number;
+  comment_body: string;
+  images_url: string[];
+  reactions: ICommentReactions;
+  isDeleted: boolean;
+  isHidden: boolean;
+  isChanged: boolean;
+}
+
+export interface ITVPlatformModel {
+  _id?: Types.ObjectId;
+  id: number;
+  name: string;
+  logo_url: string;
+  __v?: number;
+}
+
+export interface ITagModel {
+  _id?: Types.ObjectId;
+  id: number;
+  ru: string;
+  en: string;
+  __v?: number;
+}
+
+export interface IProdCompanyModel {
+  _id?: Types.ObjectId;
+  id: number;
+  name: string;
+  logo_url: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  __v?: number;
+}
+
+export interface IGenreModel {
+  _id?: Types.ObjectId;
+  id: number;
+  ru: string;
+  en: string;
+  __v?: number;
+}
+
+export interface ICountryModel {
+  _id?: Types.ObjectId;
+  id: number;
+  short_name: string;
+  name: string;
+  __v?: number;
+}
+
+export interface ITokenModel {
+  refreshToken: string;
+  user: Types.ObjectId;
 }

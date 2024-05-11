@@ -3,7 +3,7 @@ export { corsOptions } from './corsOptions.js';
 export { getСountryOptions } from './countryOptions.js';
 export { getGenreOptions } from './genreOptions.js';
 export { getRatingOptions } from './ratingOptions.js';
-export { getSortOptions } from './sortOptions.js';
+export { sortOptions } from './sortOptions.js';
 export { getTvPlatformsOptions } from './tvplatformOptions.js';
 export { usernameExceptions } from './usenameExceptions.js';
 export { getStartYear, getEndYear, compareYears } from './yearOptions.js';

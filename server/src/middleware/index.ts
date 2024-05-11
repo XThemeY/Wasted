@@ -6,8 +6,14 @@ export {
 } from '#middleware/errorHandler.js';
 export { authMiddleware, isOwner } from './validations/authMiddleware.js';
 export { roleMiddleware } from './validations/roleMiddleware.js';
-export { userDataMiddleware } from './validations/userDataMiddleware.js';
-export { registerMiddleware } from './validations/registerMiddleware.js';
+export { cookieParseMiddleware } from './validations/cookieParseMiddleware.js';
+export {
+  registerValidMiddleware,
+  loginValidMiddleware,
+  tokenValidMiddleware,
+  searchValidMiddleware,
+  updateValidMiddleware,
+} from './validations/validationMiddleware.js';
 export {
   fileUploadValidation,
   isCommentOwner,

@@ -1,3 +1,4 @@
+import type { ICountryModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const countrySchema = new Schema({
@@ -13,6 +14,6 @@ countrySchema.pre('save', async function (next) {
   next();
 });
 
-const Country = model('Country', countrySchema);
+const Country = model<ICountryModel>('Country', countrySchema);
 
 export default Country;
