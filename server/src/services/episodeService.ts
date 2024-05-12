@@ -7,6 +7,7 @@ import {
 import ApiError from '#utils/apiError.js';
 import { EpisodeDto } from '#utils/dtos/index.js';
 import { seasonService } from '#services/index.js';
+import type { RatingMsgResponse } from '#types/types';
 
 class EpisodeService {
   async getEpisode(id) {
@@ -42,6 +43,12 @@ class EpisodeService {
   }
 
   async setRating(username, showId, itemId, ratingTuple) {
+    const responseMSg: RatingMsgResponse = {
+      type: 'episode',
+      id: itemId,
+      status: '',
+      message: '',
+    };
     const episode = await Episode.findOne(
       {
         show_id: showId,
@@ -80,10 +87,9 @@ class EpisodeService {
       episode.ratings.wasted.vote_count += 1;
       await episode.save();
       await this.setTotalRating(itemId, showId, seasonNumber);
-      return {
-        status: 'added',
-        message: `Эпизоду с id:${itemId} поставлен рейтинг ${ratingTuple[1]}`,
-      };
+      responseMSg.status = 'added';
+      responseMSg.message = `Поставлен рейтинг ${ratingTuple[1]}`;
+      return responseMSg;
     }
     if (ratingTuple[1] === isRated.tvShows.episodes[0].rating) {
       await UserRating.updateOne(
@@ -100,10 +106,9 @@ class EpisodeService {
       episode.ratings.wasted.vote_count -= 1;
       await episode.save();
       await this.setTotalRating(itemId, showId, seasonNumber);
-      return {
-        status: 'del',
-        message: `Эпизоду с id:${itemId} удален рейтинг`,
-      };
+      responseMSg.status = 'del';
+      responseMSg.message = `Рейтинг ${ratingTuple[1]} удален`;
+      return responseMSg;
     }
     await UserRating.updateOne(
       {
@@ -128,10 +133,9 @@ class EpisodeService {
       isRated.tvShows.episodes[0].rating;
     await episode.save();
     await this.setTotalRating(itemId, showId, seasonNumber);
-    return {
-      status: 'changed',
-      message: `Эпизоду с id:${itemId} изменен рейтинг на ${ratingTuple[1]}`,
-    };
+    responseMSg.status = 'updated';
+    responseMSg.message = `Рейтинг изменен с ${isRated.movies[0].rating} на ${ratingTuple[1]}`;
+    return responseMSg;
   }
 
   async setTotalRating(id, showId, seasonNumber) {

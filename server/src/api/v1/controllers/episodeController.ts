@@ -1,5 +1,5 @@
 import ApiError from '#utils/apiError.js';
-import { getRatingOptions, getMediaReactions } from '#config/index.js';
+import { getRatingOptions } from '#config/index.js';
 import { episodeService } from '#services/index.js';
 
 class ShowController {
@@ -37,7 +37,7 @@ class ShowController {
     try {
       const { episodeId, id } = req.params;
       const username = req.user.username;
-      const reactions = getMediaReactions(req.body.reactions);
+      const reactions = req.body.reactions;
       const response = await episodeService.setEpisodeReactions(
         username,
         +id,

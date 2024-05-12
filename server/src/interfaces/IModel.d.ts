@@ -1,5 +1,4 @@
 import type { Document, Types } from 'mongoose';
-import type { Response } from 'express';
 import type {
   IImages,
   IReactions,
@@ -9,24 +8,24 @@ import type {
   IPerson,
 } from './IFields.d.ts';
 
-export interface IMediaModel extends Document {
+interface IMediaModel extends Document {
   id: number;
   title: string;
   title_original: string;
   images: IImages;
-  genres?: number[];
-  genresId: IGenreModel[];
-  countries?: number[];
-  countriesId: ICountryModel[];
+  genres: number[] | IGenreModel[];
+  genresId?: IGenreModel[];
+  countries: number[] | ICountryModel[];
+  countriesId?: ICountryModel[];
   cast: IPerson[];
   watch_count: number;
   description: string;
   description_original: string;
-  tags?: number[];
-  tagsId: ITagModel[];
+  tags: number[] | ITagModel[];
+  tagsId?: ITagModel[];
   duration: number;
-  production_companies?: number[];
-  production_companiesId: IProdCompanyModel[];
+  production_companies: number[] | IProdCompanyModel[];
+  production_companiesId?: IProdCompanyModel[];
   rating: number;
   ratings: IRatings;
   reactions: IReactions;
@@ -52,13 +51,13 @@ export interface IShowModel extends IMediaModel {
   episodes_count: number;
   number_of_seasons: number;
   number_of_episodes: number;
-  platforms?: number[];
-  platformsId: ITVPlatformModel[];
+  platforms: number[] | ITVPlatformModel[];
+  platformsId?: ITVPlatformModel[];
   seasons: Types.ObjectId[];
 }
 
 export interface IMovieModel extends IMediaModel {
-  release_date: Date;
+  release_date: Date | string;
   director: IPerson[];
 }
 

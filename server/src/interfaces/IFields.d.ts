@@ -1,14 +1,8 @@
 import { Types } from 'mongoose';
 import type { JwtPayload } from 'jsonwebtoken';
-import type {
-  ICountryModel,
-  IGenreModel,
-  IPeopleModel,
-  IProdCompanyModel,
-  ITVPlatformModel,
-  ITagModel,
-} from './IModel';
+import type { IPeopleModel } from './IModel';
 export interface IRatings {
+  wasted: { rating: number; vote_count: number };
   tmdb: {
     rating: number;
     vote_count: number;
@@ -147,40 +141,10 @@ export interface ICommentReactions {
     vote_count: number;
   };
 }
-
-export interface ITag extends ITagModel {
-  id: number;
-  ru: string;
-  en: string;
-}
-
-export interface IGenre extends IGenreModel {
-  id: number;
-  ru: string;
-  en: string;
-}
-
-export interface ICountry extends ICountryModel {
-  id: number;
-  short_name: string;
-  name: string;
-}
-
-export interface IProdCompany extends IProdCompanyModel {
-  id: number;
-  name: string;
-  logo_url: string;
-}
 export interface IExternalIds {
   tmdb: string;
   imdb: string;
   kinopoisk: string;
-}
-
-export interface ITVPlatform extends ITVPlatformModel {
-  id: number;
-  name: string;
-  logo_url: string;
 }
 
 export interface IUserDto {

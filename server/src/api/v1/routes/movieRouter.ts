@@ -3,7 +3,9 @@ import { movieController } from '#api/v1/controllers/index.js';
 import {
   cookieParseMiddleware,
   searchValidMiddleware,
+  ratingValidMiddleware,
   updateValidMiddleware,
+  reactionsValidMiddleware,
   authMiddleware,
   roleMiddleware,
 } from '#middleware/index.js';
@@ -29,12 +31,14 @@ router.patch(
 router.post(
   `/${idRegExp}/rating`,
   authMiddleware,
+  ratingValidMiddleware(),
   movieController.setMovieRating,
 );
 
 router.post(
   `/${idRegExp}/reaction`,
   authMiddleware,
+  reactionsValidMiddleware(),
   movieController.setMovieReaction,
 );
 

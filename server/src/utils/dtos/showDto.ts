@@ -2,7 +2,7 @@ import type { IMediaSearchResult } from '#interfaces/IApp';
 import type { IImages, IGenre, ICountry, IPerson } from '#interfaces/IFields';
 import type { IShowModel } from '#interfaces/IModel';
 import { formatISO } from 'date-fns';
-import { getPeoples } from './movieDto';
+import { getPeoples } from '#utils/mediaFields';
 
 export class ShowShort implements IMediaSearchResult {
   id: number;

@@ -8,10 +8,16 @@ import type { ITokenModel } from '#interfaces/IModel';
 class TokenService {
   generateTokens(payload: jwt.JwtPayload): jwt.JwtPayload {
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: '30m',
+      expiresIn:
+        process.env.NODE_ENV === 'development'
+          ? '30d'
+          : process.env.ACCESS_TOKEN_EXPIRES || '30m',
     });
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-      expiresIn: '30d',
+      expiresIn:
+        process.env.NODE_ENV === 'development'
+          ? '30d'
+          : process.env.REFRESH_TOKEN_EXPIRES || '30d',
     });
     return { accessToken, refreshToken };
   }

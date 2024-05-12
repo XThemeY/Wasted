@@ -6,7 +6,6 @@ import {
   getStartYear,
   getEndYear,
   compareYears,
-  getMediaReactions,
 } from '#config/index.js';
 import type { NextFunction, Response, Request } from 'express';
 import { Movie } from '#utils/dtos/index.js';
@@ -17,6 +16,7 @@ import type {
   IMovieUpdate,
   ISearchQuery,
 } from '#interfaces/IApp';
+import type { Reactions, ResponseMsg } from '#types/types';
 
 class MovieController {
   async getMovie(
@@ -30,8 +30,8 @@ class MovieController {
       if (!movie) {
         throw ApiError.BadRequest(`Фильма с таким id:${id} не существует`);
       }
-      const movieDto = new Movie(movie);
-      return res.json(movieDto);
+      const response = new Movie(movie);
+      return res.json(response);
     } catch (e) {
       next(e);
     }
@@ -49,8 +49,8 @@ class MovieController {
       if (!movie) {
         throw ApiError.BadRequest(`Фильма с таким id:${id} не существует`);
       }
-      const movieDto = new Movie(movie);
-      return res.json(movieDto);
+      const response = new Movie(movie);
+      return res.json(response);
     } catch (e) {
       next(e);
     }
@@ -77,7 +77,7 @@ class MovieController {
         ? await wastedHistoryService.getWastedIds(username, 'movies')
         : [];
 
-      const movies = await movieService.exploreMovies({
+      const response = await movieService.exploreMovies({
         page,
         limit,
         sort_by,
@@ -88,13 +88,18 @@ class MovieController {
         countries,
         wastedIds,
       } as ISearchQuery);
-      res.json(movies);
+
+      res.json(response);
     } catch (e) {
       next(e);
     }
   }
 
-  async setMovieRating(req, res, next) {
+  async setMovieRating(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<ResponseMsg> | void> {
     try {
       const { id } = req.params;
       const username = req.user.username;
@@ -106,11 +111,16 @@ class MovieController {
     }
   }
 
-  async setMovieReaction(req, res, next) {
+  async setMovieReaction(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<ResponseMsg> | void> {
     try {
       const { id } = req.params;
       const username = req.user.username;
-      const reactions = getMediaReactions(req.body.reactions);
+      const reactions = req.body.reactions as string[];
+
       const response = await movieService.setMovieReactions(
         username,
         +id,

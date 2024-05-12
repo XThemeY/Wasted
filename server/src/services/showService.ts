@@ -1,5 +1,5 @@
 import { TVShow, WastedHistory } from '#db/models/index.js';
-import { NewMediaDto } from '#utils/dtos/index.js';
+import { ShowShort } from '#utils/dtos/index.js';
 import ApiError from '#utils/apiError.js';
 class TVShowService {
   async getShow(id) {
@@ -87,7 +87,7 @@ class TVShowService {
     }
 
     newShows.items = total_shows.map((show) => {
-      return new NewMediaDto(show);
+      return new ShowShort(show);
     });
     newShows.page = page + 1;
     newShows.total_pages = total_pages;

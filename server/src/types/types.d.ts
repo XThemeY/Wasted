@@ -1,9 +1,19 @@
 import type { ISeason } from '#interfaces/IFields.d.ts';
-import { Types } from 'mongoose';
+import type { Types } from 'mongoose';
 
 export type Seasons = ISeason[] | Types.ObjectId[];
 
-type Params = {};
-type ResBody = {};
-type ReqBody = {};
-type ReqQuery = {};
+export type RatingTuple = [string, number];
+
+export type ResponseMsg = {
+  status: string;
+  type: string;
+  id: number;
+  rating?: number;
+  reactions?: string[];
+  message: string;
+};
+
+export type Reactions = {
+  [key: string]: string;
+};

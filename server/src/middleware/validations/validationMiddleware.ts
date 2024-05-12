@@ -1,4 +1,5 @@
 import { usernameExceptions, sortOptions } from '#config/index.js';
+import { mediaReactions } from '#config/index.js';
 import { celebrate, Segments, Joi } from 'celebrate';
 import { RequestHandler } from 'express';
 
@@ -82,6 +83,27 @@ export const updateValidMiddleware = (): RequestHandler => {
         kinopoisk: Joi.string().allow(''),
       }),
       type: Joi.string().valid('movie', 'show', 'game'),
+    }),
+  });
+};
+
+export const ratingValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.PARAMS]: Joi.object().keys({ id: Joi.number().required() }),
+    [Segments.BODY]: Joi.object().keys({
+      rating: Joi.number().min(1).max(5).required(),
+    }),
+  });
+};
+
+export const reactionsValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.PARAMS]: Joi.object().keys({ id: Joi.number().required() }),
+    [Segments.BODY]: Joi.object().keys({
+      reactions: Joi.array()
+        .items(...Object.keys(mediaReactions))
+        .unique()
+        .required(),
     }),
   });
 };

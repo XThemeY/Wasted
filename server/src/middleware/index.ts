@@ -13,6 +13,8 @@ export {
   tokenValidMiddleware,
   searchValidMiddleware,
   updateValidMiddleware,
+  ratingValidMiddleware,
+  reactionsValidMiddleware,
 } from './validations/validationMiddleware.js';
 export {
   fileUploadValidation,

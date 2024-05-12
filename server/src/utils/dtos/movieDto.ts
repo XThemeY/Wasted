@@ -1,14 +1,4 @@
-import type {
-  ICountry,
-  IExternalIds,
-  IGenre,
-  IImages,
-  IPerson,
-  IProdCompany,
-  IRatings,
-  IReactions,
-  ITag,
-} from '#interfaces/IFields';
+import type { IMovie, IMovieSearchResult } from '#interfaces/IApp.js';
 import type {
   ICommentModel,
   ICountryModel,
@@ -17,29 +7,43 @@ import type {
   IProdCompanyModel,
   ITagModel,
 } from '#interfaces/IModel';
+import type {
+  IExternalIds,
+  IImages,
+  IPerson,
+  IRatings,
+  IReactions,
+} from '#interfaces/IFields';
 import { formatISO } from 'date-fns';
-import { Person } from './personDto.js';
-import { IMediaSearchResult } from '#interfaces/IApp.js';
+import {
+  getGenres,
+  getCountries,
+  getPeoples,
+  getTags,
+  getProdCompanies,
+} from '#utils/mediaFields';
 
-export class Movie {
+export class Movie implements IMovie {
   id: number;
   title: string;
   title_original: string;
   images: IImages;
   release_date: string;
-  genres: IGenre[];
-  countries: ICountry[];
+  genres: IGenreModel[];
+  countries: ICountryModel[];
   director: IPerson[];
   cast: IPerson[];
-  watch_count: number;
   description: string;
   description_original: string;
-  tags: ITag[];
+  tags: ITagModel[];
   duration: number;
-  production_companies: IProdCompany[];
+  production_companies: IProdCompanyModel[];
   reactions: IReactions;
   rating: number;
   ratings: IRatings;
+  type: string;
+  watch_count: number;
+  popularity: number;
   external_ids: IExternalIds;
   comments: ICommentModel[];
   constructor(model: IMovieModel) {
@@ -50,73 +54,33 @@ export class Movie {
     this.release_date = formatISO(new Date(model.release_date), {
       representation: 'date',
     });
-    this.genres = this.getGenres(model.genresId);
-    this.countries = this.getCountries(model.countriesId);
+    this.genres = getGenres(model.genresId);
+    this.countries = getCountries(model.countriesId);
     this.director = getPeoples(model.director);
     this.cast = getPeoples(model.cast);
-    this.watch_count = model.watch_count;
     this.description = model.description;
     this.description_original = model.description_original;
-    this.tags = this.getTags(model.tagsId);
+    this.tags = getTags(model.tagsId);
     this.duration = model.duration;
-    this.production_companies = this.getProdCompanies(
-      model.production_companiesId,
-    );
+    this.production_companies = getProdCompanies(model.production_companiesId);
     this.reactions = model.reactions;
     this.rating = model.rating;
     this.ratings = model.ratings;
+    this.type = model.type;
+    this.watch_count = model.watch_count;
+    this.popularity = model.popularity;
     this.external_ids = model.external_ids;
     this.comments = model.comments;
   }
-
-  getTags(tags: ITagModel[]): ITag[] {
-    return tags.map((tag) => {
-      return {
-        id: tag.id,
-        ru: tag.ru,
-        en: tag.en,
-      };
-    });
-  }
-
-  getProdCompanies(companies: IProdCompanyModel[]): IProdCompany[] {
-    return companies.map((company) => {
-      return {
-        id: company.id,
-        name: company.name,
-        logo_url: company.logo_url,
-      };
-    });
-  }
-
-  getGenres(genres: IGenreModel[]): IGenre[] {
-    return genres.map((genre) => {
-      return {
-        id: genre.id,
-        ru: genre.ru,
-        en: genre.en,
-      };
-    });
-  }
-
-  getCountries(countries: ICountryModel[]): ICountry[] {
-    return countries.map((country) => {
-      return {
-        id: country.id,
-        short_name: country.short_name,
-        name: country.name,
-      };
-    });
-  }
 }
 
-export class MovieShort implements IMediaSearchResult {
+export class MovieShort implements IMovieSearchResult {
   id: number;
   title: string;
   title_original: string;
   images: IImages;
-  genres: IGenre[];
-  countries: ICountry[];
+  genres: IGenreModel[];
+  countries: ICountryModel[];
   director: IPerson[];
   description: string;
   description_original: string;
@@ -130,23 +94,19 @@ export class MovieShort implements IMediaSearchResult {
     this.id = model.id;
     this.title = model.title;
     this.title_original = model.title_original;
+    this.countries = getCountries(model.countriesId);
     this.images = model.images;
     this.release_date = formatISO(new Date(model.release_date), {
       representation: 'date',
     });
     this.director = getPeoples(model.director);
+    this.genres = getGenres(model.genresId);
     this.description = model.description;
     this.description_original = model.description_original;
     this.duration = model.duration;
     this.rating = model.rating;
+    this.type = model.type;
+    this.watch_count = model.watch_count;
+    this.popularity = model.popularity;
   }
-}
-
-export function getPeoples(people: IPerson[]): IPerson[] {
-  return people.map((actor) => {
-    return {
-      person: new Person(actor.person),
-      role: actor.role,
-    };
-  });
 }
