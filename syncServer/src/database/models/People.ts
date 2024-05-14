@@ -35,7 +35,7 @@ const peopleSchema = new Schema(
       },
     ],
     tmdb_id: { type: Number, unique: true, immutable: true },
-    //comments: { type: Schema.Types.ObjectId, ref: 'CommentsPeople' },
+    comments: { type: Schema.Types.ObjectId, ref: 'CommentsPeople' },
   },
   {
     timestamps: true,
@@ -45,7 +45,7 @@ const peopleSchema = new Schema(
 peopleSchema.pre('save', async function (next) {
   if (this.isNew) {
     this.id = (await People.countDocuments()) + 1;
-    //this.comments = (await CommentsPeople.create({ media_id: this.id }))._id;
+    this.comments = (await CommentsPeople.create({ media_id: this.id }))._id;
   }
   next();
 });

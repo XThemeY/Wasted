@@ -1,8 +1,3 @@
-import type { ISeason } from '#interfaces/IFields.d.ts';
-import type { Types } from 'mongoose';
-
-export type Seasons = ISeason[] | Types.ObjectId[];
-
 export type RatingTuple = [string, number];
 
 export type ResponseMsg = {
@@ -14,6 +9,43 @@ export type ResponseMsg = {
   message: string;
 };
 
-export type Reactions = {
-  [key: string]: string;
+export type Rating = {
+  value: number;
+  vote_count: number;
+};
+
+export type Ratings = { [key: string]: Rating };
+
+export type Reaction = { value: number; vote_count: number };
+
+export type ReactionsConfig = { [key: string]: string };
+
+export type Reactions = { [key: string]: Reaction };
+
+export type RatingRes = {
+  userRating: _UserRating;
+  totalRating:
+    | number
+    | { showRating: number; seasonRating?: number; episodeRating?: number };
+};
+
+export type ReactionRes = {
+  userReactions: UserReaction;
+  reactions: Reactions;
+};
+
+export type _UserRating = {
+  movieId?: number;
+  showId?: number;
+  episodeId?: number;
+  seasonNumber?: number;
+  rating: Rating;
+};
+
+export type UserReaction = {
+  movieId?: number;
+  showId?: number;
+  episodeId?: number;
+  seasonNumber?: number;
+  reactions: string[];
 };

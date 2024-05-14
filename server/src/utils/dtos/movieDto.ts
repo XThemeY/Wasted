@@ -1,6 +1,5 @@
 import type { IMovie, IMovieSearchResult } from '#interfaces/IApp.js';
 import type {
-  ICommentModel,
   ICountryModel,
   IGenreModel,
   IMovieModel,
@@ -22,6 +21,7 @@ import {
   getTags,
   getProdCompanies,
 } from '#utils/mediaFields';
+import type { Types } from 'mongoose';
 
 export class Movie implements IMovie {
   id: number;
@@ -45,7 +45,7 @@ export class Movie implements IMovie {
   watch_count: number;
   popularity: number;
   external_ids: IExternalIds;
-  comments: ICommentModel[];
+  comments: Types.ObjectId;
   constructor(model: IMovieModel) {
     this.id = model.id;
     this.title = model.title;

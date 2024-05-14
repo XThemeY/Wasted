@@ -5,4 +5,6 @@ export const usernameExceptions = [
   'movies',
   'shows',
   'games',
+  'episodes',
+  'seasons',
 ];

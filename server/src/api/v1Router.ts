@@ -4,7 +4,7 @@ import {
   userRouter,
   movieRouter,
   tvshowRouter,
-  gameRouter,
+  seasonRouter,
   wastedHistoryRouter,
   favoriteRouter,
   episodeRouter,
@@ -18,13 +18,13 @@ import {
 } from '#middleware/index.js';
 
 const router = Router();
-const idRegExp = ':id(\\d+)';
 
 router.use('/auth', authRouter);
 router.use('/movies', movieRouter);
 router.use('/shows', tvshowRouter);
 router.use('/comments', cookieParseMiddleware, commentRouter);
-router.use(`/shows/${idRegExp}/episodes`, episodeRouter);
+router.use(`/seasons`, seasonRouter);
+router.use(`/episodes`, episodeRouter);
 // router.use('/games', gameRouter);
 router.get('/search', searchController.search);
 router.use('/', userRouter);

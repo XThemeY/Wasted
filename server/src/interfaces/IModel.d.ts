@@ -1,35 +1,37 @@
 import type { Document, Types } from 'mongoose';
 import type {
   IImages,
-  IReactions,
   IRatings,
   ICommentReactions,
   IPersonJob,
   IPerson,
+  IReactions,
 } from './IFields.d.ts';
+import type { UserReaction } from '#types/types.js';
 
-interface IMediaModel extends Document {
+interface IGeneralMediaModel extends Document {
   id: number;
   title: string;
   title_original: string;
-  images: IImages;
-  genres: number[] | IGenreModel[];
-  genresId?: IGenreModel[];
-  countries: number[] | ICountryModel[];
-  countriesId?: ICountryModel[];
-  cast: IPerson[];
   watch_count: number;
   description: string;
   description_original: string;
-  tags: number[] | ITagModel[];
-  tagsId?: ITagModel[];
   duration: number;
-  production_companies: number[] | IProdCompanyModel[];
-  production_companiesId?: IProdCompanyModel[];
   rating: number;
   ratings: IRatings;
   reactions: IReactions;
-  comments: ICommentModel[];
+  comments: Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface IMediaModel extends IGeneralMediaModel {
+  images: IImages;
+  genres: IGenreModel[];
+  countries: ICountryModel[];
+  cast: IPerson[];
+  tags: ITagModel[];
+  production_companies: IProdCompanyModel[];
   external_ids: {
     tmdb: string;
     imdb: string;
@@ -37,8 +39,10 @@ interface IMediaModel extends Document {
   };
   type: string;
   popularity: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  genresId?: IGenreModel[];
+  countriesId?: ICountryModel[];
+  tagsId?: ITagModel[];
+  production_companiesId?: IProdCompanyModel[];
 }
 
 export interface IShowModel extends IMediaModel {
@@ -51,9 +55,9 @@ export interface IShowModel extends IMediaModel {
   episodes_count: number;
   number_of_seasons: number;
   number_of_episodes: number;
-  platforms: number[] | ITVPlatformModel[];
+  platforms: number[];
   platformsId?: ITVPlatformModel[];
-  seasons: Types.ObjectId[];
+  seasons: ISeasonModel[];
 }
 
 export interface IMovieModel extends IMediaModel {
@@ -61,16 +65,16 @@ export interface IMovieModel extends IMediaModel {
   director: IPerson[];
 }
 
-export interface ISeasonModel extends IMediaModel {
+export interface ISeasonModel extends IGeneralMediaModel {
   show_id: number;
   poster_url: string;
   season_number: number;
   episode_count: number;
   air_date: Date;
-  episodes: Types.ObjectId[];
+  episodes: IEpisodeModel[];
 }
 
-export interface IEpisodeModel {
+export interface IEpisodeModel extends IGeneralMediaModel {
   show_id: number;
   poster_url: string;
   episode_type: string;
@@ -80,7 +84,6 @@ export interface IEpisodeModel {
 }
 
 export interface IPeopleModel {
-  _id?: Types.ObjectId;
   id: number;
   original_name: string;
   translations: {
@@ -94,7 +97,6 @@ export interface IPeopleModel {
   comments: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
-  __v?: number;
 }
 export interface ICommentModel {
   id: number;
@@ -110,48 +112,47 @@ export interface ICommentModel {
 }
 
 export interface ITVPlatformModel {
-  _id?: Types.ObjectId;
   id: number;
   name: string;
   logo_url: string;
-  __v?: number;
 }
 
 export interface ITagModel {
-  _id?: Types.ObjectId;
   id: number;
   ru: string;
   en: string;
-  __v?: number;
 }
 
 export interface IProdCompanyModel {
-  _id?: Types.ObjectId;
   id: number;
   name: string;
   logo_url: string;
   createdAt?: Date;
   updatedAt?: Date;
-  __v?: number;
 }
 
 export interface IGenreModel {
-  _id?: Types.ObjectId;
   id: number;
   ru: string;
   en: string;
-  __v?: number;
 }
 
 export interface ICountryModel {
-  _id?: Types.ObjectId;
   id: number;
   short_name: string;
   name: string;
-  __v?: number;
 }
 
 export interface ITokenModel {
   refreshToken: string;
   user: Types.ObjectId;
+}
+
+export interface IUserReactionsModel {
+  username: string;
+  movies: UserReaction[];
+  tvShows: { episodes: UserReaction[] };
+  games: UserReaction[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }

@@ -39,6 +39,8 @@ class TmdbMovieAPI {
     next: NextFunction,
   ): Promise<Response | void> {
     const movieId = req.params.id;
+    const isFullSync = req.query.fullSync === 'true';
+    console.log('isFullSync', isFullSync);
 
     try {
       const response = await RequestHandler.reqMedia(
@@ -51,8 +53,17 @@ class TmdbMovieAPI {
         true,
         false,
       );
-      await MovieService.syncMovie(response.data, responseENG.data);
-      return res.status(200);
+      const movie = await MovieService.syncMovie(
+        response.data,
+        responseENG.data,
+        isFullSync,
+      );
+
+      if (!movie) {
+        return res.sendStatus(404);
+      } else {
+        return res.sendStatus(200);
+      }
     } catch (error) {
       return next(error);
     }

@@ -1,28 +1,17 @@
-import { Episode, Season } from '#db/models/index.js';
-import ApiError from '#utils/apiError.js';
-import { EpisodeDto } from '#utils/dtos/index.js';
-import { showService } from '#services/index.js';
-
+import { Season } from '#db/models/index.js';
+import type { ISeasonModel } from '#interfaces/IModel';
+import { IReactions } from '#interfaces/IFields';
 class SeasonService {
-  async getSeason(id) {
-    const episode = await Episode.findOne({ id })
-      .populate({
-        path: 'CommentTV EpisodeRating',
-      })
-      .exec();
-
-    if (!episode) {
-      throw ApiError.BadRequest(`Эпизод с таким id:${id} не существует`);
-    }
-    const episodeDto = new EpisodeDto(episode);
-    return episodeDto;
+  async getSeason(id: number): Promise<ISeasonModel> {
+    const season = await Season.findOne({ id }).exec();
+    return season;
   }
 
   //   async setWatchCount(id) {
 
   //   }
 
-  async setTotalRating(showId, seasonNumber) {
+  async setTotalRating(showId: number, seasonNumber: number): Promise<number> {
     const season = await Season.findOne(
       {
         show_id: showId,
@@ -38,18 +27,20 @@ class SeasonService {
     if (!seasonArr.length) {
       season.rating = 0;
       await season.save();
-      await showService.setTotalRating(showId);
-      return;
+      return season.rating;
     }
     const seasonRating =
-      seasonArr.reduce((sum, value) => sum + value) / seasonArr.length;
+      seasonArr.reduce((sum, value) => sum + value, 0) / seasonArr.length;
     season.rating =
-      seasonRating % 1 === 0 ? seasonRating : seasonRating.toFixed(2);
+      seasonRating % 1 === 0 ? seasonRating : +seasonRating.toFixed(2);
     await season.save();
-    await showService.setTotalRating(showId);
+    return season.rating;
   }
 
-  async setTotalReactions(showId, seasonNumber) {
+  async setTotalReactions(
+    showId: number,
+    seasonNumber: number,
+  ): Promise<IReactions> {
     const season = await Season.findOne(
       { show_id: showId, season_number: seasonNumber },
       'reactions',
@@ -78,17 +69,16 @@ class SeasonService {
         season.reactions[key].value = 0;
       });
       await season.save();
-      await showService.setTotalReactions(showId);
-      return;
+      return season.reactions;
     }
     reactionsKeys.forEach((key) => {
-      season.reactions[key].value = (
+      season.reactions[key].value = +(
         (100 * season.reactions[key].vote_count) /
         total_votes
       ).toFixed(0);
     });
     await season.save();
-    await showService.setTotalReactions(showId);
+    return season.reactions;
   }
 }
 export default new SeasonService();

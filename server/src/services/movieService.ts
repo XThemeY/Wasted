@@ -1,4 +1,6 @@
 import type { IMovieModel } from '#interfaces/IModel';
+import type { RatingTuple, UserMovieRating, UserReaction } from '#types/types';
+import type { IReactions } from '#interfaces/IFields';
 import type {
   IErrMsg,
   ISearchResult,
@@ -13,7 +15,6 @@ import {
 } from '#db/models/index.js';
 import { MovieShort } from '#utils/dtos/index.js';
 import ApiError from '#utils/apiError.js';
-import { RatingTuple, Reactions, ResponseMsg } from '#types/types';
 import { moviePopFields } from '#config/index.js';
 
 class MovieService {
@@ -120,17 +121,13 @@ class MovieService {
     username: string,
     itemId: number,
     ratingTuple: RatingTuple,
-  ): Promise<ResponseMsg> {
-    const responseMSg: ResponseMsg = {
-      type: 'movie',
-      id: itemId,
-      status: '',
-      rating: 0,
-      message: '',
-    };
-    const movie = await Movie.findOne({
-      id: itemId,
-    }).exec();
+  ): Promise<UserMovieRating> {
+    const movie = await Movie.findOne(
+      {
+        id: itemId,
+      },
+      'ratings.wasted',
+    ).exec();
     if (!movie) {
       throw ApiError.BadRequest(`Фильма с id:${itemId} не существует`);
     }
@@ -162,12 +159,7 @@ class MovieService {
         movie.ratings.wasted[ratingTuple[0]] + ratingTuple[1];
       movie.ratings.wasted.vote_count += 1;
       await movie.save();
-      await this.setTotalRating(itemId);
-
-      responseMSg.status = 'added';
-      responseMSg.rating = ratingTuple[1];
-      responseMSg.message = `Рейтинг добавлен`;
-      return responseMSg;
+      return { id: itemId, rating: movie.ratings.wasted };
     }
 
     //Delete rating
@@ -185,12 +177,7 @@ class MovieService {
         movie.ratings.wasted[ratingTuple[0]] - ratingTuple[1];
       movie.ratings.wasted.vote_count -= 1;
       await movie.save();
-      await this.setTotalRating(itemId);
-
-      responseMSg.status = 'del';
-      responseMSg.rating = ratingTuple[1];
-      responseMSg.message = `Рейтинг удален`;
-      return responseMSg;
+      return { id: itemId, rating: movie.ratings.wasted };
     }
 
     //Update rating
@@ -216,46 +203,39 @@ class MovieService {
       movie.ratings.wasted[isRated.movies[0].ratingName] -
       isRated.movies[0].rating;
     await movie.save();
-    await this.setTotalRating(itemId);
-
-    responseMSg.status = 'updated';
-    responseMSg.rating = ratingTuple[1];
-    responseMSg.message = `Рейтинг обновлен`;
-    return responseMSg;
+    return { id: itemId, rating: movie.ratings.wasted };
   }
 
-  async setTotalRating(id: number): Promise<void> {
-    const movie = await Movie.findOne({ id }, 'rating ratings.wasted');
+  async setTotalRating(id: number): Promise<number> {
+    const movie = await Movie.findOne({ id }, 'rating ratings.wasted').exec();
     const ratingArr = Object.values(movie.ratings.wasted)
       .slice(0, -1)
       .filter((el) => el !== 0);
+
     if (!ratingArr.length) {
       movie.rating = 0;
       await movie.save();
-      return;
+      return movie.rating;
     }
     const rating =
       ratingArr.reduce((sum, value) => sum + value, 0) /
       movie.ratings.wasted.vote_count;
     movie.rating = rating % 1 === 0 ? rating : +rating.toFixed(2);
     await movie.save();
+    return movie.rating;
   }
 
   async setMovieReactions(
     username: string,
     itemId: number,
     reactions: string[],
-  ): Promise<ResponseMsg> {
-    const responseMSg: ResponseMsg = {
-      type: 'movie',
-      id: itemId,
-      status: '',
-      reactions: [],
-      message: '',
-    };
-    const movie = await Movie.findOne({
-      id: itemId,
-    }).exec();
+  ): Promise<UserReaction> {
+    const movie = await Movie.findOne(
+      {
+        id: itemId,
+      },
+      'reactions',
+    ).exec();
     if (!movie) {
       throw ApiError.BadRequest(`Фильма с таким id:${itemId} не существует`);
     }
@@ -268,7 +248,7 @@ class MovieService {
     );
 
     if (!isReacted) {
-      await UserReactions.updateOne(
+      await UserReactions.findOneAndUpdate(
         {
           username,
         },
@@ -284,11 +264,8 @@ class MovieService {
         movie.reactions[el].vote_count += 1;
       });
       await movie.save();
-      await this.setTotalReactions(itemId);
-      responseMSg.status = 'added';
-      responseMSg.reactions = reactions;
-      responseMSg.message = `Реакции добавлены`;
-      return responseMSg;
+
+      return { movieId: itemId, reactions };
     }
 
     isReacted.movies[0].reactions.forEach((el) => {
@@ -313,37 +290,42 @@ class MovieService {
     reactions.forEach((el) => {
       movie.reactions[el].vote_count += 1;
     });
-
     await movie.save();
-    await this.setTotalReactions(itemId);
-    responseMSg.status = 'updated';
-    responseMSg.reactions = reactions;
-    responseMSg.message = `Реакции обновлены`;
-    return responseMSg;
+    return { movieId: itemId, reactions };
   }
 
-  async setTotalReactions(id: number): Promise<void> {
-    const movie = await Movie.findOne({ id }, 'reactions');
+  async setTotalReactions(id: number): Promise<IReactions> {
+    const movie = await Movie.findOne({ id }, 'reactions').exec();
     let total_votes = 0;
     const reactions = Object.keys(movie.reactions);
     reactions.forEach((key) => {
       total_votes = total_votes + movie.reactions[key].vote_count;
     });
+
+    if (!total_votes) {
+      reactions.forEach((key) => {
+        movie.reactions[key].value = 0;
+      });
+      await movie.save();
+      return movie.reactions;
+    }
     reactions.forEach((key) => {
-      movie.reactions[key].value = (
+      movie.reactions[key].value = +(
         (100 * movie.reactions[key].vote_count) /
         total_votes
       ).toFixed(0);
     });
     await movie.save();
+    return movie.reactions;
   }
 
-  async setWatchCount(id: number): Promise<void> {
+  async setWatchCount(id: number): Promise<number> {
     const watch_count = await WastedHistory.countDocuments({
       'movies.itemId': id,
       'movies.status': 'watched',
     });
-    await Movie.findOneAndUpdate({ id }, { $set: { watch_count } }).exec();
+    await Movie.updateOne({ id }, { $set: { watch_count } }).exec();
+    return watch_count;
   }
 }
 

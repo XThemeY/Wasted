@@ -8,7 +8,7 @@ import {
 } from '#middleware/index.js';
 import { ROLES } from '#config/index.js';
 
-const router = Router({ mergeParams: true });
+const router = Router();
 const idRegExp = ':id(\\d+)';
 
 router.get(`/${idRegExp}`, commentController.getComment);

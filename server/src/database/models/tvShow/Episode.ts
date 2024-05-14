@@ -77,12 +77,6 @@ const episodeSchema = new Schema(
   },
 );
 
-episodeSchema.virtual('tagsId', {
-  ref: 'Tag',
-  localField: 'tags',
-  foreignField: 'id',
-});
-
 episodeSchema.pre('save', async function (next) {
   if (this.isNew) {
     this.id = (await Episode.countDocuments()) + 1;

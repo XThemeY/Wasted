@@ -1,6 +1,6 @@
-import type { Reactions } from '#types/types';
+import type { ReactionsConfig } from '#types/types';
 
-export const mediaReactions: Reactions = {
+export const mediaReactions: ReactionsConfig = {
   shocked: 'шок',
   thrilled: 'захватывающе',
   scared: 'пугающе',

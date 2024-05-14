@@ -1,6 +1,7 @@
 import { TVShow, WastedHistory } from '#db/models/index.js';
 import { ShowShort } from '#utils/dtos/index.js';
 import ApiError from '#utils/apiError.js';
+import { IReactions } from '#interfaces/IFields';
 class TVShowService {
   async getShow(id) {
     const movie = await TVShow.findOne({ id })
@@ -96,27 +97,7 @@ class TVShowService {
     return newShows;
   }
 
-  async setWatchCount(id) {
-    const show = await TVShow.findOne(
-      {
-        id,
-      },
-      'watch_count',
-    ).exec();
-
-    if (!show) {
-      throw ApiError.BadRequest(`Шоу с таким id:${id} не существует`);
-    }
-    show.watch_count = await WastedHistory.find({
-      'tvShows.itemId': id,
-      'tvShows.status': { $in: ['watched', 'watching'] },
-    })
-      .count()
-      .exec();
-    await show.save();
-  }
-
-  async setTotalRating(showId) {
+  async setTotalRating(showId: number): Promise<number> {
     const show = await TVShow.findOne(
       {
         id: showId,
@@ -131,15 +112,16 @@ class TVShowService {
     if (!showArr.length) {
       show.rating = 0;
       await show.save();
-      return;
+      return show.rating;
     }
     const showRating =
-      showArr.reduce((sum, value) => sum + value) / showArr.length;
-    show.rating = showRating % 1 === 0 ? showRating : showRating.toFixed(2);
+      showArr.reduce((sum, value) => sum + value, 0) / showArr.length;
+    show.rating = showRating % 1 === 0 ? showRating : +showRating.toFixed(2);
     await show.save();
+    return show.rating;
   }
 
-  async setTotalReactions(showId) {
+  async setTotalReactions(showId: number): Promise<IReactions> {
     const show = await TVShow.findOne({ id: showId }, 'reactions')
       .populate('seasons', 'season_number reactions')
       .exec();
@@ -165,15 +147,35 @@ class TVShowService {
         show.reactions[key].value = 0;
       });
       await show.save();
-      return;
+      return show.reactions;
     }
     reactionsKeys.forEach((key) => {
-      show.reactions[key].value = (
+      show.reactions[key].value = +(
         (100 * show.reactions[key].vote_count) /
         total_votes
       ).toFixed(0);
     });
     await show.save();
+    return show.reactions;
+  }
+
+  async setWatchCount(id: number): Promise<number> {
+    const show = await TVShow.findOne(
+      {
+        id,
+      },
+      'watch_count',
+    ).exec();
+
+    if (!show) {
+      throw ApiError.BadRequest(`Шоу с таким id:${id} не существует`);
+    }
+    show.watch_count = await WastedHistory.countDocuments({
+      'tvShows.itemId': id,
+      'tvShows.status': { $in: ['watched', 'watching'] },
+    }).exec();
+    await show.save();
+    return show.watch_count;
   }
 }
 export default new TVShowService();

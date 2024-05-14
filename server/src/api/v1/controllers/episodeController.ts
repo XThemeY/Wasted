@@ -1,49 +1,82 @@
+import type { NextFunction, Response, Request } from 'express';
+import type { RatingRes, ReactionRes } from '#types/types';
 import ApiError from '#utils/apiError.js';
 import { getRatingOptions } from '#config/index.js';
-import { episodeService } from '#services/index.js';
+import { episodeService, seasonService, showService } from '#services/index.js';
+import { Episode } from '#utils/dtos/episodeDto';
 
 class ShowController {
-  async getEpisode(req, res, next) {
+  async getEpisode(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<Episode> | void> {
     try {
-      const { episodeId } = req.params;
-      const tvShow = await episodeService.getEpisode(episodeId);
-      if (!tvShow) {
-        return next(ApiError.BadRequest(`Неправильный адрес`));
+      const { id } = req.params;
+      const episode = await episodeService.getEpisode(+id);
+      if (!episode) {
+        return next(
+          ApiError.BadRequest(`"Эпизода" с таким id:${id} не существует`),
+        );
       }
-      res.json(tvShow);
+      const response = new Episode(episode);
+      res.json(response);
     } catch (e) {
       next(e);
     }
   }
 
-  async setEpisodeRating(req, res, next) {
+  async setEpisodeRating(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<RatingRes> | void> {
     try {
-      const { episodeId, id } = req.params;
+      const id = +req.params.id;
       const username = req.user.username;
       const rating = getRatingOptions(req.body.rating);
-      const response = await episodeService.setRating(
-        username,
-        +id,
-        +episodeId,
-        rating,
+      const userRating = await episodeService.setRating(username, id, rating);
+      const episodeRating = await episodeService.setTotalRating(
+        userRating.episodeId,
       );
+      const seasonRating = await seasonService.setTotalRating(
+        userRating.showId,
+        userRating.seasonNumber,
+      );
+      const showRating = await showService.setTotalRating(userRating.showId);
+      const totalRating = { showRating, seasonRating, episodeRating };
+      const response = { userRating, totalRating } as RatingRes;
       return res.json(response);
     } catch (e) {
       next(e);
     }
   }
 
-  async setEpisodeReaction(req, res, next) {
+  async setEpisodeReaction(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<ReactionRes> | void> {
     try {
-      const { episodeId, id } = req.params;
+      const id = +req.params.id;
       const username = req.user.username;
-      const reactions = req.body.reactions;
-      const response = await episodeService.setEpisodeReactions(
+      const reactions = req.body.reactions as string[];
+      const userReactions = await episodeService.setEpisodeReactions(
         username,
-        +id,
-        +episodeId,
+        id,
         reactions,
       );
+
+      const episodeReactions = await episodeService.setTotalReactions(id);
+      await seasonService.setTotalReactions(
+        userReactions.showId,
+        userReactions.seasonNumber,
+      );
+      await showService.setTotalReactions(userReactions.showId);
+      const response = {
+        userReactions,
+        reactions: episodeReactions,
+      } as ReactionRes;
       return res.json(response);
     } catch (e) {
       next(e);

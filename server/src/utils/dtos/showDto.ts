@@ -1,6 +1,10 @@
 import type { IMediaSearchResult } from '#interfaces/IApp';
-import type { IImages, IGenre, ICountry, IPerson } from '#interfaces/IFields';
-import type { IShowModel } from '#interfaces/IModel';
+import type { IImages, IPerson } from '#interfaces/IFields';
+import type {
+  ICountryModel,
+  IGenreModel,
+  IShowModel,
+} from '#interfaces/IModel';
 import { formatISO } from 'date-fns';
 import { getPeoples } from '#utils/mediaFields';
 
@@ -9,8 +13,8 @@ export class ShowShort implements IMediaSearchResult {
   title: string;
   title_original: string;
   images: IImages;
-  genres: IGenre[];
-  countries: ICountry[];
+  genres: IGenreModel[];
+  countries: ICountryModel[];
   creators: IPerson[];
   description: string;
   description_original: string;

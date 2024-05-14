@@ -5,61 +5,30 @@ import {
   UserReactions,
 } from '#db/models/index.js';
 import ApiError from '#utils/apiError.js';
-import { EpisodeDto } from '#utils/dtos/index.js';
-import { seasonService } from '#services/index.js';
-import type { RatingMsgResponse } from '#types/types';
+import type { RatingTuple, UserReaction, _UserRating } from '#types/types';
+import type { IEpisodeModel } from '#interfaces/IModel';
+import type { IReactions } from '#interfaces/IFields';
 
 class EpisodeService {
-  async getEpisode(id) {
-    const episode = await Episode.findOne({ id })
-      .populate({
-        path: 'CommentTV EpisodeRating',
-      })
-      .exec();
-
-    if (!episode) {
-      throw ApiError.BadRequest(`Эпизод с таким id:${id} не существует`);
-    }
-    const episodeDto = new EpisodeDto(episode);
-    return episodeDto;
+  async getEpisode(id: number): Promise<IEpisodeModel> {
+    const episode = await Episode.findOne({ id }).exec();
+    return episode;
   }
 
-  async setWatchCount(id) {
+  async setRating(
+    username: string,
+    itemId: number,
+    ratingTuple: RatingTuple,
+  ): Promise<_UserRating> {
     const episode = await Episode.findOne(
       {
-        id,
-      },
-      'watch_count',
-    ).exec();
-    if (!episode) {
-      throw ApiError.BadRequest(`Эпизода с таким id:${id} не существует`);
-    }
-    episode.watch_count = await WastedHistory.find({
-      'tvShows.watchedEpisodes.episodeId': id,
-    })
-      .count()
-      .exec();
-    await episode.save();
-  }
-
-  async setRating(username, showId, itemId, ratingTuple) {
-    const responseMSg: RatingMsgResponse = {
-      type: 'episode',
-      id: itemId,
-      status: '',
-      message: '',
-    };
-    const episode = await Episode.findOne(
-      {
-        show_id: showId,
         id: itemId,
       },
-      'ratings.wasted season_number',
+      'show_id ratings.wasted season_number',
     );
     if (!episode) {
-      throw ApiError.BadRequest(`Шоу не содержит эпизод с таким id:${itemId}`);
+      throw ApiError.BadRequest(`Эпизод c id:${itemId} не найден`);
     }
-    const seasonNumber = episode.season_number;
     const isRated = await UserRating.findOne(
       {
         username,
@@ -67,6 +36,8 @@ class EpisodeService {
       },
       { 'tvShows.episodes.$': itemId },
     );
+
+    //Add rating
     if (!isRated) {
       await UserRating.updateOne(
         {
@@ -81,16 +52,19 @@ class EpisodeService {
         },
         { upsert: true, runValidators: true },
       );
-
       episode.ratings.wasted[ratingTuple[0]] =
         episode.ratings.wasted[ratingTuple[0]] + ratingTuple[1];
       episode.ratings.wasted.vote_count += 1;
       await episode.save();
-      await this.setTotalRating(itemId, showId, seasonNumber);
-      responseMSg.status = 'added';
-      responseMSg.message = `Поставлен рейтинг ${ratingTuple[1]}`;
-      return responseMSg;
+      return {
+        showId: episode.show_id,
+        episodeId: itemId,
+        seasonNumber: episode.season_number,
+        rating: episode.ratings.wasted,
+      };
     }
+
+    //Delete rating
     if (ratingTuple[1] === isRated.tvShows.episodes[0].rating) {
       await UserRating.updateOne(
         {
@@ -105,11 +79,15 @@ class EpisodeService {
         episode.ratings.wasted[ratingTuple[0]] - ratingTuple[1];
       episode.ratings.wasted.vote_count -= 1;
       await episode.save();
-      await this.setTotalRating(itemId, showId, seasonNumber);
-      responseMSg.status = 'del';
-      responseMSg.message = `Рейтинг ${ratingTuple[1]} удален`;
-      return responseMSg;
+      return {
+        showId: episode.show_id,
+        episodeId: itemId,
+        seasonNumber: episode.season_number,
+        rating: episode.ratings.wasted,
+      };
     }
+
+    //Update rating
     await UserRating.updateOne(
       {
         username,
@@ -132,13 +110,15 @@ class EpisodeService {
       episode.ratings.wasted[isRated.tvShows.episodes[0].ratingName] -
       isRated.tvShows.episodes[0].rating;
     await episode.save();
-    await this.setTotalRating(itemId, showId, seasonNumber);
-    responseMSg.status = 'updated';
-    responseMSg.message = `Рейтинг изменен с ${isRated.movies[0].rating} на ${ratingTuple[1]}`;
-    return responseMSg;
+    return {
+      showId: episode.show_id,
+      episodeId: itemId,
+      seasonNumber: episode.season_number,
+      rating: episode.ratings.wasted,
+    };
   }
 
-  async setTotalRating(id, showId, seasonNumber) {
+  async setTotalRating(id: number): Promise<number> {
     const episode = await Episode.findOne(
       { id },
       'rating ratings.wasted season_number',
@@ -150,30 +130,30 @@ class EpisodeService {
     if (!ratingArr.length) {
       episode.rating = 0;
       await episode.save();
-      await seasonService.setTotalRating(showId, seasonNumber);
-      return;
+      return episode.rating;
     }
     const rating =
-      ratingArr.reduce((sum, value) => sum + value) /
+      ratingArr.reduce((sum: number, value: number) => sum + value, 0) /
       episode.ratings.wasted.vote_count;
-    episode.rating = rating % 1 === 0 ? rating : rating.toFixed(2);
+    episode.rating = rating % 1 === 0 ? rating : +rating.toFixed(2);
     await episode.save();
-    await seasonService.setTotalRating(showId, seasonNumber);
+    return episode.rating;
   }
 
-  async setEpisodeReactions(username, showId, itemId, reactions) {
+  async setEpisodeReactions(
+    username: string,
+    itemId: number,
+    reactions: string[],
+  ): Promise<UserReaction> {
     const episode = await Episode.findOne(
       {
         id: itemId,
-        show_id: showId,
       },
       'reactions season_number',
     ).exec();
     if (!episode) {
-      throw ApiError.BadRequest(`Шоу не содержит эпизод с таким id:${itemId}`);
+      throw ApiError.BadRequest(`Эпизод c id:${itemId} не найден`);
     }
-    const seasonNumber = episode.season_number;
-
     const isReacted = await UserReactions.findOne(
       {
         username,
@@ -197,11 +177,7 @@ class EpisodeService {
         episode.reactions[el].vote_count += 1;
       });
       await episode.save();
-      await this.setTotalReactions(itemId, showId, seasonNumber);
-      return {
-        status: 'added',
-        message: `Эпизоду с id:${itemId} поставлены реакции: ${reactions}`,
-      };
+      return { showId: itemId, seasonNumber: episode.season_number, reactions };
     }
 
     isReacted.tvShows.episodes[0].reactions.forEach((el) => {
@@ -226,17 +202,12 @@ class EpisodeService {
       episode.reactions[el].vote_count += 1;
     });
     await episode.save();
-    await this.setTotalReactions(itemId, showId, seasonNumber);
-    return {
-      status: 'changed',
-      message: `Эпизоду с id:${itemId} изменены реакции на ${reactions}`,
-    };
+    return { showId: itemId, seasonNumber: episode.season_number, reactions };
   }
 
-  async setTotalReactions(id, showId, seasonNumber) {
+  async setTotalReactions(id: number): Promise<IReactions> {
     const episode = await Episode.findOne({ id }, 'reactions').exec();
     const reactionsKeys = Object.keys(episode.reactions);
-
     const total_votes = reactionsKeys.reduce(
       (acc, key) => acc + episode.reactions[key].vote_count,
       0,
@@ -247,17 +218,33 @@ class EpisodeService {
         episode.reactions[key].value = 0;
       });
       await episode.save();
-      await seasonService.setTotalReactions(showId, seasonNumber);
-      return;
+      return episode.reactions;
     }
     reactionsKeys.forEach((key) => {
-      episode.reactions[key].value = (
+      episode.reactions[key].value = +(
         (100 * episode.reactions[key].vote_count) /
         total_votes
       ).toFixed(0);
     });
     await episode.save();
-    await seasonService.setTotalReactions(showId, seasonNumber);
+    return episode.reactions;
+  }
+
+  async setWatchCount(id: number): Promise<number> {
+    const episode = await Episode.findOne(
+      {
+        id,
+      },
+      'watch_count',
+    ).exec();
+    if (!episode) {
+      throw ApiError.BadRequest(`Эпизода с таким id:${id} не существует`);
+    }
+    episode.watch_count = await WastedHistory.countDocuments({
+      'tvShows.watchedEpisodes.episodeId': id,
+    }).exec();
+    await episode.save();
+    return episode.watch_count;
   }
 }
 export default new EpisodeService();

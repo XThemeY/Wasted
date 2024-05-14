@@ -1,20 +1,12 @@
-import { Types } from 'mongoose';
+import type { Types } from 'mongoose';
 import type { JwtPayload } from 'jsonwebtoken';
 import type { IPeopleModel } from './IModel';
-export interface IRatings {
-  wasted: { rating: number; vote_count: number };
-  tmdb: {
-    rating: number;
-    vote_count: number;
-  };
-  imdb: {
-    rating: number;
-    vote_count: number;
-  };
-  kinopoisk: {
-    rating: number;
-    vote_count: number;
-  };
+import type { Rating, Ratings, Reaction, Reactions } from '#types/types';
+export interface IRatings extends Ratings {
+  wasted: Rating;
+  tmdb: Rating;
+  imdb: Rating;
+  kinopoisk: Rating;
 }
 
 export interface IPerson {
@@ -39,107 +31,34 @@ export interface IImages {
   };
   backdrop_url: string;
 }
-
-export interface IReactions {
-  shocked: {
-    value: number;
-    vote_count: number;
-  };
-  thrilled: {
-    value: number;
-    vote_count: number;
-  };
-  scared: {
-    value: number;
-    vote_count: number;
-  };
-  sad: {
-    value: number;
-    vote_count: number;
-  };
-  touched: {
-    value: number;
-    vote_count: number;
-  };
-  bored: {
-    value: number;
-    vote_count: number;
-  };
-  confused: {
-    value: number;
-    vote_count: number;
-  };
-  amused: {
-    value: number;
-    vote_count: number;
-  };
-  tense: {
-    value: number;
-    vote_count: number;
-  };
-  reflective: {
-    value: number;
-    vote_count: number;
-  };
+export interface IReactions extends Reactions {
+  shocked: Reaction;
+  thrilled: Reaction;
+  scared: Reaction;
+  sad: Reaction;
+  touched: Reaction;
+  bored: Reaction;
+  confused: Reaction;
+  amused: Reaction;
+  tense: Reaction;
+  reflective: Reaction;
 }
 
-export interface ICommentReactions {
-  broken_heart: {
-    value: number;
-    vote_count: number;
-  };
-  clown_face: {
-    value: number;
-    vote_count: number;
-  };
-  dislike: {
-    value: number;
-    vote_count: number;
-  };
-  dizzy_face: {
-    value: number;
-    vote_count: number;
-  };
-  face_vomiting: {
-    value: number;
-    vote_count: number;
-  };
-  fire: {
-    value: number;
-    vote_count: number;
-  };
-  grin: {
-    value: number;
-    vote_count: number;
-  };
-  heart_eyes: {
-    value: number;
-    vote_count: number;
-  };
-  heart: {
-    value: number;
-    vote_count: number;
-  };
-  joy: {
-    value: number;
-    vote_count: number;
-  };
-  like: {
-    value: number;
-    vote_count: number;
-  };
-  muscle: {
-    value: number;
-    vote_count: number;
-  };
-  neutral_face: {
-    value: number;
-    vote_count: number;
-  };
-  rude_face: {
-    value: number;
-    vote_count: number;
-  };
+export interface ICommentReactions extends Reactions {
+  broken_heart: Reaction;
+  clown_face: Reaction;
+  dislike: Reaction;
+  dizzy_face: Reaction;
+  face_vomiting: Reaction;
+  fire: Reaction;
+  grin: Reaction;
+  heart_eyes: Reaction;
+  heart: Reaction;
+  joy: Reaction;
+  like: Reaction;
+  muscle: Reaction;
+  neutral_face: Reaction;
+  rude_face: Reaction;
 }
 export interface IExternalIds {
   tmdb: string;

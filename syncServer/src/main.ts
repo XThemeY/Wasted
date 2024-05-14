@@ -35,7 +35,11 @@ app.use(errorResponder);
 
 const start = async (): Promise<void> => {
   try {
-    await mongoose.connect(process.env.DB_URL_TMDBMain);
+    await mongoose.connect(
+      process.env.NODE_ENV === 'production'
+        ? process.env.DB_URL_TMDBMain
+        : process.env.DB_URL_TEST,
+    );
     app.listen(PORT, () =>
       appLogger.info(`Sync server started on port ${PORT}`),
     );

@@ -16,7 +16,8 @@ import type {
   IMovieUpdate,
   ISearchQuery,
 } from '#interfaces/IApp';
-import type { Reactions, ResponseMsg } from '#types/types';
+import type { RatingRes, ReactionRes } from '#types/types';
+import { MediaType, syncMedia } from '#utils/syncServer';
 
 class MovieController {
   async getMovie(
@@ -30,6 +31,7 @@ class MovieController {
       if (!movie) {
         throw ApiError.BadRequest(`Фильма с таким id:${id} не существует`);
       }
+      syncMedia(movie.external_ids.tmdb, MediaType.movie, movie.updatedAt);
       const response = new Movie(movie);
       return res.json(response);
     } catch (e) {
@@ -99,12 +101,17 @@ class MovieController {
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<Response<ResponseMsg> | void> {
+  ): Promise<Response<RatingRes> | void> {
     try {
-      const { id } = req.params;
+      const id = +req.params.id;
       const username = req.user.username;
       const rating = getRatingOptions(req.body.rating);
-      const response = await movieService.setRating(username, +id, rating);
+      const userRating = await movieService.setRating(username, id, rating);
+      const totalRating = await movieService.setTotalRating(id);
+      const response = {
+        userRating,
+        totalRating,
+      } as RatingRes;
       return res.json(response);
     } catch (e) {
       next(e);
@@ -115,17 +122,21 @@ class MovieController {
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<Response<ResponseMsg> | void> {
+  ): Promise<Response<ReactionRes> | void> {
     try {
-      const { id } = req.params;
+      const id = +req.params.id;
       const username = req.user.username;
       const reactions = req.body.reactions as string[];
-
-      const response = await movieService.setMovieReactions(
+      const userReactions = await movieService.setMovieReactions(
         username,
-        +id,
+        id,
         reactions,
       );
+      const movieReactions = await movieService.setTotalReactions(id);
+      const response = {
+        userReactions,
+        reactions: movieReactions,
+      } as ReactionRes;
       return res.json(response);
     } catch (e) {
       next(e);

@@ -61,7 +61,7 @@ class MovieService {
         popularity: model.popularity,
       });
 
-      await Movie.findOneAndUpdate(
+      await Movie.updateOne(
         { 'external_ids.tmdb': model.id },
         {
           $set: {
@@ -95,16 +95,20 @@ class MovieService {
     return oldMovie.id;
   }
 
-  async syncMovie(model: IMediaModel, modelENG: IMediaModel): Promise<void> {
+  async syncMovie(
+    model: IMediaModel,
+    modelENG: IMediaModel,
+    isFullSync: boolean,
+  ): Promise<IMovie> {
     const movie = await Movie.findOne({ 'external_ids.tmdb': model.id });
     if (!movie) {
       movieLogger.info(
         { tmdbID: model.id },
         `ACTION: Фильм c tmdbID:${model.id} не существует в базе данных`,
       );
-      return;
+      return movie;
     }
-    await Movie.findOneAndUpdate(
+    const syncMovie = await Movie.findOneAndUpdate(
       { 'external_ids.tmdb': model.id },
       {
         $set: {
@@ -114,6 +118,30 @@ class MovieService {
           description: model.overview,
           description_original: modelENG.overview,
           duration: model.runtime,
+          updatedAt: new Date(),
+        },
+      },
+    );
+    if (isFullSync) {
+      await this.syncFields(movie, model, modelENG);
+    }
+    await this.syncRatings(model);
+    movieLogger.info(
+      { wastedId: movie.id },
+      `ACTION: Фильм c id:${movie.id} был обновлен.`,
+    );
+    return syncMovie;
+  }
+
+  async syncFields(
+    movie: IMovie,
+    model: IMediaModel,
+    modelENG: IMediaModel,
+  ): Promise<void> {
+    await Movie.updateOne(
+      { 'external_ids.tmdb': model.id },
+      {
+        $set: {
           images: await getMediaImages(movie.id, 'movie', model),
           genres: await getGenres(model.genres, modelENG.genres),
           countries: await getCountries(model.production_countries),
@@ -132,18 +160,13 @@ class MovieService {
         },
       },
     );
-    await this.syncRatings(model);
-    movieLogger.info(
-      { wastedId: movie.id },
-      `ACTION: Фильм c id:${movie.id} был обновлен.`,
-    );
   }
 
   async syncPeoples(model: IMediaModel): Promise<void> {
     const movie = await Movie.findOne({
       'external_ids.tmdb': model.id,
     });
-    await Movie.findOneAndUpdate(
+    await Movie.updateOne(
       { 'external_ids.tmdb': model.id },
       {
         director: await getPeoples(
@@ -166,39 +189,29 @@ class MovieService {
       );
       return;
     }
-    const tomorrow = new Date(movie.updatedAt);
-    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-    const now = new Date();
-    if (tomorrow < now) {
-      await Movie.findOneAndUpdate(
-        { 'external_ids.tmdb': model.id },
-        {
-          $set: {
-            'ratings.tmdb': {
-              rating: model.vote_average,
-              vote_count: model.vote_count,
-            },
-            'ratings.imdb': {
-              rating: 0,
-              vote_count: 0,
-            },
-            'ratings.kinopoisk': {
-              rating: 0,
-              vote_count: 0,
-            },
-            updatedAt: new Date(),
+    await Movie.updateOne(
+      { 'external_ids.tmdb': model.id },
+      {
+        $set: {
+          'ratings.tmdb': {
+            rating: model.vote_average,
+            vote_count: model.vote_count,
           },
+          'ratings.imdb': {
+            rating: 0,
+            vote_count: 0,
+          },
+          'ratings.kinopoisk': {
+            rating: 0,
+            vote_count: 0,
+          },
+          updatedAt: new Date(),
         },
-      );
-      movieLogger.info(
-        { wastedId: movie.id },
-        `ACTION: Рейтинг фильма с id:${movie.id} обновлен.`,
-      );
-      return;
-    }
+      },
+    );
     movieLogger.info(
       { wastedId: movie.id },
-      `ACTION: Рейтинг фильма с id:${movie.id} уже обновлен. Рейтинг обновляется каждые сутки.`,
+      `ACTION: Рейтинг фильма с id:${movie.id} обновлен.`,
     );
   }
 

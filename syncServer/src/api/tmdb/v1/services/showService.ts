@@ -67,7 +67,7 @@ class TVShowService {
         },
         popularity: model.popularity,
       });
-      await TVShow.findOneAndUpdate(
+      await TVShow.updateOne(
         { 'external_ids.tmdb': model.id },
         {
           $set: {
@@ -110,7 +110,7 @@ class TVShowService {
 
   async syncPeoples(model: IMediaModel): Promise<void> {
     const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
-    await TVShow.findOneAndUpdate(
+    await TVShow.updateOne(
       { 'external_ids.tmdb': model.id },
       {
         creators: await getPeoples(
@@ -124,16 +124,20 @@ class TVShowService {
     );
   }
 
-  async syncShow(model: IMediaModel, modelENG: IMediaModel): Promise<void> {
+  async syncShow(
+    model: IMediaModel,
+    modelENG: IMediaModel,
+    isFullSync: boolean,
+  ): Promise<IShow> {
     const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
     if (!show) {
       showLogger.info(
         { tmdbID: model.id },
         `ACTION: Шоу c tmdbID:${model.id} не существует в базе данных`,
       );
-      return;
+      return show;
     }
-    await TVShow.findOneAndUpdate(
+    const syncShow = await TVShow.findOneAndUpdate(
       { 'external_ids.tmdb': model.id },
       {
         $set: {
@@ -148,6 +152,30 @@ class TVShowService {
           number_of_seasons: model.number_of_seasons,
           number_of_episodes: model.number_of_episodes,
           popularity: model.popularity,
+          updatedAt: new Date(),
+        },
+      },
+    );
+    if (isFullSync) {
+      await this.syncFields(show, model, modelENG);
+    }
+    await this.syncRatings(model);
+    showLogger.info(
+      { wastedId: show.id },
+      `ACTION: Шоу c id:${show.id} было обновлено.`,
+    );
+    return syncShow;
+  }
+
+  async syncFields(
+    show: IShow,
+    model: IMediaModel,
+    modelENG: IMediaModel,
+  ): Promise<void> {
+    await TVShow.updateOne(
+      { 'external_ids.tmdb': model.id },
+      {
+        $set: {
           images: await getMediaImages(show.id, 'show', model),
           genres: await getGenres(model.genres, modelENG.genres),
           countries: await getCountries(model.production_countries),
@@ -173,11 +201,6 @@ class TVShowService {
         },
       },
     );
-
-    showLogger.info(
-      { wastedId: show.id },
-      `ACTION: Шоу c id:${show.id} было обновлено.`,
-    );
   }
 
   async syncRatings(model: IMediaModel): Promise<void> {
@@ -189,39 +212,29 @@ class TVShowService {
       );
       return;
     }
-    const tomorrow = new Date(show.updatedAt);
-    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-    const now = new Date();
-    if (tomorrow < now) {
-      await TVShow.findOneAndUpdate(
-        { 'external_ids.tmdb': model.id },
-        {
-          $set: {
-            'ratings.tmdb': {
-              rating: model.vote_average,
-              vote_count: model.vote_count,
-            },
-            'ratings.imdb': {
-              rating: 0,
-              vote_count: 0,
-            },
-            'ratings.kinopoisk': {
-              rating: 0,
-              vote_count: 0,
-            },
-            updatedAt: new Date(),
+    await TVShow.updateOne(
+      { 'external_ids.tmdb': model.id },
+      {
+        $set: {
+          'ratings.tmdb': {
+            rating: model.vote_average,
+            vote_count: model.vote_count,
           },
+          'ratings.imdb': {
+            rating: 0,
+            vote_count: 0,
+          },
+          'ratings.kinopoisk': {
+            rating: 0,
+            vote_count: 0,
+          },
+          updatedAt: new Date(),
         },
-      );
-      showLogger.info(
-        { wastedId: model.id },
-        `ACTION: Рейтинг шоу с id:${show.id} обновлен.`,
-      );
-      return;
-    }
+      },
+    );
     showLogger.info(
       { wastedId: model.id },
-      `ACTION: Рейтинг шоу с id:${show.id} уже обновлен. Рейтинг обновляется каждые сутки.`,
+      `ACTION: Рейтинг шоу с id:${show.id} обновлен.`,
     );
   }
 

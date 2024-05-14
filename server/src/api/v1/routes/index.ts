@@ -7,3 +7,4 @@ export { default as favoriteRouter } from './favoriteRouter.js';
 export { default as wastedHistoryRouter } from './wastedHistoryRouter.js';
 export { default as episodeRouter } from './episodeRouter.js';
 export { default as commentRouter } from './commentRouter.js';
+export { default as seasonRouter } from './seasonRouter.js';
