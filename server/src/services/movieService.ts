@@ -66,8 +66,7 @@ class MovieService {
         .in(genres)
         .where('countries')
         .in(countries)
-        .nin('id', wastedIds)
-        .exec();
+        .nin('id', wastedIds);
       resolve(count);
       reject(ApiError.InternalServerError());
     });

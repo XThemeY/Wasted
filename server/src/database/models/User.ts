@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 import {
   WastedHistory,
   Favorites,
-  UserRating,
+  UserRatings,
   UserReactions,
   UserCommentReactions,
   Counter,
@@ -144,7 +144,7 @@ userSchema.pre('save', async function (next) {
       await WastedHistory.create({ username: this.username })
     )._id;
     this.favorites = (await Favorites.create({ username: this.username }))._id;
-    this.ratings = (await UserRating.create({ username: this.username }))._id;
+    this.ratings = (await UserRatings.create({ username: this.username }))._id;
     this.reactions = (
       await UserReactions.create({ username: this.username })
     )._id;

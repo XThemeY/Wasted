@@ -3,14 +3,14 @@ import type { RatingRes, ReactionRes } from '#types/types';
 import ApiError from '#utils/apiError.js';
 import { getRatingOptions } from '#config/index.js';
 import { episodeService, seasonService, showService } from '#services/index.js';
-import { Episode } from '#utils/dtos/episodeDto';
+import { EpisodeFull } from '#utils/dtos/index.js';
 
 class ShowController {
   async getEpisode(
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<Response<Episode> | void> {
+  ): Promise<Response<EpisodeFull> | void> {
     try {
       const { id } = req.params;
       const episode = await episodeService.getEpisode(+id);
@@ -19,7 +19,7 @@ class ShowController {
           ApiError.BadRequest(`"Эпизода" с таким id:${id} не существует`),
         );
       }
-      const response = new Episode(episode);
+      const response = new EpisodeFull(episode);
       res.json(response);
     } catch (e) {
       next(e);

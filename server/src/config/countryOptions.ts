@@ -1,10 +1,7 @@
 import { Country } from '#db/models/index.js';
-import { ICountry } from '#interfaces/IFields';
 import ApiError from '#utils/apiError.js';
 
-export async function getСountryOptions(
-  query: string,
-): Promise<ICountry[] | number[]> {
+export async function getСountryOptions(query: string): Promise<number[]> {
   const countries = (await Country.find({})).map((item) => item.id);
 
   if (!query) {

@@ -1,3 +1,4 @@
+import type { IWastedHistoryModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const wastedHistory = new Schema(
@@ -45,7 +46,7 @@ const wastedHistory = new Schema(
         },
         status: {
           type: String,
-          enum: ['played', 'planning', 'dropped'],
+          enum: ['played', 'willPlay', 'dropped'],
         },
         playedCount: { type: Number, default: 1 },
         playedAt: { type: Date, default: Date.now },
@@ -57,6 +58,9 @@ const wastedHistory = new Schema(
   },
 );
 
-const WastedHistory = model('WastedHistory', wastedHistory);
+const WastedHistory = model<IWastedHistoryModel>(
+  'WastedHistory',
+  wastedHistory,
+);
 
 export default WastedHistory;

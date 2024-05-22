@@ -7,7 +7,7 @@ import type {
   IPerson,
   IReactions,
 } from './IFields.d.ts';
-import type { ItemRating, UserReaction } from '#types/types.js';
+import type { ItemRating, UserReaction, WastedItem } from '#types/types.js';
 
 interface IGeneralMediaModel extends Document {
   id: number;
@@ -20,7 +20,7 @@ interface IGeneralMediaModel extends Document {
   rating: number;
   ratings: IRatings;
   reactions: IReactions;
-  comments: Types.ObjectId;
+  comments: Types.ObjectId | ICommentsMediaModel;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -110,6 +110,11 @@ export interface ICommentModel {
   isChanged: boolean;
 }
 
+export interface ICommentsMediaModel {
+  comments: ICommentModel[];
+  media_id: number;
+}
+
 export interface ITVPlatformModel {
   id: number;
   name: string;
@@ -129,7 +134,6 @@ export interface IProdCompanyModel {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
 export interface IGenreModel {
   id: number;
   ru: string;
@@ -163,4 +167,11 @@ export interface IUserRatingsModel {
   games: ItemRating[];
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface IWastedHistoryModel {
+  username: string;
+  movies: WastedItem[];
+  tvShows: WastedItem[];
+  games: WastedItem[];
 }

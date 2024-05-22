@@ -43,7 +43,7 @@ export const tokenValidMiddleware = (): RequestHandler => {
   });
 };
 
-export const searchValidMiddleware = (): RequestHandler => {
+export const exploreValidMiddleware = (): RequestHandler => {
   return celebrate({
     [Segments.QUERY]: Joi.object().keys({
       sort_by: Joi.string()
@@ -115,6 +115,25 @@ export const reactionsValidMiddleware = (): RequestHandler => {
         .items(...Object.keys(mediaReactions))
         .unique()
         .required(),
+    }),
+  });
+};
+
+export const wastedValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      movieId: Joi.number(),
+      showId: Joi.number(),
+      episodeId: Joi.number(),
+      status: Joi.string().valid(
+        'watched',
+        'willWatch',
+        'dropped',
+        'notWatched',
+        'watching',
+        'played',
+        'willPlay',
+      ),
     }),
   });
 };

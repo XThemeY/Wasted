@@ -2,16 +2,6 @@ import { commentService } from '#services/index.js';
 import ApiError from '#utils/apiError.js';
 
 class CommentController {
-  async getComment(req, res, next) {
-    try {
-      const { id } = req.params;
-      const comment = await commentService.getComment(id);
-      return res.json(comment);
-    } catch (e) {
-      next(e);
-    }
-  }
-
   async getComments(req, res, next) {
     try {
       const { media_id, type } = req.query;
@@ -74,7 +64,7 @@ class CommentController {
 
   async setReactionComment(req, res, next) {
     try {
-      return res.json(response);
+      return res.json();
     } catch (e) {
       next(e);
     }

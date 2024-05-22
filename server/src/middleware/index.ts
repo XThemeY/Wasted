@@ -11,10 +11,11 @@ export {
   registerValidMiddleware,
   loginValidMiddleware,
   tokenValidMiddleware,
-  searchValidMiddleware,
+  exploreValidMiddleware,
   updateValidMiddleware,
   ratingValidMiddleware,
   reactionsValidMiddleware,
+  wastedValidMiddleware,
 } from './validations/validationMiddleware.js';
 export {
   fileUploadValidation,

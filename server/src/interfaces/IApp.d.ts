@@ -12,7 +12,10 @@ import type {
   ITagModel,
   IProdCompanyModel,
   ITVPlatformModel,
+  ICommentsMediaModel,
 } from './IModel';
+import type { EpisodeShort } from '#utils/dtos/episodeDto';
+import { WastedItem } from '#types/types';
 
 interface IMediaUpdate {
   title: string;
@@ -115,7 +118,7 @@ interface IGeneralMedia {
   rating: number;
   ratings: IRatings;
   reactions: IReactions;
-  comments: Types.ObjectId;
+  comments: Types.ObjectId | ICommentsMediaModel;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -128,26 +131,25 @@ interface IMedia extends IGeneralMedia {
   tags: ITagModel[];
   production_companies: IProdCompanyModel[];
   external_ids: {
-    tmdb: string;
+    tmdb: number;
     imdb: string;
-    kinopoisk: string;
+    kinopoisk: number;
   };
   type: string;
   popularity: number;
 }
 
 export interface IShow extends IMedia {
-  start_date: Date;
-  end_date: Date;
+  start_date: string;
+  end_date: string;
   status: string;
   creators: IPerson[];
   total_episodes_time: number;
   episode_duration: number;
-  episodes_count: number;
   number_of_seasons: number;
   number_of_episodes: number;
   platforms: ITVPlatformModel[];
-  seasons: ISeason[];
+  seasons: ISeasonShort[];
 }
 
 export interface IMovie extends IMedia {
@@ -170,5 +172,49 @@ export interface ISeason extends IGeneralMedia {
   season_number: number;
   episode_count: number;
   air_date: Date | string;
-  episodes: IEpisode[];
+  episodes: EpisodeShort[];
+}
+
+export interface IGame {}
+
+export interface IWastedResponse {
+  username: string;
+  mediaId: number;
+  status: string;
+  watch_count: number;
+}
+
+export interface IUserWastedHistory {
+  items: {
+    movies: WastedItem[];
+    shows: WastedItem[];
+    games: WastedItem[];
+  };
+  total_time: number;
+}
+
+export interface ISeasonShort {
+  id: number;
+  title: string;
+  title_original: string;
+  duration: number;
+  show_id: number;
+  season_number: number;
+  episode_count: number;
+  air_date: Date | string;
+  episodes: IEpisodeShort[];
+  commentsCount: number;
+}
+
+export interface IEpisodeShort {
+  id: number;
+  title: string;
+  title_original: string;
+  show_id: number;
+  episode_type: string;
+  season_number: number;
+  episode_number: number;
+  air_date: string;
+  rating: number;
+  commentsCount: number;
 }

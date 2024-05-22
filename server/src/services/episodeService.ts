@@ -1,11 +1,11 @@
 import {
-  UserRating,
+  UserRatings,
   Episode,
   WastedHistory,
   UserReactions,
 } from '#db/models/index.js';
 import ApiError from '#utils/apiError.js';
-import type { RatingTuple, UserReaction, _UserRating } from '#types/types';
+import type { RatingTuple, UserReaction, UserRating } from '#types/types';
 import type { IEpisodeModel } from '#interfaces/IModel';
 import type { IReactions } from '#interfaces/IFields';
 
@@ -19,7 +19,7 @@ class EpisodeService {
     username: string,
     itemId: number,
     ratingTuple: RatingTuple,
-  ): Promise<_UserRating> {
+  ): Promise<UserRating> {
     const episode = await Episode.findOne(
       {
         id: itemId,
@@ -29,7 +29,7 @@ class EpisodeService {
     if (!episode) {
       throw ApiError.BadRequest(`Эпизод c id:${itemId} не найден`);
     }
-    const isRated = await UserRating.findOne(
+    const isRated = await UserRatings.findOne(
       {
         username,
         'tvShows.episodes.itemId': itemId,
@@ -39,7 +39,7 @@ class EpisodeService {
 
     //Add rating
     if (!isRated) {
-      await UserRating.updateOne(
+      await UserRatings.updateOne(
         {
           username,
         },
@@ -66,7 +66,7 @@ class EpisodeService {
 
     //Delete rating
     if (ratingTuple[1] === isRated.tvShows.episodes[0].rating) {
-      await UserRating.updateOne(
+      await UserRatings.updateOne(
         {
           username,
           'tvShows.episodes.itemId': itemId,
@@ -88,7 +88,7 @@ class EpisodeService {
     }
 
     //Update rating
-    await UserRating.updateOne(
+    await UserRatings.updateOne(
       {
         username,
         'tvShows.episodes.itemId': itemId,
@@ -231,20 +231,11 @@ class EpisodeService {
   }
 
   async setWatchCount(id: number): Promise<number> {
-    const episode = await Episode.findOne(
-      {
-        id,
-      },
-      'watch_count',
-    ).exec();
-    if (!episode) {
-      throw ApiError.BadRequest(`Эпизода с таким id:${id} не существует`);
-    }
-    episode.watch_count = await WastedHistory.countDocuments({
-      'tvShows.watchedEpisodes.episodeId': id,
-    }).exec();
-    await episode.save();
-    return episode.watch_count;
+    const watch_count = await WastedHistory.countDocuments({
+      'tvShows.watchedEpisodes.itemId': id,
+    });
+    await Episode.updateOne({ id }, { $set: { watch_count } }).exec();
+    return watch_count;
   }
 }
 export default new EpisodeService();

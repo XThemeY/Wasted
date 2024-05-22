@@ -3,6 +3,7 @@ import type {
   ICountryModel,
   IGenreModel,
   IProdCompanyModel,
+  ITVPlatformModel,
   ITagModel,
 } from '#interfaces/IModel';
 import type { IPerson } from '#interfaces/IFields';
@@ -54,6 +55,18 @@ export function getProdCompanies(
       id: company.id,
       name: company.name,
       logo_url: company.logo_url,
+    };
+  });
+}
+
+export function getTVPlatforms(
+  tvPlatforms: ITVPlatformModel[],
+): ITVPlatformModel[] {
+  return tvPlatforms.map((platform) => {
+    return {
+      id: platform.id,
+      name: platform.name,
+      logo_url: platform.logo_url,
     };
   });
 }

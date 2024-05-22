@@ -2,10 +2,16 @@ import { Season } from '#db/models/index.js';
 import type { ISeasonModel } from '#interfaces/IModel';
 import type { IReactions } from '#interfaces/IFields';
 import type { ISeasonUpdate } from '#interfaces/IApp';
+import { showPopFields } from '#config';
 
 class SeasonService {
   async getSeason(id: number): Promise<ISeasonModel> {
-    const season = await Season.findOne({ id }).exec();
+    const season = await Season.findOne({ id })
+      .populate({
+        path: 'episodes',
+        populate: { path: 'comments', model: 'CommentsEpisode' },
+      })
+      .exec();
     return season;
   }
 

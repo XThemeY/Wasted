@@ -11,7 +11,6 @@ import { ROLES } from '#config/index.js';
 const router = Router();
 const idRegExp = ':id(\\d+)';
 
-router.get(`/${idRegExp}`, commentController.getComment);
 router.get(`/`, commentController.getComments);
 router.post(
   `/`,

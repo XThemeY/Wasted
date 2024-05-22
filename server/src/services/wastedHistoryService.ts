@@ -1,15 +1,16 @@
-import {
-  Episode,
-  Movie,
-  TVShow,
-  Season,
-  WastedHistory,
-} from '#db/models/index.js';
+import type { IUserWastedHistory, IWastedResponse } from '#interfaces/IApp';
+import type { WastedItem } from '#types/types';
+import { Episode, Movie, TVShow, WastedHistory } from '#db/models/index.js';
 import { movieService, showService, episodeService } from '#services/index.js';
 import ApiError from '#utils/apiError.js';
+import { UserWastedHistory } from '#utils/dtos/index.js';
 
 class WastedHistoryService {
-  async setMovieWasted(username, movieId, status) {
+  async setMovieWasted(
+    username: string,
+    movieId: number,
+    status: string,
+  ): Promise<IWastedResponse> {
     const isMovieExists = await Movie.exists({
       id: movieId,
     });
@@ -33,15 +34,14 @@ class WastedHistoryService {
               {
                 itemId: movieId,
                 status,
-                watchCount: 1,
               },
             ],
           },
         },
         { upsert: true, runValidators: true },
       );
-      await movieService.setWatchCount(movieId);
-      return;
+      const watch_count = await movieService.setWatchCount(movieId);
+      return { username, mediaId: movieId, status, watch_count };
     }
     if (status === isWasted?.movies[0].status) {
       throw ApiError.BadRequest(`Объект уже имеет статус "${status}"`);
@@ -51,10 +51,15 @@ class WastedHistoryService {
       { 'movies.$.status': status },
       { runValidators: true },
     );
-    await movieService.setWatchCount(movieId);
+    const watch_count = await movieService.setWatchCount(movieId);
+    return { username, mediaId: movieId, status, watch_count };
   }
 
-  async setShowWasted(username, showId, status) {
+  async setShowWasted(
+    username: string,
+    showId: number,
+    status: string,
+  ): Promise<IWastedResponse> {
     const isShowExists = await TVShow.exists({
       id: showId,
     });
@@ -83,8 +88,8 @@ class WastedHistoryService {
         },
         { upsert: true, runValidators: true },
       );
-      await showService.setWatchCount(showId);
-      return;
+      const watch_count = await showService.setWatchCount(showId);
+      return { username, mediaId: showId, status, watch_count };
     }
     if (status === isWasted?.tvShows[0].status) {
       throw ApiError.BadRequest(`Объект уже имеет статус "${status}"`);
@@ -94,17 +99,20 @@ class WastedHistoryService {
       { 'tvShows.$.status': status },
       { runValidators: true },
     );
-    await showService.setWatchCount(showId);
+    const watch_count = await showService.setWatchCount(showId);
+    return { username, mediaId: showId, status, watch_count };
   }
 
-  async setEpisodeWasted(username, episodeId, showId) {
-    const isEpisodeExists = await Episode.exists({
-      show_id: showId,
+  async setEpisodeWasted(
+    username: string,
+    episodeId: number,
+  ): Promise<IWastedResponse> {
+    const episode = await Episode.findOne({
       id: episodeId,
     });
-    if (!isEpisodeExists) {
+    if (!episode) {
       throw ApiError.BadRequest(
-        `Шоу не содержит эпизод с таким id:${episodeId}`,
+        `Эпизода с таким id:${episodeId} не существует`,
       );
     }
     const isWasted = await WastedHistory.exists({
@@ -114,7 +122,7 @@ class WastedHistoryService {
     if (!isWasted) {
       const isShowExists = await WastedHistory.exists({
         username,
-        'tvShows.itemId': showId,
+        'tvShows.itemId': episode.show_id,
       });
       if (!isShowExists) {
         await WastedHistory.updateOne(
@@ -123,7 +131,7 @@ class WastedHistoryService {
           },
           {
             tvShows: {
-              itemId: showId,
+              itemId: episode.show_id,
               status: 'watching',
             },
           },
@@ -131,7 +139,7 @@ class WastedHistoryService {
         );
       }
       await WastedHistory.updateOne(
-        { username, 'tvShows.itemId': showId },
+        { username, 'tvShows.itemId': episode.show_id },
         {
           $push: {
             'tvShows.$.watchedEpisodes': [{ itemId: episodeId }],
@@ -139,18 +147,28 @@ class WastedHistoryService {
         },
         { runValidators: true },
       );
-      await episodeService.setWatchCount(episodeId);
-      return { msg: 'Эпизод добавлен в просмотренное' };
+      const watch_count = await episodeService.setWatchCount(episodeId);
+      return {
+        username,
+        mediaId: episode.show_id,
+        status: 'watching',
+        watch_count,
+      };
     }
     await WastedHistory.updateOne(
-      { username, 'tvShows.itemId': showId },
+      { username, 'tvShows.itemId': episode.show_id },
       { $pull: { 'tvShows.$.watchedEpisodes': { itemId: episodeId } } },
     );
-    await episodeService.setWatchCount(episodeId);
-    return { msg: 'Эпизод удален из просмотренного' };
+    const watch_count = await episodeService.setWatchCount(episodeId);
+    return {
+      username,
+      mediaId: episode.show_id,
+      status: 'notWatched',
+      watch_count,
+    };
   }
 
-  async getWastedIds(username, type) {
+  async getWastedIds(username: string, type: string): Promise<number[]> {
     if (!username) {
       return [];
     }
@@ -158,61 +176,18 @@ class WastedHistoryService {
       await WastedHistory.findOne({ username }, `${type}`).exec()
     )[type]
       ?.filter(
-        (item) => item.status === 'watched' || item.status === 'watching',
+        (item: WastedItem) =>
+          item.status === 'watched' || item.status === 'watching',
       )
-      .map((item) => item.itemId);
-
+      .map((item: WastedItem) => item.itemId);
     return wastedIds;
   }
 
-  // async setSeasonWasted(username, seasonId, status) {
-  //   const isSeasonExists = await Season.exists({
-  //     id: seasonId,
-  //   });
-  //   if (!isSeasonExists) {
-  //     throw ApiError.BadRequest(`Сезон с таким id:${seasonId} не существует`);
-  //   }
-  //   const isWasted = await WastedHistory.findOne(
-  //     {
-  //       username,
-  //       'tvShows.watchedSeasons.seasonId': seasonId,
-  //     },
-  //     { 'tvShows.$': seasonId },
-  //   ).exec();
+  async getUserWastedHistory(username: string): Promise<IUserWastedHistory> {
+    const userHistory = await WastedHistory.findOne({ username }).exec();
 
-  //   if (!isWasted) {
-  //     await WastedHistory.updateOne(
-  //       {
-  //         username,
-  //       },
-  //       {
-  //         $push: {
-  //           'tvShows.watchedSeasons': [
-  //             {
-  //               seasonId,
-  //               status,
-  //             },
-  //           ],
-  //         },
-  //       },
-  //       { upsert: true, runValidators: true },
-  //     );
-  //     await seasonService.setTotalSeasonReactions(seasonId);
-  //     return;
-  //   }
-  //   const season = await Season.findOne(
-  //     {
-  //       id: seasonId,
-  //     },
-  //     'watched episode_count',
-  //   ).exec();
-  //   if (!season) {
-  //     throw ApiError.BadRequest(`Сезон с таким id:${seasonId} не существует`);
-  //   }
-  //   season.watched = status;
-  //   season.episode_count = season.episode_count - 1;
-  //   await season.save();
-  // }
+    return new UserWastedHistory(userHistory);
+  }
 }
 
 export default new WastedHistoryService();

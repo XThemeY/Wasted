@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { movieController } from '#api/v1/controllers/index.js';
 import {
   cookieParseMiddleware,
-  searchValidMiddleware,
+  exploreValidMiddleware,
   ratingValidMiddleware,
   updateValidMiddleware,
   reactionsValidMiddleware,
@@ -16,7 +16,7 @@ const idRegExp = ':id(\\d+)';
 
 router.get(
   '/explore',
-  searchValidMiddleware(),
+  exploreValidMiddleware(),
   cookieParseMiddleware,
   movieController.exploreMovies,
 );

@@ -15,6 +15,7 @@ import {
   authMiddleware,
   isOwner,
   cookieParseMiddleware,
+  wastedValidMiddleware,
 } from '#middleware/index.js';
 
 const router = Router();
@@ -29,6 +30,12 @@ router.use(`/episodes`, episodeRouter);
 router.get('/search', searchController.search);
 router.use('/', userRouter);
 router.use('/:username/favorites', authMiddleware, isOwner, favoriteRouter);
-router.use('/:username', authMiddleware, isOwner, wastedHistoryRouter);
+router.use(
+  '/:username',
+  wastedValidMiddleware(),
+  authMiddleware,
+  isOwner,
+  wastedHistoryRouter,
+);
 
 export default router;

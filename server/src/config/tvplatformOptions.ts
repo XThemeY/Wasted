@@ -1,10 +1,7 @@
 import { TVPlatform } from '#db/models/index.js';
-import { IPlatform } from '#interfaces/IFields';
 import ApiError from '#utils/apiError.js';
 
-export async function getTvPlatformsOptions(
-  query: string,
-): Promise<IPlatform[] | number[]> {
+export async function getTvPlatformsOptions(query: string): Promise<number[]> {
   const tvPlatforms = (await TVPlatform.find({})).map((item) => item.id);
 
   if (!query) {

@@ -8,7 +8,7 @@ export enum MediaType {
 }
 
 export const syncMedia = async (
-  id: string,
+  id: number,
   type: MediaType,
   updatedAt: Date,
   isFullSync: boolean = false,

@@ -55,3 +55,13 @@ export type ItemRating = {
   rating: number;
   ratingName: string;
 };
+
+export type WastedItem = {
+  itemId: number;
+  status?: string;
+  watch_count: number;
+  watchedAt?: Date;
+  playedAt?: Date;
+  playedCount?: number;
+  watchedEpisodes?: WastedItem[];
+};

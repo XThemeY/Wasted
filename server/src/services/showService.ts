@@ -2,7 +2,7 @@ import { TVShow, WastedHistory } from '#db/models/index.js';
 import { ShowShort } from '#utils/dtos/index.js';
 import ApiError from '#utils/apiError.js';
 import type { IReactions } from '#interfaces/IFields';
-import type { IShowModel } from '#interfaces/IModel';
+import type { ISeasonModel, IShowModel } from '#interfaces/IModel';
 import { showPopFields } from '#config/index.js';
 import type {
   IErrMsg,
@@ -10,9 +10,30 @@ import type {
   ISearchResult,
   IShowUpdate,
 } from '#interfaces/IApp';
+import path from 'path';
 class TVShowService {
   async getShow(id: number): Promise<IShowModel> {
-    const show = await TVShow.findOne({ id }).populate(showPopFields).exec();
+    const show = await TVShow.findOne({ id })
+      .populate({
+        path: 'countriesId genresId production_companiesId tagsId platformsId creators.person cast.person seasons',
+      })
+      .populate({
+        path: 'seasons',
+        populate: {
+          path: 'episodes',
+        },
+      })
+      .populate({
+        path: 'seasons',
+        populate: {
+          path: 'comments',
+          model: 'CommentsSeason',
+        },
+      })
+
+      .exec();
+    console.log(show);
+
     return show;
   }
 
@@ -89,6 +110,7 @@ class TVShowService {
       reject(ApiError.InternalServerError());
     });
 
+    //Maybe Promise.allSetlled?
     const results = await Promise.all([countQuery, dataQuery]);
 
     const total_shows = results[1];
@@ -101,14 +123,12 @@ class TVShowService {
     if (!total_shows.length) {
       return { message: `Shows not found` };
     }
-
     newShows.items = total_shows.map((show) => {
       return new ShowShort(show);
     });
     newShows.page = page + 1;
     newShows.total_pages = total_pages;
     newShows.total_items = total_items;
-
     return newShows;
   }
 
@@ -122,8 +142,8 @@ class TVShowService {
       .populate('seasons', 'season_number rating')
       .exec();
     const showArr = show.seasons
-      .filter((el) => el.rating !== 0 && el.season_number !== 0)
-      .map((el) => el.rating);
+      .filter((el: ISeasonModel) => el.rating !== 0 && el.season_number !== 0)
+      .map((el: ISeasonModel) => el.rating);
     if (!showArr.length) {
       show.rating = 0;
       await show.save();
@@ -175,22 +195,12 @@ class TVShowService {
   }
 
   async setWatchCount(id: number): Promise<number> {
-    const show = await TVShow.findOne(
-      {
-        id,
-      },
-      'watch_count',
-    ).exec();
-
-    if (!show) {
-      throw ApiError.BadRequest(`Шоу с таким id:${id} не существует`);
-    }
-    show.watch_count = await WastedHistory.countDocuments({
+    const watch_count = await WastedHistory.countDocuments({
       'tvShows.itemId': id,
       'tvShows.status': { $in: ['watched', 'watching'] },
-    }).exec();
-    await show.save();
-    return show.watch_count;
+    });
+    await TVShow.updateOne({ id }, { $set: { watch_count } }).exec();
+    return watch_count;
   }
 }
 export default new TVShowService();
