@@ -14,20 +14,36 @@ import type {
   ITVPlatformModel,
 } from './IModel';
 
-export interface IMovieUpdate {
+interface IMediaUpdate {
   title: string;
   title_original: string;
   images: IImages;
-  release_date: Date;
   genres: IGenreModel[];
   countries: ICountryModel[];
   tags: ITagModel[];
   description: string;
   description_original: string;
-  duration: number;
   production_companies: IProdCompanyModel[];
   external_ids: IExternalIds;
+}
+export interface IMovieUpdate extends IMediaUpdate {
+  release_date: Date;
   type: string;
+  duration: number;
+}
+
+export interface IShowUpdate extends IMediaUpdate {
+  start_date: Date;
+  end_date: Date;
+  status: string;
+  type: string;
+}
+
+export interface ISeasonUpdate extends IMediaUpdate {
+  poster_url: string;
+  season_number: number;
+  episode_count: number;
+  air_date: Date;
 }
 
 export interface ISearchQuery {
@@ -40,6 +56,7 @@ export interface ISearchQuery {
   genres: number[];
   countries: number[];
   wastedIds: number[];
+  tvPlatforms?: number[];
 }
 
 export interface IErrMsg {

@@ -1,15 +1,30 @@
 import { TVShow, WastedHistory } from '#db/models/index.js';
 import { ShowShort } from '#utils/dtos/index.js';
 import ApiError from '#utils/apiError.js';
-import { IReactions } from '#interfaces/IFields';
+import type { IReactions } from '#interfaces/IFields';
+import type { IShowModel } from '#interfaces/IModel';
+import { showPopFields } from '#config/index.js';
+import type {
+  IErrMsg,
+  ISearchQuery,
+  ISearchResult,
+  IShowUpdate,
+} from '#interfaces/IApp';
 class TVShowService {
-  async getShow(id) {
-    const movie = await TVShow.findOne({ id })
-      .populate({
-        path: 'countries tags creators.person cast.person production_companies comments',
-      })
+  async getShow(id: number): Promise<IShowModel> {
+    const show = await TVShow.findOne({ id }).populate(showPopFields).exec();
+    return show;
+  }
+
+  async updateShow(id: number, options: IShowUpdate): Promise<IShowModel> {
+    const show = await TVShow.findOneAndUpdate(
+      { id },
+      { ...options },
+      { new: true, runValidators: true },
+    )
+      .populate(showPopFields)
       .exec();
-    return movie;
+    return show;
   }
 
   async exploreShows({
@@ -23,10 +38,10 @@ class TVShowService {
     countries,
     tvPlatforms,
     wastedIds,
-  }) {
+  }: ISearchQuery): Promise<ISearchResult | IErrMsg> {
     const newShows = { items: [], page, total_pages: 0, total_items: 0 };
 
-    const countQuery = new Promise(function (resolve, reject) {
+    const countQuery = new Promise<number>(function (resolve, reject) {
       const count = TVShow.countDocuments({
         $or: [
           { title: { $regex: title, $options: 'i' } },
@@ -34,8 +49,8 @@ class TVShowService {
         ],
       })
         .where('start_date')
-        .gte(start_year)
-        .lte(end_year)
+        .gte(start_year as number)
+        .lte(end_year as number)
         .where('genres')
         .in(genres)
         .where('countries')
@@ -48,7 +63,7 @@ class TVShowService {
       reject(ApiError.InternalServerError());
     });
 
-    const dataQuery = new Promise(function (resolve, reject) {
+    const dataQuery = new Promise<IShowModel[]>(function (resolve, reject) {
       const data = TVShow.find({
         $or: [
           { title: { $regex: title, $options: 'i' } },
@@ -57,8 +72,8 @@ class TVShowService {
       })
         .populate('countriesId genresId platformsId')
         .where('start_date')
-        .gte(start_year)
-        .lte(end_year)
+        .gte(start_year as number)
+        .lte(end_year as number)
         .where('genres')
         .in(genres)
         .where('countries')
@@ -84,7 +99,7 @@ class TVShowService {
       return { message: 'Invalid page' };
     }
     if (!total_shows.length) {
-      return { message: `Шоу не найдены` };
+      return { message: `Shows not found` };
     }
 
     newShows.items = total_shows.map((show) => {

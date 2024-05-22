@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { CommentsMovie } from '#db/models/index.js';
 import type { IMovieModel } from '#interfaces/IModel.d.ts';
 
 const movieSchema = new Schema(
@@ -106,9 +105,9 @@ const movieSchema = new Schema(
     },
     comments: { type: Schema.Types.ObjectId, ref: 'CommentsMovie' },
     external_ids: {
-      tmdb: { type: String },
+      tmdb: { type: Number },
       imdb: { type: String },
-      kinopoisk: { type: String },
+      kinopoisk: { type: Number },
     },
     type: { type: String, enum: ['movie', 'show', 'game'], default: 'movie' },
     popularity: { type: Number, default: 0, index: true },
@@ -143,14 +142,6 @@ movieSchema.virtual('tagsId', {
   ref: 'Tag',
   localField: 'tags',
   foreignField: 'id',
-});
-
-movieSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await Movie.countDocuments()) + 1;
-    this.comments = (await CommentsMovie.create({ media_id: this.id }))._id;
-  }
-  next();
 });
 
 const Movie = model<IMovieModel>('Movie', movieSchema);

@@ -7,13 +7,6 @@ const genreSchema = new Schema({
   en: { type: String, required: true },
 });
 
-genreSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await Genre.countDocuments()) + 1;
-  }
-  next();
-});
-
 const Genre = model<IGenreModel>('Genre', genreSchema);
 
 export default Genre;

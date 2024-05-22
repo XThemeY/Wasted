@@ -31,8 +31,8 @@ class MovieService {
   }
 
   async addMovieToDb(
-    model: IMediaModel,
-    modelENG?: IMediaModel,
+    model: IMovie,
+    modelENG?: IMovie,
     latestTMDBId?: number,
   ): Promise<number> {
     const oldMovie = await Movie.findOne({ 'external_ids.tmdb': model.id });
@@ -96,8 +96,8 @@ class MovieService {
   }
 
   async syncMovie(
-    model: IMediaModel,
-    modelENG: IMediaModel,
+    model: IMovie,
+    modelENG: IMovie,
     isFullSync: boolean,
   ): Promise<IMovie> {
     const movie = await Movie.findOne({ 'external_ids.tmdb': model.id });
@@ -135,8 +135,8 @@ class MovieService {
 
   async syncFields(
     movie: IMovie,
-    model: IMediaModel,
-    modelENG: IMediaModel,
+    model: IMovie,
+    modelENG: IMovie,
   ): Promise<void> {
     await Movie.updateOne(
       { 'external_ids.tmdb': model.id },
@@ -180,7 +180,7 @@ class MovieService {
     );
   }
 
-  async syncRatings(model: IMediaModel): Promise<void> {
+  async syncRatings(model: IMovie): Promise<void> {
     const movie = await Movie.findOne({ 'external_ids.tmdb': model.id });
     if (!movie) {
       movieLogger.info(
@@ -215,12 +215,14 @@ class MovieService {
     );
   }
 
-  async getLastMovieId(): Promise<number> {
-    const lastMovieId = await Movie.findOne().sort({ $natural: -1 });
+  async getLastMovieTMDBId(): Promise<number> {
+    const lastMovieId = await Movie.findOne({}, 'external_ids.tmdb').sort({
+      'external_ids.tmdb': -1,
+    });
     if (!lastMovieId) {
       return 0;
     }
-    return +lastMovieId.external_ids.tmdb + 1;
+    return lastMovieId.external_ids.tmdb;
   }
 
   // async delMovieFromDb(movie_id) {

@@ -9,9 +9,10 @@ import {
   getPlatforms,
   getSeasons,
 } from '#utils/dbFields.js';
-import type { IMediaModel, IShow } from '#interfaces/IModel.d.ts';
+import type { IShow } from '#interfaces/IModel.d.ts';
 import { logger } from '#middleware/index.js';
 import { logNames } from '#config/index.js';
+import { setShowDuration } from '#utils/showDuraion.js';
 
 const showLogger = logger(logNames.show).child({ module: 'ShowService' });
 
@@ -33,8 +34,8 @@ class TVShowService {
   }
 
   async addShowToDb(
-    model: IMediaModel,
-    modelENG: IMediaModel,
+    model: IShow,
+    modelENG: IShow,
     latestTMDBId?: number,
   ): Promise<void> {
     const oldShow = await TVShow.findOne({ 'external_ids.tmdb': model.id });
@@ -48,7 +49,6 @@ class TVShowService {
         description: model.overview,
         description_original: modelENG.overview,
         status: model.status,
-        episode_duration: model.episode_run_time[0],
         number_of_seasons: model.number_of_seasons,
         number_of_episodes: model.number_of_episodes,
         rating: model.vote_average,
@@ -95,7 +95,7 @@ class TVShowService {
           },
         },
       );
-
+      await setShowDuration(show.id);
       showLogger.info(
         { tmdbID: +show.external_ids.tmdb, wastedId: show.id },
         `ACTION: Шоу c tmdbID:${show.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${show.id}.`,
@@ -108,7 +108,7 @@ class TVShowService {
     );
   }
 
-  async syncPeoples(model: IMediaModel): Promise<void> {
+  async syncPeoples(model: IShow): Promise<void> {
     const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
     await TVShow.updateOne(
       { 'external_ids.tmdb': model.id },
@@ -125,8 +125,8 @@ class TVShowService {
   }
 
   async syncShow(
-    model: IMediaModel,
-    modelENG: IMediaModel,
+    model: IShow,
+    modelENG: IShow,
     isFullSync: boolean,
   ): Promise<IShow> {
     const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
@@ -148,7 +148,6 @@ class TVShowService {
           description: model.overview,
           description_original: modelENG.overview,
           status: model.status,
-          episode_duration: model.episode_run_time[0],
           number_of_seasons: model.number_of_seasons,
           number_of_episodes: model.number_of_episodes,
           popularity: model.popularity,
@@ -157,7 +156,8 @@ class TVShowService {
       },
     );
     if (isFullSync) {
-      await this.syncFields(show, model, modelENG);
+      await this.syncFields(show.id, model, modelENG);
+      await setShowDuration(show.id);
     }
     await this.syncRatings(model);
     showLogger.info(
@@ -168,31 +168,31 @@ class TVShowService {
   }
 
   async syncFields(
-    show: IShow,
-    model: IMediaModel,
-    modelENG: IMediaModel,
+    showId: number,
+    model: IShow,
+    modelENG: IShow,
   ): Promise<void> {
     await TVShow.updateOne(
       { 'external_ids.tmdb': model.id },
       {
         $set: {
-          images: await getMediaImages(show.id, 'show', model),
+          images: await getMediaImages(showId, 'show', model),
           genres: await getGenres(model.genres, modelENG.genres),
           countries: await getCountries(model.production_countries),
           creators: await getPeoples(
             model.created_by,
             'creator',
-            show.id,
+            showId,
             'show',
           ),
-          cast: await getPeoples(model.credits, 'actor', show.id, 'show'),
+          cast: await getPeoples(model.credits, 'actor', showId, 'show'),
           tags: await getTags(model.keywords.results),
           platforms: await getPlatforms(model.networks),
           production_companies: await getProdCompanies(
             model.production_companies,
           ),
           seasons: await getSeasons(
-            show.id,
+            showId,
             model.seasons,
             modelENG.seasons,
             model.id,
@@ -203,7 +203,7 @@ class TVShowService {
     );
   }
 
-  async syncRatings(model: IMediaModel): Promise<void> {
+  async syncRatings(model: IShow): Promise<void> {
     const show = await TVShow.findOne({ 'external_ids.tmdb': model.id });
     if (!show) {
       showLogger.info(

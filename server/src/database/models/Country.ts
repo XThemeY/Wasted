@@ -7,13 +7,6 @@ const countrySchema = new Schema({
   name: { type: String, required: true },
 });
 
-countrySchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await Country.countDocuments()) + 1;
-  }
-  next();
-});
-
 const Country = model<ICountryModel>('Country', countrySchema);
 
 export default Country;

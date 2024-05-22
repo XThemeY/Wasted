@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { CommentsEpisode } from '#db/models/index.js';
 import type { IEpisodeModel } from '#interfaces/IModel';
 
 const episodeSchema = new Schema(
@@ -76,14 +75,6 @@ const episodeSchema = new Schema(
     timestamps: true,
   },
 );
-
-episodeSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await Episode.countDocuments()) + 1;
-    this.comments = (await CommentsEpisode.create({ media_id: this.id }))._id;
-  }
-  next();
-});
 
 const Episode = model<IEpisodeModel>('Episode', episodeSchema);
 

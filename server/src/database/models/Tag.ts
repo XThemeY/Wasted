@@ -7,13 +7,6 @@ const tagSchema = new Schema({
   en: { type: String, required: true },
 });
 
-tagSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await Tag.countDocuments()) + 1;
-  }
-  next();
-});
-
 const Tag = model<ITagModel>('Tag', tagSchema);
 
 export default Tag;

@@ -61,9 +61,12 @@ export interface IPlatform {
   logo_path?: string;
 }
 
-export interface IEpisode extends Types.ObjectId {}
+export interface IEpisode extends Types.ObjectId {
+  duration: number;
+}
 
 export interface ISeason extends Types.ObjectId {
+  episodes: IEpisode[];
   season_number: number;
   name: string;
   overview: string;

@@ -4,7 +4,7 @@
   "description": "Sync server for WastedPro.",
   "type": "module",
   "engines": {
-    "node": ">= 20.9 < 21"
+    "node": ">= 20.9 < 22.2"
   },
   "scripts": {
     "dev": "tsx watch src/main.ts",
@@ -59,12 +59,12 @@
   },
   "baseUrl": "./",
   "imports": {
-    "#*": "./build/*",
-    "#middleware/*": "./build/middleware/*",
-    "#utils/*": "./build/utils/*",
-    "#config/*": "./build/config/*",
-    "#db/*": "./build/database/*",
-    "#api/*": "./build/api/*"
+    "#*": "./src/*",
+    "#middleware/*": "./src/middleware/*",
+    "#utils/*": "./src/utils/*",
+    "#config/*": "./src/config/*",
+    "#db/*": "./src/database/*",
+    "#api/*": "./src/api/*"
   },
   "author": "XTheme",
   "license": "Apache-2.0",

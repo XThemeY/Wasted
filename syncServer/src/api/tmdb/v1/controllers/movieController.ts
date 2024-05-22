@@ -9,13 +9,13 @@ const movieLogger = logger(logNames.movie).child({ module: 'TmdbMovieAPI' });
 class TmdbMovieAPI {
   private static _abort = false;
   private static _type = 'movie';
-
   async addMovie(
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     const movieId = req.params.id;
+
     try {
       const response = await RequestHandler.reqMedia(
         TmdbMovieAPI._type,
@@ -83,7 +83,7 @@ class TmdbMovieAPI {
         false,
       );
       await MovieService.syncRatings(response.data);
-      return res.status(200);
+      return res.sendStatus(200);
     } catch (error) {
       return next(error);
     }
@@ -135,19 +135,24 @@ class TmdbMovieAPI {
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): Promise<Response | void> {
     TmdbMovieAPI._abort = false;
 
     try {
       const startWastedId =
-        +req.query.startAt || (await MovieService.getLastMovieId());
+        +req.query.startAt || (await MovieService.getLastMovieTMDBId()) + 1;
 
-      const latestTMDBId = (
-        await RequestHandler.reqLatestMedia(TmdbMovieAPI._type)
-      ).data.id;
+      const latestTMDBId =
+        +req.query.endAt ||
+        (await RequestHandler.reqLatestMedia(TmdbMovieAPI._type)).data.id;
 
       for (let i = startWastedId; i <= latestTMDBId; i++) {
-        if (TmdbMovieAPI._abort) break;
+        if (TmdbMovieAPI._abort) {
+          return res.json({
+            message: `Получение фильмов отменено`,
+            last_index: i,
+          });
+        }
         try {
           const response = await RequestHandler.reqMedia(TmdbMovieAPI._type, i);
           const responseENG = await RequestHandler.reqMedia(
@@ -163,22 +168,22 @@ class TmdbMovieAPI {
           );
         } catch (error) {
           movieLogger.error(
-            `ID:${i} Ошибка запроса фильма`,
-            error?.message || error,
+            `ID:${i} Ошибка запроса фильма - ${error?.message}`,
+            error,
           );
         }
       }
-      res.status(200);
+      res.sendStatus(200);
       movieLogger.info(`Все фильмы добавлены`);
     } catch (error) {
       next(error);
     }
   }
 
-  async abortMoviesAll(_req: Request, res: Response): Promise<void> {
+  async abortMoviesAll(req: Request, res: Response): Promise<void> {
     TmdbMovieAPI._abort = true;
     movieLogger.info(`Получение фильмов отменено`);
-    res.status(200);
+    res.sendStatus(200);
   }
 }
 export default new TmdbMovieAPI();

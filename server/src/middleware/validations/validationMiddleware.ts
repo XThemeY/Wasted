@@ -57,6 +57,7 @@ export const searchValidMiddleware = (): RequestHandler => {
       limit: Joi.number().min(10).max(50).default(20),
       title: Joi.string().default(''),
       watched: Joi.boolean().default(false),
+      tvplatform: Joi.string().allow(''),
     }),
   });
 };
@@ -86,6 +87,7 @@ export const updateValidMiddleware = (): RequestHandler => {
         kinopoisk: Joi.string().allow(''),
       }),
       type: Joi.string().valid('movie', 'show', 'game'),
+      platforms: Joi.array().items(Joi.number()),
     }),
   });
 };

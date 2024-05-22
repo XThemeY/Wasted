@@ -23,7 +23,7 @@ export type ReactionsConfig = { [key: string]: string };
 export type Reactions = { [key: string]: Reaction };
 
 export type RatingRes = {
-  userRating: _UserRating;
+  userRating: UserRating;
   totalRating:
     | number
     | { showRating: number; seasonRating?: number; episodeRating?: number };
@@ -34,7 +34,7 @@ export type ReactionRes = {
   reactions: Reactions;
 };
 
-export type _UserRating = {
+export type UserRating = {
   movieId?: number;
   showId?: number;
   episodeId?: number;
@@ -48,4 +48,10 @@ export type UserReaction = {
   episodeId?: number;
   seasonNumber?: number;
   reactions: string[];
+};
+
+export type ItemRating = {
+  itemId: number;
+  rating: number;
+  ratingName: string;
 };

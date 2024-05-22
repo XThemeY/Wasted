@@ -2,7 +2,7 @@ export { default as User } from './User.js';
 export { default as Token } from './Token.js';
 export { default as Role } from './Role.js';
 export { default as Movie } from './movie/Movie.js';
-export { default as UserRating } from './UserRating.js';
+export { default as UserRatings } from './UserRatings.js';
 export { default as UserReactions } from './UserReactions.js';
 export { default as TVShow } from './tvShow/TVShow.js';
 export { default as TVPlatform } from './tvShow/TVPlatform.js';
@@ -18,6 +18,7 @@ export { default as Favorites } from './Favorites.js';
 export { default as WastedHistory } from './WastedHistory.js';
 export { default as Comment } from './comments/Comment.js';
 export { default as UserCommentReactions } from './UserCommentReactions.js';
+export { default as Counter } from './Counter.js';
 export {
   CommentsMovie,
   CommentsShow,

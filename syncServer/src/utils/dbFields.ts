@@ -27,7 +27,6 @@ import type {
 import type { IMediaModel } from '#interfaces/IModel.d.ts';
 import { logger } from '#middleware/index.js';
 import { logNames } from '#config/index.js';
-import ApiError from './apiError.js';
 
 const fieldsLogger = logger(logNames.dbFields).child({ module: 'dbFields' });
 
@@ -348,9 +347,9 @@ async function getEpisodes(
     const responseENG = await axiosFields.get(
       '/tv/' + tmdbID + '/season/' + seasonNumber + '?language=en-US',
     );
+
     const episodes = response.data.episodes;
     const episodesENG = responseENG.data.episodes;
-
     for (let i = 0; i < episodes.length; i++) {
       let newEpisode = await Episode.findOne({
         show_id: id,
@@ -386,9 +385,7 @@ async function getEpisodes(
     }
     return newEpisodes;
   } catch (error) {
-    throw ApiError.BadRequest(
-      'Ошибка запроса эпизодов',
-      error?.message || error,
-    );
+    fieldsLogger.error(`Ошибка создания эпизодов - ${error?.message}`);
+    return newEpisodes;
   }
 }

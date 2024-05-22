@@ -5,4 +5,5 @@ export const logNames = {
   movie: 'tmdbMovie.log',
   show: 'tmdbShow.log',
   dbFields: 'dbFields.log',
+  autoSync: 'autoSync.log',
 };

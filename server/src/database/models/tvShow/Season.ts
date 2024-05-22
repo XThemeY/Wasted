@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { CommentsSeason } from '#db/models/index.js';
 import type { ISeasonModel } from '#interfaces/IModel';
 
 const seasonSchema = new Schema(
@@ -64,14 +63,6 @@ const seasonSchema = new Schema(
     timestamps: true,
   },
 );
-
-seasonSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await Season.countDocuments()) + 1;
-    this.comments = (await CommentsSeason.create({ media_id: this.id }))._id;
-  }
-  next();
-});
 
 const Season = model<ISeasonModel>('Season', seasonSchema);
 

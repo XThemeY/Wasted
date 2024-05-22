@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { Counter } from '#db/models/index.js';
 
 const genreSchema = new Schema({
   id: { type: Number, unique: true, immutable: true },
@@ -8,7 +9,13 @@ const genreSchema = new Schema({
 
 genreSchema.pre('save', async function (next) {
   if (this.isNew) {
-    this.id = (await Genre.countDocuments()) + 1;
+    this.id = (
+      await Counter.findOneAndUpdate(
+        { _id: 'genreid' },
+        { $inc: { count: 1 } },
+        { returnDocument: 'after', upsert: true },
+      )
+    ).count;
   }
   next();
 });

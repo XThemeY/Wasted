@@ -42,6 +42,4 @@ router.post(
   movieController.setMovieReaction,
 );
 
-//router.post(idRegExp, movieController.addMovie);
-
 export default router;

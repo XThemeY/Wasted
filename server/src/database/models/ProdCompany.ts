@@ -12,13 +12,6 @@ const prodCompanySchema = new Schema(
   },
 );
 
-prodCompanySchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await ProdCompany.countDocuments()) + 1;
-  }
-  next();
-});
-
 const ProdCompany = model<IProdCompanyModel>('ProdCompany', prodCompanySchema);
 
 export default ProdCompany;

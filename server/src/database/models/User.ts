@@ -6,6 +6,7 @@ import {
   UserRating,
   UserReactions,
   UserCommentReactions,
+  Counter,
 } from '#db/models/index.js';
 
 const timezones = moment.tz.names();
@@ -132,7 +133,13 @@ userSchema.virtual('wastedhistory.tvShows.watchedEpisodes', {
 
 userSchema.pre('save', async function (next) {
   if (this.isNew) {
-    this.id = (await User.countDocuments()) + 1;
+    this.id = (
+      await Counter.findOneAndUpdate(
+        { _id: 'userid' },
+        { $inc: { count: 1 } },
+        { returnDocument: 'after', upsert: true },
+      )
+    ).count;
     this.wastedHistory = (
       await WastedHistory.create({ username: this.username })
     )._id;

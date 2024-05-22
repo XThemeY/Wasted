@@ -7,13 +7,6 @@ const tvPlatformSchema = new Schema({
   logo_url: { type: String },
 });
 
-tvPlatformSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await TVPlatform.countDocuments()) + 1;
-  }
-  next();
-});
-
 const TVPlatform = model<ITVPlatformModel>('TVPlatform', tvPlatformSchema);
 
 export default TVPlatform;

@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { CommentsPeople } from '#db/models/index.js';
+import { CommentsPeople, Counter } from '#db/models/index.js';
 
 const peopleSchema = new Schema(
   {
@@ -44,7 +44,13 @@ const peopleSchema = new Schema(
 
 peopleSchema.pre('save', async function (next) {
   if (this.isNew) {
-    this.id = (await People.countDocuments()) + 1;
+    this.id = (
+      await Counter.findOneAndUpdate(
+        { _id: 'peopleid' },
+        { $inc: { count: 1 } },
+        { returnDocument: 'after', upsert: true },
+      )
+    ).count;
     this.comments = (await CommentsPeople.create({ media_id: this.id }))._id;
   }
   next();

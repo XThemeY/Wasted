@@ -23,6 +23,7 @@ export const errorResponder = (
   err: ApiError | Error,
   req: Request,
   res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction,
 ): Response => {
   if (err instanceof ApiError) {

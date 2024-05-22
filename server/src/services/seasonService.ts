@@ -1,15 +1,24 @@
 import { Season } from '#db/models/index.js';
 import type { ISeasonModel } from '#interfaces/IModel';
-import { IReactions } from '#interfaces/IFields';
+import type { IReactions } from '#interfaces/IFields';
+import type { ISeasonUpdate } from '#interfaces/IApp';
+
 class SeasonService {
   async getSeason(id: number): Promise<ISeasonModel> {
     const season = await Season.findOne({ id }).exec();
     return season;
   }
 
-  //   async setWatchCount(id) {
-
-  //   }
+  async updateShow(id: number, options: ISeasonUpdate): Promise<ISeasonModel> {
+    const show = await Season.findOneAndUpdate(
+      { id },
+      { ...options },
+      { new: true, runValidators: true },
+    )
+      .populate(showPopFields)
+      .exec();
+    return show;
+  }
 
   async setTotalRating(showId: number, seasonNumber: number): Promise<number> {
     const season = await Season.findOne(

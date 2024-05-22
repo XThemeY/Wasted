@@ -1,5 +1,5 @@
 import type { IMovieModel } from '#interfaces/IModel';
-import type { RatingTuple, UserMovieRating, UserReaction } from '#types/types';
+import type { RatingTuple, UserRating, UserReaction } from '#types/types';
 import type { IReactions } from '#interfaces/IFields';
 import type {
   IErrMsg,
@@ -9,7 +9,7 @@ import type {
 } from '#interfaces/IApp';
 import {
   Movie,
-  UserRating,
+  UserRatings,
   UserReactions,
   WastedHistory,
 } from '#db/models/index.js';
@@ -96,6 +96,8 @@ class MovieService {
       resolve(data);
       reject(ApiError.InternalServerError());
     });
+
+    //Maybe Promise.allSetlled?
     const results = await Promise.all([countQuery, dataQuery]);
 
     const total_movies = results[1];
@@ -121,7 +123,7 @@ class MovieService {
     username: string,
     itemId: number,
     ratingTuple: RatingTuple,
-  ): Promise<UserMovieRating> {
+  ): Promise<UserRating> {
     const movie = await Movie.findOne(
       {
         id: itemId,
@@ -131,7 +133,7 @@ class MovieService {
     if (!movie) {
       throw ApiError.BadRequest(`Фильма с id:${itemId} не существует`);
     }
-    const isRated = await UserRating.findOne(
+    const isRated = await UserRatings.findOne(
       {
         username,
         'movies.itemId': itemId,
@@ -141,7 +143,7 @@ class MovieService {
 
     //Add rating
     if (!isRated) {
-      await UserRating.updateOne(
+      await UserRatings.updateOne(
         {
           username,
         },
@@ -159,12 +161,12 @@ class MovieService {
         movie.ratings.wasted[ratingTuple[0]] + ratingTuple[1];
       movie.ratings.wasted.vote_count += 1;
       await movie.save();
-      return { id: itemId, rating: movie.ratings.wasted };
+      return { movieId: itemId, rating: movie.ratings.wasted };
     }
 
     //Delete rating
     if (ratingTuple[1] === isRated.movies[0].rating) {
-      await UserRating.updateOne(
+      await UserRatings.updateOne(
         {
           username,
           'movies.itemId': itemId,
@@ -177,11 +179,11 @@ class MovieService {
         movie.ratings.wasted[ratingTuple[0]] - ratingTuple[1];
       movie.ratings.wasted.vote_count -= 1;
       await movie.save();
-      return { id: itemId, rating: movie.ratings.wasted };
+      return { movieId: itemId, rating: movie.ratings.wasted };
     }
 
     //Update rating
-    await UserRating.updateOne(
+    await UserRatings.updateOne(
       {
         username,
         'movies.itemId': itemId,
@@ -203,7 +205,7 @@ class MovieService {
       movie.ratings.wasted[isRated.movies[0].ratingName] -
       isRated.movies[0].rating;
     await movie.save();
-    return { id: itemId, rating: movie.ratings.wasted };
+    return { movieId: itemId, rating: movie.ratings.wasted };
   }
 
   async setTotalRating(id: number): Promise<number> {

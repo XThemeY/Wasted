@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { CommentsSeason } from '#db/models/index.js';
+import { CommentsSeason, Counter } from '#db/models/index.js';
 
 const seasonSchema = new Schema(
   {
@@ -66,7 +66,13 @@ const seasonSchema = new Schema(
 
 seasonSchema.pre('save', async function (next) {
   if (this.isNew) {
-    this.id = (await Season.countDocuments()) + 1;
+    this.id = (
+      await Counter.findOneAndUpdate(
+        { _id: 'seasonid' },
+        { $inc: { count: 1 } },
+        { returnDocument: 'after', upsert: true },
+      )
+    ).count;
     this.comments = (await CommentsSeason.create({ media_id: this.id }))._id;
   }
   next();

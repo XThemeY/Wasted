@@ -9,7 +9,6 @@ const showLogger = logger(logNames.show).child({ module: 'TmdbShowAPI' });
 class TmdbShowAPI {
   private static _abort = false;
   private static _type = 'tv';
-
   async addShow(
     req: Request,
     res: Response,
@@ -37,6 +36,7 @@ class TmdbShowAPI {
     next: NextFunction,
   ): Promise<Response | void> {
     const showId = req.params.id;
+    const isFullSync = req.query.fullSync === 'true';
     try {
       const response = await RequestHandler.reqMedia(TmdbShowAPI._type, showId);
 
@@ -47,7 +47,7 @@ class TmdbShowAPI {
         false,
       );
 
-      await ShowService.syncShow(response.data, responseENG.data);
+      await ShowService.syncShow(response.data, responseENG.data, isFullSync);
       return res.sendStatus(200);
     } catch (error) {
       return next(error);
@@ -130,7 +130,12 @@ class TmdbShowAPI {
         (await RequestHandler.reqLatestMedia(TmdbShowAPI._type)).data.id;
 
       for (let i = startWastedId; i <= latestTMDBId; i++) {
-        if (TmdbShowAPI._abort) break;
+        if (TmdbShowAPI._abort) {
+          return res.json({
+            message: `Получение шоу отменено`,
+            last_index: i,
+          });
+        }
         try {
           const response = await RequestHandler.reqMedia(TmdbShowAPI._type, i);
           const responseENG = await RequestHandler.reqMedia(
@@ -157,10 +162,10 @@ class TmdbShowAPI {
     }
   }
 
-  async abortShowsAll(req: Request, res: Response): Promise<Response> {
+  async abortShowsAll(req: Request, res: Response): Promise<void> {
     TmdbShowAPI._abort = true;
     showLogger.info(`Получение шоу отменено`);
-    return res.sendStatus(200);
+    res.sendStatus(200);
   }
 }
 

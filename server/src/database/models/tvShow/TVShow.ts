@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { CommentsShow } from '#db/models/index.js';
 import type { IShowModel } from '#interfaces/IModel.d.ts';
 
 const tvShowSchema = new Schema(
@@ -20,7 +19,6 @@ const tvShowSchema = new Schema(
     },
     start_date: { type: Date, index: true },
     end_date: { type: Date, index: true },
-    duration: { type: Number, default: 0 },
     status: {
       type: String,
       enum: [
@@ -50,13 +48,12 @@ const tvShowSchema = new Schema(
     watch_count: { type: Number, default: 0 },
     total_episodes_time: { type: Number, default: 0 },
     episode_duration: { type: Number, default: 0 },
-    episodes_count: { type: Number, default: 0 },
+    number_of_seasons: { type: Number, default: 0 },
+    number_of_episodes: { type: Number, default: 0 },
     description: { type: String, default: '' },
     description_original: { type: String, default: '' },
     tags: [Number],
     production_companies: [Number],
-    number_of_seasons: { type: Number, default: 0 },
-    number_of_episodes: { type: Number, default: 0 },
     platforms: [Number],
     seasons: [{ type: Schema.Types.ObjectId, ref: 'Season' }],
     rating: { type: Number, default: 0, index: true },
@@ -118,9 +115,9 @@ const tvShowSchema = new Schema(
     },
     comments: { type: Schema.Types.ObjectId, ref: 'CommentsShow' },
     external_ids: {
-      tmdb: { type: String },
+      tmdb: { type: Number },
       imdb: { type: String },
-      kinopoisk: { type: String },
+      kinopoisk: { type: Number },
     },
     type: { type: String, enum: ['movie', 'show', 'game'], default: 'show' },
     popularity: { type: Number, default: 0, index: true },
@@ -161,14 +158,6 @@ tvShowSchema.virtual('platformsId', {
   ref: 'TVPlatform',
   localField: 'platforms',
   foreignField: 'id',
-});
-
-tvShowSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await TVShow.countDocuments()) + 1;
-    this.comments = (await CommentsShow.create({ media_id: this.id }))._id;
-  }
-  next();
 });
 
 const TVShow = model<IShowModel>('TVShow', tvShowSchema);

@@ -75,13 +75,6 @@ const commentSchema = new Schema(
   },
 );
 
-commentSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await Comment.countDocuments()) + 1;
-  }
-  next();
-});
-
 const Comment = model('Comment', commentSchema);
 
 export default Comment;

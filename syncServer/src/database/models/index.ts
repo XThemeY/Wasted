@@ -10,6 +10,7 @@ export { default as Country } from './Country.js';
 export { default as Tag } from './Tag.js';
 export { default as ProdCompany } from './ProdCompany.js';
 export { default as Comment } from './comments/Comment.js';
+export { default as Counter } from './Counter.js';
 
 export {
   CommentsMovie,

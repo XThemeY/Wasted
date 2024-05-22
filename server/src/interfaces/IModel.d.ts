@@ -7,7 +7,7 @@ import type {
   IPerson,
   IReactions,
 } from './IFields.d.ts';
-import type { UserReaction } from '#types/types.js';
+import type { ItemRating, UserReaction } from '#types/types.js';
 
 interface IGeneralMediaModel extends Document {
   id: number;
@@ -33,9 +33,9 @@ interface IMediaModel extends IGeneralMediaModel {
   tags: ITagModel[];
   production_companies: IProdCompanyModel[];
   external_ids: {
-    tmdb: string;
+    tmdb: number;
     imdb: string;
-    kinopoisk: string;
+    kinopoisk: number;
   };
   type: string;
   popularity: number;
@@ -52,7 +52,6 @@ export interface IShowModel extends IMediaModel {
   creators: IPerson[];
   total_episodes_time: number;
   episode_duration: number;
-  episodes_count: number;
   number_of_seasons: number;
   number_of_episodes: number;
   platforms: number[];
@@ -153,6 +152,15 @@ export interface IUserReactionsModel {
   movies: UserReaction[];
   tvShows: { episodes: UserReaction[] };
   games: UserReaction[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IUserRatingsModel {
+  username: string;
+  movies: ItemRating[];
+  tvShows: { episodes: ItemRating[] };
+  games: ItemRating[];
   createdAt?: Date;
   updatedAt?: Date;
 }

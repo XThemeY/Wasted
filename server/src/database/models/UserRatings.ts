@@ -1,6 +1,7 @@
+import type { IUserRatingsModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
-const userRatingSchema = new Schema(
+const userRatingsSchema = new Schema(
   {
     username: {
       type: String,
@@ -19,6 +20,6 @@ const userRatingSchema = new Schema(
   },
 );
 
-const UserRating = model('UserRating', userRatingSchema);
+const UserRatings = model<IUserRatingsModel>('UserRatings', userRatingsSchema);
 
-export default UserRating;
+export default UserRatings;

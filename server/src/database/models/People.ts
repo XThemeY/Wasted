@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { CommentsPeople } from '#db/models/index.js';
 import type { IPeopleModel } from '#interfaces/IModel';
 
 const peopleSchema = new Schema(
@@ -42,14 +41,6 @@ const peopleSchema = new Schema(
     timestamps: true,
   },
 );
-
-peopleSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.id = (await People.countDocuments()) + 1;
-    this.comments = (await CommentsPeople.create({ media_id: this.id }))._id;
-  }
-  next();
-});
 
 const People = model<IPeopleModel>('People', peopleSchema);
 

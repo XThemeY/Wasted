@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { CommentsShow } from '#db/models/index.js';
+import { CommentsShow, Counter } from '#db/models/index.js';
 import type { IShow } from '#interfaces/IModel.d.ts';
 
 const tvShowSchema = new Schema(
@@ -49,13 +49,12 @@ const tvShowSchema = new Schema(
     watch_count: { type: Number, default: 0 },
     total_episodes_time: { type: Number, default: 0 },
     episode_duration: { type: Number, default: 0 },
-    episodes_count: { type: Number, default: 0 },
+    number_of_seasons: { type: Number, default: 0 },
+    number_of_episodes: { type: Number, default: 0 },
     description: { type: String, default: '' },
     description_original: { type: String, default: '' },
     tags: [Number],
     production_companies: [Number],
-    number_of_seasons: { type: Number, default: 0 },
-    number_of_episodes: { type: Number, default: 0 },
     platforms: [Number],
     seasons: [{ type: Schema.Types.ObjectId, ref: 'Season' }],
     rating: { type: Number, default: 0, index: true },
@@ -164,7 +163,13 @@ tvShowSchema.virtual('platformsId', {
 
 tvShowSchema.pre('save', async function (next) {
   if (this.isNew) {
-    this.id = (await TVShow.countDocuments()) + 1;
+    this.id = (
+      await Counter.findOneAndUpdate(
+        { _id: 'showid' },
+        { $inc: { count: 1 } },
+        { returnDocument: 'after', upsert: true },
+      )
+    ).count;
     this.comments = (await CommentsShow.create({ media_id: this.id }))._id;
   }
   next();

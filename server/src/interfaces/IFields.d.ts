@@ -61,9 +61,9 @@ export interface ICommentReactions extends Reactions {
   rude_face: Reaction;
 }
 export interface IExternalIds {
-  tmdb: string;
+  tmdb: number;
   imdb: string;
-  kinopoisk: string;
+  kinopoisk: number;
 }
 
 export interface IUserDto {
