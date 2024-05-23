@@ -10,30 +10,18 @@ import type {
   ISearchResult,
   IShowUpdate,
 } from '#interfaces/IApp';
-import path from 'path';
+
 class TVShowService {
   async getShow(id: number): Promise<IShowModel> {
     const show = await TVShow.findOne({ id })
-      .populate({
-        path: 'countriesId genresId production_companiesId tagsId platformsId creators.person cast.person seasons',
-      })
+      .populate(showPopFields)
       .populate({
         path: 'seasons',
         populate: {
           path: 'episodes',
         },
       })
-      .populate({
-        path: 'seasons',
-        populate: {
-          path: 'comments',
-          model: 'CommentsSeason',
-        },
-      })
-
       .exec();
-    console.log(show);
-
     return show;
   }
 
@@ -61,7 +49,18 @@ class TVShowService {
     wastedIds,
   }: ISearchQuery): Promise<ISearchResult | IErrMsg> {
     const newShows = { items: [], page, total_pages: 0, total_items: 0 };
-
+    console.log('SERVICE', {
+      page,
+      limit,
+      sort_by,
+      title,
+      start_year,
+      end_year,
+      genres,
+      countries,
+      tvPlatforms,
+      wastedIds,
+    });
     const countQuery = new Promise<number>(function (resolve, reject) {
       const count = TVShow.countDocuments({
         $or: [
@@ -69,17 +68,17 @@ class TVShowService {
           { title_original: { $regex: title, $options: 'i' } },
         ],
       })
-        .where('start_date')
-        .gte(start_year as number)
-        .lte(end_year as number)
-        .where('genres')
-        .in(genres)
+        // .where('start_date')
+        // .gte(start_year as number)
+        // .lte(end_year as number)
+        // .where('genres')
+        // .in(genres)
         .where('countries')
-        .in(countries)
-        .where('platforms')
-        .in(tvPlatforms)
-        .nin('id', wastedIds)
-        .exec();
+        .nin(countries);
+      // .where('platforms')
+      // .in(tvPlatforms)
+      // .nin('id', wastedIds);
+
       resolve(count);
       reject(ApiError.InternalServerError());
     });
@@ -91,7 +90,6 @@ class TVShowService {
           { title_original: { $regex: title, $options: 'i' } },
         ],
       })
-        .populate('countriesId genresId platformsId')
         .where('start_date')
         .gte(start_year as number)
         .lte(end_year as number)
@@ -105,6 +103,7 @@ class TVShowService {
         .sort([sort_by])
         .skip(page * limit)
         .limit(limit)
+        .populate(showPopFields)
         .exec();
       resolve(data);
       reject(ApiError.InternalServerError());

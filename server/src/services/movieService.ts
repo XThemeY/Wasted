@@ -78,7 +78,6 @@ class MovieService {
           { title_original: { $regex: title, $options: 'i' } },
         ],
       })
-        .populate('countriesId genresId')
         .where('release_date')
         .gte(start_year as number)
         .lte(end_year as number)

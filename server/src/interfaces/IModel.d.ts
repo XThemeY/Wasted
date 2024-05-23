@@ -4,8 +4,8 @@ import type {
   IRatings,
   ICommentReactions,
   IPersonJob,
-  IPerson,
   IReactions,
+  IPerson,
 } from './IFields.d.ts';
 import type { ItemRating, UserReaction, WastedItem } from '#types/types.js';
 
@@ -16,7 +16,6 @@ interface IGeneralMediaModel extends Document {
   watch_count: number;
   description: string;
   description_original: string;
-  duration: number;
   rating: number;
   ratings: IRatings;
   reactions: IReactions;
@@ -27,11 +26,11 @@ interface IGeneralMediaModel extends Document {
 
 interface IMediaModel extends IGeneralMediaModel {
   images: IImages;
-  genres: IGenreModel[];
-  countries: ICountryModel[];
+  genres: number[];
+  countries: number[];
   cast: IPerson[];
-  tags: ITagModel[];
-  production_companies: IProdCompanyModel[];
+  tags: number[];
+  production_companies: number[];
   external_ids: {
     tmdb: number;
     imdb: string;
@@ -57,11 +56,14 @@ export interface IShowModel extends IMediaModel {
   platforms: number[];
   platformsId?: ITVPlatformModel[];
   seasons: ISeasonModel[];
+  commentsCount: number;
 }
 
 export interface IMovieModel extends IMediaModel {
-  release_date: Date | string;
+  release_date: Date;
+  duration: number;
   director: IPerson[];
+  commentsCount: number;
 }
 
 export interface ISeasonModel extends IGeneralMediaModel {
@@ -71,6 +73,7 @@ export interface ISeasonModel extends IGeneralMediaModel {
   episode_count: number;
   air_date: Date;
   episodes: IEpisodeModel[];
+  commentsCount: number;
 }
 
 export interface IEpisodeModel extends IGeneralMediaModel {
@@ -80,6 +83,7 @@ export interface IEpisodeModel extends IGeneralMediaModel {
   season_number: number;
   episode_number: number;
   air_date: Date;
+  commentsCount: number;
 }
 
 export interface IPeopleModel {
@@ -93,9 +97,10 @@ export interface IPeopleModel {
   movies: IPersonJob[];
   shows: IPersonJob[];
   tmdb_id: number;
-  comments: Types.ObjectId;
+  comments: Types.ObjectId | ICommentsMediaModel;
   createdAt?: Date;
   updatedAt?: Date;
+  commentsCount: number;
 }
 export interface ICommentModel {
   id: number;
@@ -111,8 +116,8 @@ export interface ICommentModel {
 }
 
 export interface ICommentsMediaModel {
-  comments: ICommentModel[];
   media_id: number;
+  comments: ICommentModel[];
 }
 
 export interface ITVPlatformModel {

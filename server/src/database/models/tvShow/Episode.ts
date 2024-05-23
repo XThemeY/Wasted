@@ -70,6 +70,7 @@ const episodeSchema = new Schema(
       },
     },
     comments: { type: Schema.Types.ObjectId, ref: 'CommentsEpisode' },
+    commentsCount: { type: Number, default: 0 },
   },
   {
     timestamps: true,

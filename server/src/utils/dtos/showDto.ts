@@ -1,4 +1,4 @@
-import type { IMediaSearchResult, ISeasonShort, IShow } from '#interfaces/IApp';
+import type { ISeasonShort, IShow, IShowSearchResult } from '#interfaces/IApp';
 import type {
   IExternalIds,
   IImages,
@@ -11,11 +11,12 @@ import type {
   ICountryModel,
   IGenreModel,
   IProdCompanyModel,
+  ISeasonModel,
   IShowModel,
   ITVPlatformModel,
   ITagModel,
 } from '#interfaces/IModel';
-import { formatISO } from 'date-fns';
+import { format } from 'date-fns';
 import {
   getCountries,
   getGenres,
@@ -25,38 +26,39 @@ import {
   getTags,
 } from '#utils/mediaFields';
 import type { Types } from 'mongoose';
+import { SeasonShort } from './seasonDto';
 
 export class Show implements IShow {
+  id: number;
+  title: string;
+  title_original: string;
   start_date: string;
   end_date: string;
   status: string;
-  creators: IPerson[];
   total_episodes_time: number;
   episode_duration: number;
   number_of_seasons: number;
   number_of_episodes: number;
-  platforms: ITVPlatformModel[];
+  watch_count: number;
   seasons: ISeasonShort[];
+  description: string;
+  description_original: string;
   images: IImages;
   genres: IGenreModel[];
-  countries: ICountryModel[];
+  creators: IPerson[];
   cast: IPerson[];
+  countries: ICountryModel[];
+  platforms: ITVPlatformModel[];
   tags: ITagModel[];
   production_companies: IProdCompanyModel[];
   external_ids: IExternalIds;
   type: string;
   popularity: number;
-  id: number;
-  title: string;
-  title_original: string;
-  watch_count: number;
-  description: string;
-  description_original: string;
-  duration: number;
   rating: number;
   ratings: IRatings;
   reactions: IReactions;
   comments: Types.ObjectId | ICommentsMediaModel;
+  commentsCount: number;
   createdAt?: Date;
   updatedAt?: Date;
   constructor(model: IShowModel) {
@@ -64,12 +66,8 @@ export class Show implements IShow {
     this.title = model.title;
     this.title_original = model.title_original;
     this.images = model.images;
-    this.start_date = formatISO(new Date(model.start_date), {
-      representation: 'date',
-    });
-    this.end_date = formatISO(new Date(model.end_date), {
-      representation: 'date',
-    });
+    this.start_date = format(new Date(model.start_date), 'dd.MM.yyyy');
+    this.end_date = format(new Date(model.end_date), 'dd.MM.yyyy');
     this.status = model.status;
     this.creators = getPeoples(model.creators);
     this.genres = getGenres(model.genresId);
@@ -78,12 +76,11 @@ export class Show implements IShow {
     this.description = model.description;
     this.description_original = model.description_original;
     this.tags = getTags(model.tagsId);
-    this.duration = model.duration;
     this.total_episodes_time = model.total_episodes_time;
     this.episode_duration = model.episode_duration;
     this.number_of_seasons = model.number_of_seasons;
     this.number_of_episodes = model.number_of_episodes;
-    //this.seasons =
+    this.seasons = this.getSeasons(model.seasons);
     this.platforms = getTVPlatforms(model.platformsId);
     this.production_companies = getProdCompanies(model.production_companiesId);
     this.reactions = model.reactions;
@@ -94,37 +91,49 @@ export class Show implements IShow {
     this.popularity = model.popularity;
     this.external_ids = model.external_ids;
     this.comments = model.comments;
+    this.commentsCount = model.commentsCount;
+  }
+
+  getSeasons(seasons: ISeasonModel[]): SeasonShort[] {
+    return seasons.map((item) => {
+      return new SeasonShort(item);
+    });
   }
 }
 
-export class ShowShort implements IMediaSearchResult {
+export class ShowShort implements IShowSearchResult {
   id: number;
   title: string;
   title_original: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  total_episodes_time: number;
+  episode_duration: number;
+  episodes_count: number;
+  number_of_seasons: number;
+  number_of_episodes: number;
+  platforms: ITVPlatformModel[];
+  creators: IPerson[];
   images: IImages;
   genres: IGenreModel[];
   countries: ICountryModel[];
-  creators: IPerson[];
   description: string;
   description_original: string;
-  duration: number;
   rating: number;
   type: string;
   watch_count: number;
   popularity: number;
-  start_date: string;
   constructor(model: IShowModel) {
     this.id = model.id;
     this.title = model.title;
     this.title_original = model.title_original;
     this.images = model.images;
-    this.start_date = formatISO(new Date(model.start_date), {
-      representation: 'date',
-    });
+    this.start_date = format(new Date(model.start_date), 'dd.MM.yyyy');
+    this.end_date = format(new Date(model.end_date), 'dd.MM.yyyy');
     this.creators = getPeoples(model.creators);
     this.description = model.description;
     this.description_original = model.description_original;
-    this.duration = model.duration;
     this.rating = model.rating;
   }
 }

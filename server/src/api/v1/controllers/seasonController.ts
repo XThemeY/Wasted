@@ -1,8 +1,7 @@
 import type { NextFunction, Response, Request } from 'express';
 import ApiError from '#utils/apiError.js';
 import { seasonService } from '#services/index.js';
-import { EpisodeShort, SeasonFull } from '#utils/dtos/index.js';
-import { ICommentsMediaModel } from '#interfaces/IModel';
+import { SeasonFull } from '#utils/dtos/index.js';
 
 class ShowController {
   async getSeason(
@@ -18,13 +17,8 @@ class ShowController {
           ApiError.BadRequest(`Сезона с таким id:${id} не существует`),
         );
       }
-      const episodes = season.episodes.map((episode) => {
-        const commentsCount = (episode.comments as ICommentsMediaModel).comments
-          .length;
-        const episodeShort = new EpisodeShort(episode, commentsCount);
-        return episodeShort;
-      });
-      const response = new SeasonFull(season, episodes);
+
+      const response = new SeasonFull(season);
       res.json(response);
     } catch (e) {
       next(e);

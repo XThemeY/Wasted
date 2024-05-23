@@ -36,6 +36,7 @@ const peopleSchema = new Schema(
     ],
     tmdb_id: { type: Number, unique: true, immutable: true },
     comments: { type: Schema.Types.ObjectId, ref: 'CommentsPeople' },
+    commentsCount: { type: Number, default: 0 },
   },
   {
     timestamps: true,

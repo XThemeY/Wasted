@@ -36,9 +36,6 @@ async function autoMovieSync(): Promise<void> {
   } catch (error) {
     syncLogger.error(error?.message);
   }
-  setTimeout(async () => {
-    await autoMovieSync();
-  }, dayInterval);
 }
 
 async function autoShowSync(): Promise<void> {
@@ -65,9 +62,12 @@ async function autoShowSync(): Promise<void> {
   } catch (error) {
     syncLogger.error(error?.message);
   }
-  setTimeout(async () => {
-    await autoShowSync();
-  }, dayInterval);
 }
 autoMovieSync();
+setTimeout(async () => {
+  await autoMovieSync();
+}, dayInterval);
 autoShowSync();
+setTimeout(async () => {
+  await autoShowSync();
+}, dayInterval);

@@ -72,8 +72,10 @@ export async function getGenres(
         `Genre: ${genre.id} был добавлен`,
       );
     }
-
     newGenres.push(genre.id);
+  }
+  if (!newGenres.length) {
+    newGenres.push(0);
   }
   return newGenres;
 }
@@ -262,6 +264,9 @@ export async function getProdCompanies(
     }
     newCompanies.push(newCompany.id);
   }
+  if (!newCompanies.length) {
+    newCompanies.push(0);
+  }
   return newCompanies;
 }
 
@@ -287,6 +292,9 @@ export async function getPlatforms(
       );
     }
     newPlatforms.push(newPlatform.id);
+  }
+  if (!newPlatforms.length) {
+    newPlatforms.push(0);
   }
   return newPlatforms;
 }

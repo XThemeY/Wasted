@@ -13,7 +13,6 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { corsOptions, logNames } from '#config/index.js';
 import tmdbRouter from '#api/tmdb/v1/tmdbRouter.js';
-import autoSync from './utils/autoSync.js';
 
 const PORT = process.env.PORT || 5050;
 const appLogger = logger(logNames.app);

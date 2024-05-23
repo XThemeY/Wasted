@@ -58,6 +58,18 @@ class ShowController {
       const wastedIds = isWatched
         ? await wastedHistoryService.getWastedIds(username, 'tvShows')
         : [];
+      console.log({
+        page,
+        limit,
+        sort_by,
+        title,
+        start_year,
+        end_year,
+        genres,
+        countries,
+        tvPlatforms,
+        wastedIds,
+      });
 
       const response = await showService.exploreShows({
         page,

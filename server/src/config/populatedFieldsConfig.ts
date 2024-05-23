@@ -4,6 +4,6 @@ export const moviePopFields = {
 };
 
 export const showPopFields = {
-  path: 'countriesId genresId production_companiesId tagsId platformsId creators.person cast.person seasons',
+  path: 'countriesId genresId production_companiesId tagsId platformsId creators.person cast.person',
   select: '-movies -shows',
 };

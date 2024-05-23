@@ -114,6 +114,7 @@ const tvShowSchema = new Schema(
       },
     },
     comments: { type: Schema.Types.ObjectId, ref: 'CommentsShow' },
+    commentsCount: { type: Number, default: 0 },
     external_ids: {
       tmdb: { type: Number },
       imdb: { type: String },

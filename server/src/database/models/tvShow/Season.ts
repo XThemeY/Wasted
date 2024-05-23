@@ -58,6 +58,7 @@ const seasonSchema = new Schema(
     },
     episodes: [{ type: Schema.Types.ObjectId, ref: 'Episode' }],
     comments: { type: Schema.Types.ObjectId, ref: 'CommentsSeason' },
+    commentsCount: { type: Number, default: 0 },
   },
   {
     timestamps: true,

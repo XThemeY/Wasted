@@ -1,8 +1,8 @@
 import type { IPersonJob } from '#interfaces/IFields';
-import type { IPeopleModel } from '#interfaces/IModel';
+import type { ICommentsMediaModel, IPeopleModel } from '#interfaces/IModel';
 import type { Types } from 'mongoose';
 
-export class Person {
+export class Person implements IPeopleModel {
   id: number;
   original_name: string;
   translations: {
@@ -13,8 +13,8 @@ export class Person {
   movies: IPersonJob[];
   shows: IPersonJob[];
   tmdb_id: number;
-  comments: Types.ObjectId;
-
+  comments: Types.ObjectId | ICommentsMediaModel;
+  commentsCount: number;
   constructor(model: IPeopleModel) {
     this.id = model.id;
     this.original_name = model.original_name;
@@ -23,5 +23,6 @@ export class Person {
     this.movies = model.movies;
     this.shows = model.shows;
     this.comments = model.comments;
+    this.commentsCount = model.commentsCount;
   }
 }

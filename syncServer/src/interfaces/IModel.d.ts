@@ -13,8 +13,8 @@ import type {
 
 export interface IMediaModel extends Document {
   title: string;
+  imdb_id: string;
   original_title: string;
-  imdb_id: number;
   name: string;
   original_name: string;
   release_date: Date;
@@ -30,7 +30,7 @@ export interface IMediaModel extends Document {
 
   id: number;
   external_ids: {
-    imdb: string;
+    imdb_id: string;
     tmdb: number;
     kinopoisk: number;
   };

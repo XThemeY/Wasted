@@ -1,12 +1,15 @@
+import { logNames } from '#config';
+import { logger } from '#middleware';
 import axios from 'axios';
 import { STATUS_CODES } from 'http';
+
+const syncLogger = logger(logNames.sync).child({ module: 'syncServer' });
 
 export enum MediaType {
   movie = 'movies',
   show = 'tv',
   game = 'games',
 }
-
 export const syncMedia = async (
   id: number,
   type: MediaType,
@@ -14,18 +17,22 @@ export const syncMedia = async (
   isFullSync: boolean = false,
 ): Promise<boolean | void> => {
   const isUpdated = isMediaUpdated(updatedAt);
-  if (isUpdated) {
-    const { data } = await axios.patch(
-      process.env.SYNC_SERVER_URL +
-        `/tmdb/${type}/` +
-        id +
-        '?fullSync=' +
-        isFullSync,
-    );
-    if (data === STATUS_CODES[200]) {
-      return true;
+  try {
+    if (isUpdated) {
+      const { data } = await axios.patch(
+        process.env.SYNC_SERVER_URL +
+          `/tmdb/${type}/` +
+          id +
+          '?fullSync=' +
+          isFullSync,
+      );
+      if (data === STATUS_CODES[200]) {
+        return true;
+      }
+      return false;
     }
-    return false;
+  } catch (error) {
+    syncLogger.error(error?.message);
   }
 };
 

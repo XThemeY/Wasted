@@ -4,4 +4,5 @@ export const logNames = {
   err: 'err.log',
   movie: 'tmdbMovie.log',
   show: 'tmdbShow.log',
+  sync: 'syncServer.log',
 };

@@ -1,5 +1,5 @@
 import { Season } from '#db/models/index.js';
-import type { ISeasonModel } from '#interfaces/IModel';
+import type { IEpisodeModel, ISeasonModel } from '#interfaces/IModel';
 import type { IReactions } from '#interfaces/IFields';
 import type { ISeasonUpdate } from '#interfaces/IApp';
 import { showPopFields } from '#config';
@@ -9,7 +9,6 @@ class SeasonService {
     const season = await Season.findOne({ id })
       .populate({
         path: 'episodes',
-        populate: { path: 'comments', model: 'CommentsEpisode' },
       })
       .exec();
     return season;
@@ -37,8 +36,8 @@ class SeasonService {
       .populate('episodes', 'rating')
       .exec();
     const seasonArr = season.episodes
-      .filter((el) => el.rating !== 0)
-      .map((el) => el.rating);
+      .filter((el: IEpisodeModel) => el.rating !== 0)
+      .map((el: IEpisodeModel) => el.rating);
     if (!seasonArr.length) {
       season.rating = 0;
       await season.save();

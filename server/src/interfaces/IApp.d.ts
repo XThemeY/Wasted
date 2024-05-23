@@ -49,74 +49,17 @@ export interface ISeasonUpdate extends IMediaUpdate {
   air_date: Date;
 }
 
-export interface ISearchQuery {
-  page: number;
-  limit: number;
-  sort_by: [string, SortOrder];
-  title: string;
-  start_year: Date | number;
-  end_year: Date | number;
-  genres: number[];
-  countries: number[];
-  wastedIds: number[];
-  tvPlatforms?: number[];
-}
-
 export interface IErrMsg {
   message: string;
-}
-
-interface IMediaSearchResult {
-  id: number;
-  title: string;
-  title_original: string;
-  images: IImages;
-  genres: IGenreModel[];
-  countries: ICountryModel[];
-  description: string;
-  description_original: string;
-  duration: number;
-  rating: number;
-  type: string;
-  watch_count: number;
-  popularity: number;
-}
-
-export interface IMovieSearchResult extends IMediaSearchResult {
-  release_date: string;
-  director: IPerson[];
-}
-
-export interface IShowSearchResult extends IMediaSearchResult {
-  start_date: Date;
-  end_date: Date;
-  status: string;
-  creators: IPerson[];
-  total_episodes_time: number;
-  episode_duration: number;
-  episodes_count: number;
-  number_of_seasons: number;
-  number_of_episodes: number;
-  platforms: ITVPlatformModel[];
-}
-
-export interface ISearchResult {
-  items: IMovieSearchResult[] | IShowSearchResult[];
-  page: number;
-  total_pages: number;
-  total_items: number;
 }
 
 interface IGeneralMedia {
   id: number;
   title: string;
   title_original: string;
-  watch_count: number;
   description: string;
   description_original: string;
-  duration: number;
   rating: number;
-  ratings: IRatings;
   reactions: IReactions;
   comments: Types.ObjectId | ICommentsMediaModel;
   createdAt?: Date;
@@ -129,6 +72,8 @@ interface IMedia extends IGeneralMedia {
   countries: ICountryModel[];
   cast: IPerson[];
   tags: ITagModel[];
+  watch_count: number;
+  ratings: IRatings;
   production_companies: IProdCompanyModel[];
   external_ids: {
     tmdb: number;
@@ -140,8 +85,8 @@ interface IMedia extends IGeneralMedia {
 }
 
 export interface IShow extends IMedia {
-  start_date: string;
-  end_date: string;
+  start_date: Date | string;
+  end_date: Date | string;
   status: string;
   creators: IPerson[];
   total_episodes_time: number;
@@ -153,17 +98,20 @@ export interface IShow extends IMedia {
 }
 
 export interface IMovie extends IMedia {
-  release_date: string;
+  duration: number;
+  release_date: Date | string;
   director: IPerson[];
 }
 
 export interface IEpisode extends IGeneralMedia {
   show_id: number;
+  duration: number;
   poster_url: string;
   episode_type: string;
   season_number: number;
   episode_number: number;
-  air_date: string;
+  air_date: Date | string;
+  watch_count: number;
 }
 
 export interface ISeason extends IGeneralMedia {
@@ -193,11 +141,13 @@ export interface IUserWastedHistory {
   total_time: number;
 }
 
-export interface ISeasonShort {
+interface IShort {
   id: number;
   title: string;
   title_original: string;
-  duration: number;
+}
+
+export interface ISeasonShort extends IShort {
   show_id: number;
   season_number: number;
   episode_count: number;
@@ -206,15 +156,67 @@ export interface ISeasonShort {
   commentsCount: number;
 }
 
-export interface IEpisodeShort {
-  id: number;
-  title: string;
-  title_original: string;
+export interface IEpisodeShort extends IShort {
   show_id: number;
   episode_type: string;
+  duration: number;
   season_number: number;
   episode_number: number;
   air_date: string;
   rating: number;
   commentsCount: number;
+}
+
+export interface ISearchQuery {
+  page: number;
+  limit: number;
+  sort_by: [string, SortOrder];
+  title: string;
+  start_year: Date | number;
+  end_year: Date | number;
+  genres: number[];
+  countries: number[];
+  wastedIds: number[];
+  tvPlatforms?: number[];
+}
+
+interface IMediaSearchResult {
+  id: number;
+  title: string;
+  title_original: string;
+  images: IImages;
+  genres: IGenreModel[];
+  countries: ICountryModel[];
+  description: string;
+  description_original: string;
+  rating: number;
+  type: string;
+  watch_count: number;
+  popularity: number;
+}
+
+export interface IMovieSearchResult extends IMediaSearchResult {
+  release_date: string;
+  director: IPerson[];
+  duration: number;
+}
+
+export interface IShowSearchResult extends IMediaSearchResult {
+  start_date: string;
+  end_date: string;
+  status: string;
+  creators: IPerson[];
+  total_episodes_time: number;
+  episode_duration: number;
+  episodes_count: number;
+  number_of_seasons: number;
+  number_of_episodes: number;
+  platforms: ITVPlatformModel[];
+}
+
+export interface ISearchResult {
+  items: IMovieSearchResult[] | IShowSearchResult[];
+  page: number;
+  total_pages: number;
+  total_items: number;
 }
