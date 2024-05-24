@@ -23,12 +23,7 @@ const appLogger = logger(logNames.app);
 const reqLogger = logger(logNames.req);
 const app = express();
 
-//Http Logger
-if (process.env.NODE_ENV === 'production') {
-  app.use(pinoHttp({ logger: reqLogger }));
-}
-
-//Settings
+// Middleware
 app.use(limiter);
 app.use(cors(corsOptions));
 app.use(cookieParser());
@@ -36,40 +31,42 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// Static files
 app.use(
   '/public/media/u',
   express.static(path.join(__dirname, 'public', 'media', 'users')),
 );
 
+// HTTP Logger (for production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(pinoHttp({ logger: reqLogger }));
+}
+
 // Routes
 app.use('/v1', v1Router);
 
-// Error handler
+// Error handling
 app.use(errors());
 app.use('*', invalidPathHandler);
 app.use(errorLogger);
 app.use(errorResponder);
 
-const start = async (): Promise<void> => {
+const connectDB = async (): Promise<void> => {
   try {
     await mongoose.connect(
       process.env.NODE_ENV === 'production'
         ? process.env.DB_URL_TMDBMain
         : process.env.DB_URL_TEST,
     );
-    app.listen(PORT, () => appLogger.info(`Server started on port ${PORT}`));
-  } catch (e) {
-    appLogger.error(e);
+    appLogger.info('Connected to MongoDB');
+  } catch (error) {
+    appLogger.error('MongoDB connection error:', error);
+    process.exit(1); // Exit process with failure
   }
 };
 
-const db = mongoose.connection;
-db.on(
-  'error',
-  appLogger.error.bind(appLogger.error, 'MongoDB connection error:'),
-);
-db.once('open', () => {
-  appLogger.info('Connected to MongoDB');
+app.listen(PORT, () => {
+  appLogger.info(`Server started on port ${PORT}`);
+  connectDB();
 });
-
-start();

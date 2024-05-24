@@ -59,12 +59,12 @@
   },
   "baseUrl": "./",
   "imports": {
-    "#*": "./src/*",
-    "#middleware/*": "./src/middleware/*",
-    "#utils/*": "./src/utils/*",
-    "#config/*": "./src/config/*",
-    "#db/*": "./src/database/*",
-    "#api/*": "./src/api/*"
+    "#*": "./build/*",
+    "#middleware/*": "./build/middleware/*",
+    "#utils/*": "./build/utils/*",
+    "#config/*": "./build/config/*",
+    "#db/*": "./build/database/*",
+    "#api/*": "./build/api/*"
   },
   "author": "XTheme",
   "license": "Apache-2.0",

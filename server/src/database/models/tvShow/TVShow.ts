@@ -3,7 +3,7 @@ import type { IShowModel } from '#interfaces/IModel.d.ts';
 
 const tvShowSchema = new Schema(
   {
-    id: { type: Number, unique: true, immutable: true },
+    id: { type: Number, unique: true, immutable: true, index: true },
     title: { type: String, required: true, index: true },
     title_original: { type: String, default: '', index: true },
     images: {
@@ -31,8 +31,8 @@ const tvShowSchema = new Schema(
       ],
       default: '',
     },
-    genres: [Number],
-    countries: [Number],
+    genres: { type: [Number], index: true },
+    countries: { type: [Number], index: true },
     creators: [
       {
         person: { type: Schema.Types.ObjectId, ref: 'People' },
@@ -52,9 +52,9 @@ const tvShowSchema = new Schema(
     number_of_episodes: { type: Number, default: 0 },
     description: { type: String, default: '' },
     description_original: { type: String, default: '' },
-    tags: [Number],
-    production_companies: [Number],
-    platforms: [Number],
+    tags: { type: [Number], index: true },
+    production_companies: { type: [Number], index: true },
+    platforms: { type: [Number], index: true },
     seasons: [{ type: Schema.Types.ObjectId, ref: 'Season' }],
     rating: { type: Number, default: 0, index: true },
     ratings: {

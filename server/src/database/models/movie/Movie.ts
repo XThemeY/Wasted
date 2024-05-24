@@ -3,7 +3,7 @@ import type { IMovieModel } from '#interfaces/IModel.d.ts';
 
 const movieSchema = new Schema(
   {
-    id: { type: Number, unique: true, immutable: true },
+    id: { type: Number, unique: true, immutable: true, index: true },
     title: { type: String, required: true, index: true },
     title_original: { type: String, default: '', index: true },
     images: {
@@ -18,8 +18,8 @@ const movieSchema = new Schema(
       backdrop_url: { type: String, default: '' },
     },
     release_date: { type: Date, index: true },
-    genres: [Number],
-    countries: [Number],
+    genres: { type: [Number], index: true },
+    countries: { type: [Number], index: true },
     director: [
       {
         person: { type: Schema.Types.ObjectId, ref: 'People' },
@@ -35,9 +35,9 @@ const movieSchema = new Schema(
     watch_count: { type: Number, default: 0 },
     description: { type: String, default: '' },
     description_original: { type: String, default: '' },
-    tags: [Number],
+    tags: { type: [Number], index: true },
     duration: { type: Number, default: 0 },
-    production_companies: [Number],
+    production_companies: { type: [Number], index: true },
     rating: { type: Number, default: 0, index: true },
     ratings: {
       wasted: {

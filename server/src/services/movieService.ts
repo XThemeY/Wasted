@@ -20,6 +20,7 @@ import { moviePopFields } from '#config/index.js';
 class MovieService {
   async getMovie(id: number): Promise<IMovieModel> {
     const movie = await Movie.findOne({ id }).populate(moviePopFields).exec();
+    if (!movie) throw ApiError.BadRequest(`Фильм с id:${id} не найден`);
     return movie;
   }
 
@@ -31,6 +32,7 @@ class MovieService {
     )
       .populate(moviePopFields)
       .exec();
+    if (!movie) throw ApiError.BadRequest(`Фильм с id:${id} не найден`);
     return movie;
   }
 
@@ -41,80 +43,87 @@ class MovieService {
     title,
     start_year,
     end_year,
+    start_year_default,
+    end_year_default,
     genres,
     countries,
     wastedIds,
   }: ISearchQuery): Promise<ISearchResult | IErrMsg> {
-    const newMovies = {
+    const newMovies: ISearchResult = {
       items: [],
       page,
       total_pages: 0,
       total_items: 0,
-    } as ISearchResult;
+    };
 
-    const countQuery = new Promise<number>(function (resolve, reject) {
-      const count = Movie.countDocuments({
-        $or: [
-          { title: { $regex: title, $options: 'i' } },
-          { title_original: { $regex: title, $options: 'i' } },
-        ],
-      })
-        .where('release_date')
-        .gte(start_year as number)
-        .lte(end_year as number)
-        .where('genres')
-        .in(genres)
-        .where('countries')
-        .in(countries)
-        .nin('id', wastedIds);
-      resolve(count);
-      reject(ApiError.InternalServerError());
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const baseQuery: any = {
+      $or: [
+        { title: { $regex: title, $options: 'i' } },
+        { title_original: { $regex: title, $options: 'i' } },
+      ],
+      genres: { $in: genres },
+      countries: { $in: countries },
 
-    const dataQuery = new Promise<IMovieModel[]>(function (resolve, reject) {
-      const data = Movie.find({
-        $or: [
-          { title: { $regex: title, $options: 'i' } },
-          { title_original: { $regex: title, $options: 'i' } },
-        ],
-      })
-        .where('release_date')
-        .gte(start_year as number)
-        .lte(end_year as number)
-        .where('genres')
-        .in(genres)
-        .where('countries')
-        .in(countries)
-        .nin('id', wastedIds)
-        .sort([sort_by])
-        .skip(page * limit)
-        .limit(limit)
-        .populate(moviePopFields)
-        .exec();
-      resolve(data);
-      reject(ApiError.InternalServerError());
-    });
+      id: { $nin: wastedIds },
+    };
 
-    //Maybe Promise.allSetlled?
-    const results = await Promise.all([countQuery, dataQuery]);
-
-    const total_movies = results[1];
-    const total_items = results[0];
-    const total_pages = Math.ceil(total_items / limit);
-
-    if (page + 1 > total_pages && total_pages !== 0) {
-      return { message: 'Invalid page' };
+    if (start_year !== undefined && end_year !== undefined) {
+      baseQuery.release_date = {
+        $gte: start_year,
+        $lte: end_year,
+      };
+    } else if (start_year !== undefined) {
+      baseQuery.release_date = {
+        $gte: start_year,
+        $lte: end_year_default,
+      };
+    } else if (end_year !== undefined) {
+      baseQuery.release_date = {
+        $gte: start_year_default,
+        $lte: end_year,
+      };
+    } else {
+      baseQuery.$or.push(
+        {
+          release_date: {
+            $gte: start_year_default,
+            $lte: end_year_default,
+          },
+        },
+        { release_date: null },
+      );
     }
-    if (!total_movies.length) {
-      return { message: `Movies not found` };
+
+    try {
+      const [total_items, total_movies] = await Promise.all([
+        Movie.countDocuments(baseQuery),
+        Movie.find(baseQuery)
+          .sort([[sort_by[0], sort_by[1]]])
+          .skip(page * limit)
+          .limit(limit)
+          .populate(moviePopFields)
+          .exec(),
+      ]);
+
+      const total_pages = Math.ceil(total_items / limit);
+
+      if (page + 1 > total_pages && total_pages !== 0) {
+        return { message: 'Invalid page' };
+      }
+      if (!total_movies.length) {
+        return { message: `Movies not found` };
+      }
+      newMovies.items = total_movies.map((movie) => {
+        return new MovieShort(movie);
+      });
+      newMovies.page = page + 1;
+      newMovies.total_pages = total_pages;
+      newMovies.total_items = total_items;
+      return newMovies;
+    } catch (error) {
+      return { message: error.message || 'Internal Server Error' };
     }
-    newMovies.items = total_movies.map((movie) => {
-      return new MovieShort(movie);
-    });
-    newMovies.page = page + 1;
-    newMovies.total_pages = total_pages;
-    newMovies.total_items = total_items;
-    return newMovies;
   }
 
   async setRating(
@@ -139,6 +148,8 @@ class MovieService {
       { 'movies.$': itemId },
     );
 
+    const [ratingName, ratingValue] = ratingTuple;
+
     //Add rating
     if (!isRated) {
       await UserRatings.updateOne(
@@ -147,23 +158,20 @@ class MovieService {
         },
         {
           $push: {
-            movies: [
-              { itemId, rating: ratingTuple[1], ratingName: ratingTuple[0] },
-            ],
+            movies: [{ itemId, rating: ratingValue, ratingName }],
           },
         },
         { upsert: true, runValidators: true },
       );
 
-      movie.ratings.wasted[ratingTuple[0]] =
-        movie.ratings.wasted[ratingTuple[0]] + ratingTuple[1];
+      movie.ratings.wasted[ratingName] += ratingValue;
       movie.ratings.wasted.vote_count += 1;
       await movie.save();
       return { movieId: itemId, rating: movie.ratings.wasted };
     }
 
     //Delete rating
-    if (ratingTuple[1] === isRated.movies[0].rating) {
+    if (ratingValue === isRated.movies[0].rating) {
       await UserRatings.updateOne(
         {
           username,
@@ -173,8 +181,7 @@ class MovieService {
           $pull: { movies: { itemId } },
         },
       );
-      movie.ratings.wasted[ratingTuple[0]] =
-        movie.ratings.wasted[ratingTuple[0]] - ratingTuple[1];
+      movie.ratings.wasted[ratingName] -= ratingValue;
       movie.ratings.wasted.vote_count -= 1;
       await movie.save();
       return { movieId: itemId, rating: movie.ratings.wasted };
@@ -190,17 +197,15 @@ class MovieService {
         $set: {
           'movies.$': {
             itemId,
-            rating: ratingTuple[1],
-            ratingName: ratingTuple[0],
+            rating: ratingValue,
+            ratingName: ratingName,
           },
         },
       },
       { runValidators: true },
     );
-    movie.ratings.wasted[ratingTuple[0]] =
-      movie.ratings.wasted[ratingTuple[0]] + ratingTuple[1];
-    movie.ratings.wasted[isRated.movies[0].ratingName] =
-      movie.ratings.wasted[isRated.movies[0].ratingName] -
+    movie.ratings.wasted[ratingName] += ratingValue;
+    movie.ratings.wasted[isRated.movies[0].ratingName] -=
       isRated.movies[0].rating;
     await movie.save();
     return { movieId: itemId, rating: movie.ratings.wasted };
@@ -264,7 +269,6 @@ class MovieService {
         movie.reactions[el].vote_count += 1;
       });
       await movie.save();
-
       return { movieId: itemId, reactions };
     }
 
@@ -298,8 +302,9 @@ class MovieService {
     const movie = await Movie.findOne({ id }, 'reactions').exec();
     let total_votes = 0;
     const reactions = Object.keys(movie.reactions);
+
     reactions.forEach((key) => {
-      total_votes = total_votes + movie.reactions[key].vote_count;
+      total_votes += movie.reactions[key].vote_count;
     });
 
     if (!total_votes) {
@@ -321,8 +326,12 @@ class MovieService {
 
   async setWatchCount(id: number): Promise<number> {
     const watch_count = await WastedHistory.countDocuments({
-      'movies.itemId': id,
-      'movies.status': 'watched',
+      movies: {
+        $elemMatch: {
+          itemId: id,
+          status: { $in: ['watched'] },
+        },
+      },
     });
     await Movie.updateOne({ id }, { $set: { watch_count } }).exec();
     return watch_count;

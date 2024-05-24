@@ -6,6 +6,8 @@ import {
   getStartYear,
   getEndYear,
   compareYears,
+  getMaxDate,
+  getMinDate,
 } from '#config/index.js';
 import type { NextFunction, Response, Request } from 'express';
 import { Movie } from '#utils/dtos/index.js';
@@ -28,9 +30,6 @@ class MovieController {
     try {
       const { id } = req.params;
       const movie = await movieService.getMovie(+id);
-      if (!movie) {
-        throw ApiError.BadRequest(`Фильма с таким id:${id} не существует`);
-      }
       syncMedia(movie.external_ids.tmdb, MediaType.movie, movie.updatedAt);
       const response = new Movie(movie);
       return res.json(response);
@@ -48,9 +47,6 @@ class MovieController {
       const { id } = req.params;
       const options = req.body as IMovieUpdate;
       const movie = await movieService.updateMovie(+id, options);
-      if (!movie) {
-        throw ApiError.BadRequest(`Фильма с таким id:${id} не существует`);
-      }
       const response = new Movie(movie);
       return res.json(response);
     } catch (e) {
@@ -65,11 +61,20 @@ class MovieController {
   ): Promise<Response<IMovieSearchResult | IErrMsg> | void> {
     try {
       const sort_by = (req.query.sort_by as string).split('.');
-      const genres = await getGenreOptions(req.query.genre as string);
-      const countries = await getСountryOptions(req.query.country as string);
+
+      const [genres, countries] = await Promise.all([
+        getGenreOptions(req.query.genre as string),
+        getСountryOptions(req.query.country as string),
+      ]);
+
       const start_year = await getStartYear(+req.query.start_year);
       const end_year = await getEndYear(+req.query.end_year);
       compareYears(start_year, end_year);
+
+      const [start_year_default, end_year_default] = await Promise.all([
+        getMinDate(),
+        getMaxDate(),
+      ]);
       const page = +req.query.page - 1;
       const limit = +req.query.limit;
       const title = req.query.title;
@@ -86,6 +91,8 @@ class MovieController {
         title,
         start_year,
         end_year,
+        start_year_default,
+        end_year_default,
         genres,
         countries,
         wastedIds,

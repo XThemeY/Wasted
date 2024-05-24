@@ -54,7 +54,7 @@ export const exploreValidMiddleware = (): RequestHandler => {
       start_year: Joi.number(),
       end_year: Joi.number(),
       page: Joi.number().min(1).default(1),
-      limit: Joi.number().min(10).max(50).default(20),
+      limit: Joi.number().min(10).max(50).default(10),
       title: Joi.string().default(''),
       watched: Joi.boolean().default(false),
       tvplatform: Joi.string().allow(''),
@@ -122,17 +122,14 @@ export const reactionsValidMiddleware = (): RequestHandler => {
 export const wastedValidMiddleware = (): RequestHandler => {
   return celebrate({
     [Segments.BODY]: Joi.object().keys({
-      movieId: Joi.number(),
-      showId: Joi.number(),
-      episodeId: Joi.number(),
+      mediaId: Joi.number(),
+      mediaType: Joi.string().valid('show', 'movie', 'episode'),
       status: Joi.string().valid(
         'watched',
         'willWatch',
         'dropped',
         'notWatched',
         'watching',
-        'played',
-        'willPlay',
       ),
     }),
   });

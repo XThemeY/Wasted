@@ -16,47 +16,19 @@ class WastedHistoryController {
     }
   }
 
-  async setMovieWasted(
+  async setMediaWasted(
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const { movieId, status } = req.body;
+      const { mediaId, status, mediaType } = req.body;
       const { username } = req.user;
-      await wastedHistoryService.setMovieWasted(username, movieId, status);
-      return res.sendStatus(200);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async setShowWasted(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<Response | void> {
-    try {
-      const { showId, status } = req.body;
-      const { username } = req.user;
-      await wastedHistoryService.setShowWasted(username, showId, status);
-      return res.sendStatus(200);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async setEpisodeWasted(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<Response | void> {
-    try {
-      const { episodeId } = req.body;
-      const { username } = req.user;
-      const response = await wastedHistoryService.setEpisodeWasted(
+      const response = await wastedHistoryService.setMediaWasted(
         username,
-        episodeId,
+        mediaId,
+        status,
+        mediaType,
       );
       return res.json(response);
     } catch (e) {

@@ -4,7 +4,7 @@ import { UserDto } from '#utils/dtos/index.js';
 import { Role, User } from '#db/models/index.js';
 import ApiError from '#utils/apiError.js';
 import { mailService, tokenService } from '#services/index.js';
-import type { ICookies, IJwtPayload } from '#interfaces/IFields';
+import type { ICookies } from '#interfaces/IFields';
 import type { DeleteResult } from 'mongodb';
 
 class AuthService {
@@ -90,9 +90,7 @@ class AuthService {
     if (!refreshToken) {
       throw ApiError.NotAuthorized();
     }
-    const userData = tokenService.validateRefreshToken(
-      refreshToken,
-    ) as IJwtPayload;
+    const userData = tokenService.validateRefreshToken(refreshToken);
     const dbToken = await tokenService.findToken(refreshToken);
     if (!userData || !dbToken) {
       throw ApiError.NotAuthorized();

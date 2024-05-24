@@ -7,6 +7,8 @@ import {
   getStartYear,
   getEndYear,
   compareYears,
+  getMinDate,
+  getMaxDate,
 } from '#config/index.js';
 import type { NextFunction, Request, Response } from 'express';
 import type {
@@ -50,6 +52,8 @@ class ShowController {
       const start_year = await getStartYear(+req.query.start_year);
       const end_year = await getEndYear(+req.query.end_year);
       compareYears(start_year, end_year);
+      const start_year_default = await getMinDate();
+      const end_year_default = await getMaxDate();
       const page = +req.query.page - 1;
       const limit = +req.query.limit;
       const title = req.query.title;
@@ -58,18 +62,6 @@ class ShowController {
       const wastedIds = isWatched
         ? await wastedHistoryService.getWastedIds(username, 'tvShows')
         : [];
-      console.log({
-        page,
-        limit,
-        sort_by,
-        title,
-        start_year,
-        end_year,
-        genres,
-        countries,
-        tvPlatforms,
-        wastedIds,
-      });
 
       const response = await showService.exploreShows({
         page,
@@ -78,6 +70,8 @@ class ShowController {
         title,
         start_year,
         end_year,
+        start_year_default,
+        end_year_default,
         genres,
         countries,
         tvPlatforms,

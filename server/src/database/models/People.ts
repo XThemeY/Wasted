@@ -7,16 +7,19 @@ const peopleSchema = new Schema(
       type: Number,
       unique: true,
       immutable: false,
+      index: true,
     },
     original_name: { type: String, default: '' },
     translations: {
       ru: {
         type: String,
         default: '',
+        index: true,
       },
       en: {
         type: String,
         default: '',
+        index: true,
       },
     },
     profile_img: { type: String },

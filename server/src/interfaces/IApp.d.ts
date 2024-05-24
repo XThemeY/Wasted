@@ -174,6 +174,8 @@ export interface ISearchQuery {
   title: string;
   start_year: Date | number;
   end_year: Date | number;
+  start_year_default: Date;
+  end_year_default: Date;
   genres: number[];
   countries: number[];
   wastedIds: number[];

@@ -43,63 +43,62 @@ class TVShowService {
     title,
     start_year,
     end_year,
+    start_year_default,
+    end_year_default,
     genres,
     countries,
     tvPlatforms,
     wastedIds,
   }: ISearchQuery): Promise<ISearchResult | IErrMsg> {
     const newShows = { items: [], page, total_pages: 0, total_items: 0 };
-    console.log('SERVICE', {
-      page,
-      limit,
-      sort_by,
-      title,
-      start_year,
-      end_year,
-      genres,
-      countries,
-      tvPlatforms,
-      wastedIds,
-    });
-    const countQuery = new Promise<number>(function (resolve, reject) {
-      const count = TVShow.countDocuments({
-        $or: [
-          { title: { $regex: title, $options: 'i' } },
-          { title_original: { $regex: title, $options: 'i' } },
-        ],
-      })
-        // .where('start_date')
-        // .gte(start_year as number)
-        // .lte(end_year as number)
-        // .where('genres')
-        // .in(genres)
-        .where('countries')
-        .nin(countries);
-      // .where('platforms')
-      // .in(tvPlatforms)
-      // .nin('id', wastedIds);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const baseQuery: any = {
+      $or: [
+        { title: { $regex: title, $options: 'i' } },
+        { title_original: { $regex: title, $options: 'i' } },
+      ],
+      genres: { $in: genres },
+      countries: { $in: countries },
+      platforms: { $in: tvPlatforms },
+      id: { $nin: wastedIds },
+    };
+
+    if (start_year !== undefined && end_year !== undefined) {
+      baseQuery.start_date = {
+        $gte: start_year,
+        $lte: end_year,
+      };
+    } else if (start_year !== undefined) {
+      baseQuery.start_date = {
+        $gte: start_year,
+        $lte: end_year_default,
+      };
+    } else if (end_year !== undefined) {
+      baseQuery.start_date = {
+        $gte: start_year_default,
+        $lte: end_year,
+      };
+    } else {
+      baseQuery.$or.push(
+        {
+          start_date: {
+            $gte: start_year_default,
+            $lte: end_year_default,
+          },
+        },
+        { start_date: null },
+      );
+    }
+
+    const countQuery = new Promise<number>(function (resolve, reject) {
+      const count = TVShow.countDocuments(baseQuery);
       resolve(count);
       reject(ApiError.InternalServerError());
     });
 
     const dataQuery = new Promise<IShowModel[]>(function (resolve, reject) {
-      const data = TVShow.find({
-        $or: [
-          { title: { $regex: title, $options: 'i' } },
-          { title_original: { $regex: title, $options: 'i' } },
-        ],
-      })
-        .where('start_date')
-        .gte(start_year as number)
-        .lte(end_year as number)
-        .where('genres')
-        .in(genres)
-        .where('countries')
-        .in(countries)
-        .where('platforms')
-        .in(tvPlatforms)
-        .nin('id', wastedIds)
+      const data = TVShow.find(baseQuery)
         .sort([sort_by])
         .skip(page * limit)
         .limit(limit)
@@ -195,9 +194,14 @@ class TVShowService {
 
   async setWatchCount(id: number): Promise<number> {
     const watch_count = await WastedHistory.countDocuments({
-      'tvShows.itemId': id,
-      'tvShows.status': { $in: ['watched', 'watching'] },
+      tvShows: {
+        $elemMatch: {
+          itemId: id,
+          status: { $in: ['watched', 'watching'] },
+        },
+      },
     });
+
     await TVShow.updateOne({ id }, { $set: { watch_count } }).exec();
     return watch_count;
   }
