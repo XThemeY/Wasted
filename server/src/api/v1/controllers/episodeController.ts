@@ -1,9 +1,9 @@
 import type { NextFunction, Response, Request } from 'express';
 import type { RatingRes, ReactionRes } from '#types/types';
-import ApiError from '#utils/apiError.js';
 import { getRatingOptions } from '#config/index.js';
 import { episodeService, seasonService, showService } from '#services/index.js';
 import { EpisodeFull } from '#utils/dtos/index.js';
+import { IEpisodeUpdate } from '#interfaces/IApp';
 
 class ShowController {
   async getEpisode(
@@ -14,13 +14,24 @@ class ShowController {
     try {
       const { id } = req.params;
       const episode = await episodeService.getEpisode(+id);
-      if (!episode) {
-        return next(
-          ApiError.BadRequest(`"Эпизода" с таким id:${id} не существует`),
-        );
-      }
       const response = new EpisodeFull(episode);
       res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateEpisode(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<EpisodeFull> | void> {
+    try {
+      const { id } = req.params;
+      const options = req.body as IEpisodeUpdate;
+      const episode = await episodeService.updateEpisode(+id, options);
+      const response = new EpisodeFull(episode);
+      return res.json(response);
     } catch (e) {
       next(e);
     }

@@ -123,7 +123,7 @@ class TmdbShowAPI {
     TmdbShowAPI._abort = false;
     try {
       const startWastedId =
-        +req.query.startAt || (await ShowService.getLastShowId());
+        +req.query.startAt || (await ShowService.getLastShowId()) + 1;
 
       const latestTMDBId =
         +req.query.endAt ||

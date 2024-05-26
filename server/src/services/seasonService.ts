@@ -2,7 +2,7 @@ import { Season } from '#db/models/index.js';
 import type { IEpisodeModel, ISeasonModel } from '#interfaces/IModel';
 import type { IReactions } from '#interfaces/IFields';
 import type { ISeasonUpdate } from '#interfaces/IApp';
-import { showPopFields } from '#config';
+import ApiError from '#utils/apiError';
 
 class SeasonService {
   async getSeason(id: number): Promise<ISeasonModel> {
@@ -11,18 +11,23 @@ class SeasonService {
         path: 'episodes',
       })
       .exec();
+    if (!season) throw ApiError.BadRequest(`Сезон с id:${id} не найден`);
     return season;
   }
 
-  async updateShow(id: number, options: ISeasonUpdate): Promise<ISeasonModel> {
-    const show = await Season.findOneAndUpdate(
+  async updateSeason(
+    id: number,
+    options: ISeasonUpdate,
+  ): Promise<ISeasonModel> {
+    const season = await Season.findOneAndUpdate(
       { id },
       { ...options },
       { new: true, runValidators: true },
     )
-      .populate(showPopFields)
+      .populate('episodes')
       .exec();
-    return show;
+    if (!season) throw ApiError.BadRequest(`Сезон с id:${id} не найден`);
+    return season;
   }
 
   async setTotalRating(showId: number, seasonNumber: number): Promise<number> {

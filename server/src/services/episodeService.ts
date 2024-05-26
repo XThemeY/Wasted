@@ -8,10 +8,25 @@ import ApiError from '#utils/apiError.js';
 import type { RatingTuple, UserReaction, UserRating } from '#types/types';
 import type { IEpisodeModel } from '#interfaces/IModel';
 import type { IReactions } from '#interfaces/IFields';
+import type { IEpisodeUpdate } from '#interfaces/IApp';
 
 class EpisodeService {
   async getEpisode(id: number): Promise<IEpisodeModel> {
     const episode = await Episode.findOne({ id }).exec();
+    if (!episode) throw ApiError.BadRequest(`Эпизод с id:${id} не найден`);
+    return episode;
+  }
+
+  async updateEpisode(
+    id: number,
+    options: IEpisodeUpdate,
+  ): Promise<IEpisodeModel> {
+    const episode = await Episode.findOneAndUpdate(
+      { id },
+      { ...options },
+      { new: true, runValidators: true },
+    ).exec();
+    if (!episode) throw ApiError.BadRequest(`Эпизод с id:${id} не найден`);
     return episode;
   }
 

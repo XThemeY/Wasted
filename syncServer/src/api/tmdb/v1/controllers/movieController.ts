@@ -173,6 +173,7 @@ class TmdbMovieAPI {
           );
         }
       }
+
       res.sendStatus(200);
       movieLogger.info(`Все фильмы добавлены`);
     } catch (error) {

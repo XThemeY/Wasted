@@ -24,7 +24,7 @@ class MovieService {
       return;
     }
     movieLogger.info(
-      { tmdbID: +movie.external_ids.tmdb, wastedId: movie.id },
+      { tmdbID: movie.external_ids.tmdb, wastedId: movie.id },
       `ACTION: Фильм c tmdbID:${movie.external_ids.tmdb} уже существует в базе данных под id:${movie.id}`,
     );
     return movie;
@@ -83,13 +83,13 @@ class MovieService {
         },
       );
       movieLogger.info(
-        { tmdbID: +movie.external_ids.tmdb, wastedId: movie.id },
+        { tmdbID: movie.external_ids.tmdb, wastedId: movie.id },
         `ACTION: Фильм c tmdbID:${movie.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${movie.id}.`,
       );
       return movie.id;
     }
     movieLogger.info(
-      { tmdbID: +oldMovie.external_ids.tmdb, wastedId: oldMovie.id },
+      { tmdbID: oldMovie.external_ids.tmdb, wastedId: oldMovie.id },
       `ACTION: Фильм c tmdbID:${oldMovie.external_ids.tmdb} уже существует под id:${oldMovie.id}.`,
     );
     return oldMovie.id;
@@ -127,7 +127,7 @@ class MovieService {
     }
     await this.syncRatings(model);
     movieLogger.info(
-      { wastedId: movie.id },
+      { wastedId: movie.id, tmdbID: model.id },
       `ACTION: Фильм c id:${movie.id} был обновлен.`,
     );
     return syncMovie;
@@ -210,13 +210,13 @@ class MovieService {
       },
     );
     movieLogger.info(
-      { wastedId: movie.id },
+      { wastedId: movie.id, tmdbID: model.id },
       `ACTION: Рейтинг фильма с id:${movie.id} обновлен.`,
     );
   }
 
   async getLastMovieTMDBId(): Promise<number> {
-    const lastMovieId = await Movie.findOne({}, 'external_ids.tmdb').sort({
+    const lastMovieId = await Movie.findOne().sort({
       'external_ids.tmdb': -1,
     });
     if (!lastMovieId) {

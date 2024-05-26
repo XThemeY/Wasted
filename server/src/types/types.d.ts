@@ -14,7 +14,16 @@ export type Rating = {
   vote_count: number;
 };
 
-export type Ratings = { [key: string]: Rating };
+export type WastedRating = {
+  beer: number;
+  favorite: number;
+  good: number;
+  pokerface: number;
+  poop: number;
+  vote_count: number;
+};
+
+export type Ratings = { [key: string]: Rating | WastedRating };
 
 export type Reaction = { value: number; vote_count: number };
 
@@ -39,7 +48,7 @@ export type UserRating = {
   showId?: number;
   episodeId?: number;
   seasonNumber?: number;
-  rating: Rating;
+  rating: WastedRating;
 };
 
 export type UserReaction = {
@@ -60,6 +69,7 @@ export type WastedItem = {
   itemId: number;
   status?: string;
   watch_count: number;
+  seasonNumber?: number;
   watchedAt?: Date;
   playedAt?: Date;
   playedCount?: number;

@@ -17,21 +17,24 @@ import type {
 import type { EpisodeShort } from '#utils/dtos/episodeDto';
 import { WastedItem } from '#types/types';
 
-interface IMediaUpdate {
+interface IGeneralUpdate {
   title: string;
   title_original: string;
+  description: string;
+  description_original: string;
+}
+
+interface IMediaUpdate extends IGeneralUpdate {
   images: IImages;
   genres: IGenreModel[];
   countries: ICountryModel[];
   tags: ITagModel[];
-  description: string;
-  description_original: string;
   production_companies: IProdCompanyModel[];
   external_ids: IExternalIds;
 }
+
 export interface IMovieUpdate extends IMediaUpdate {
   release_date: Date;
-  type: string;
   duration: number;
 }
 
@@ -39,14 +42,20 @@ export interface IShowUpdate extends IMediaUpdate {
   start_date: Date;
   end_date: Date;
   status: string;
-  type: string;
 }
 
-export interface ISeasonUpdate extends IMediaUpdate {
+interface ISubMediaUpdate extends IGeneralUpdate {
   poster_url: string;
-  season_number: number;
-  episode_count: number;
   air_date: Date;
+}
+
+export interface ISeasonUpdate extends ISubMediaUpdate {
+  episodes: EpisodeShort[];
+}
+
+export interface IEpisodeUpdate extends ISubMediaUpdate {
+  episode_type: string;
+  duration: number;
 }
 
 export interface IErrMsg {

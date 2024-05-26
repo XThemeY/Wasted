@@ -27,7 +27,7 @@ class TVShowService {
       return;
     }
     showLogger.info(
-      { tmdbID: +show.external_ids.tmdb, wastedId: show.id },
+      { tmdbID: show.external_ids.tmdb, wastedId: show.id },
       `ACTION: Шоу c tmdbID:${show.external_ids.tmdb} уже существует в базе данных под id:${show.id}`,
     );
     return show;
@@ -67,6 +67,10 @@ class TVShowService {
         },
         popularity: model.popularity,
       });
+      showLogger.info(
+        { tmdbID: show.external_ids.tmdb, wastedId: show.id },
+        `ACTION: Шоу c tmdbID:${show.external_ids.tmdb} было создано под id:${show.id}.`,
+      );
       await TVShow.updateOne(
         { 'external_ids.tmdb': model.id },
         {
@@ -97,13 +101,13 @@ class TVShowService {
       );
       await setShowDuration(show.id);
       showLogger.info(
-        { tmdbID: +show.external_ids.tmdb, wastedId: show.id },
+        { tmdbID: show.external_ids.tmdb, wastedId: show.id },
         `ACTION: Шоу c tmdbID:${show.external_ids.tmdb} из ${latestTMDBId || ''} был добавлен в базу под id:${show.id}.`,
       );
       return;
     }
     showLogger.info(
-      { tmdbID: +oldShow.external_ids.tmdb, wastedId: oldShow.id },
+      { tmdbID: oldShow.external_ids.tmdb, wastedId: oldShow.id },
       `Шоу c tmdbID:${oldShow.external_ids.tmdb} уже существует в базе данных под id:${oldShow.id}`,
     );
   }
@@ -161,7 +165,7 @@ class TVShowService {
     }
     await this.syncRatings(model);
     showLogger.info(
-      { wastedId: show.id },
+      { wastedId: show.id, tmdbID: model.id },
       `ACTION: Шоу c id:${show.id} было обновлено.`,
     );
     return syncShow;
@@ -233,17 +237,17 @@ class TVShowService {
       },
     );
     showLogger.info(
-      { wastedId: model.id },
+      { wastedId: show.id, tmdbID: model.id },
       `ACTION: Рейтинг шоу с id:${show.id} обновлен.`,
     );
   }
 
   async getLastShowId(): Promise<number> {
-    const lastShowId = await TVShow.findOne().sort({ $natural: -1 });
+    const lastShowId = await TVShow.findOne().sort({ 'external_ids.tmdb': -1 });
     if (!lastShowId) {
       return 0;
     }
-    return +lastShowId.external_ids.tmdb + 1;
+    return lastShowId.external_ids.tmdb;
   }
 
   // async delShowFromDb(show_id) {

@@ -11,7 +11,6 @@ import {
 } from '#config/index.js';
 import type { NextFunction, Response, Request } from 'express';
 import { Movie } from '#utils/dtos/index.js';
-import ApiError from '#utils/apiError';
 import type {
   IErrMsg,
   IMovieSearchResult,

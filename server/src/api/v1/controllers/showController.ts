@@ -1,5 +1,4 @@
 import { showService, wastedHistoryService } from '#services/index.js';
-import ApiError from '#utils/apiError.js';
 import {
   getGenreOptions,
   getСountryOptions,
@@ -15,6 +14,7 @@ import type {
   IErrMsg,
   ISearchQuery,
   IShowSearchResult,
+  IShowUpdate,
 } from '#interfaces/IApp';
 import { Show } from '#utils/dtos/showDto';
 
@@ -27,11 +27,24 @@ class ShowController {
     try {
       const { id } = req.params;
       const tvShow = await showService.getShow(+id);
-      if (!tvShow) {
-        return next(ApiError.BadRequest(`Шоу с таким id:${id} не существует`));
-      }
       const response = new Show(tvShow);
       res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateShow(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<Show> | void> {
+    try {
+      const { id } = req.params;
+      const options = req.body as IShowUpdate;
+      const season = await showService.updateShow(+id, options);
+      const response = new Show(season);
+      return res.json(response);
     } catch (e) {
       next(e);
     }

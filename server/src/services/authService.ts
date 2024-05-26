@@ -30,10 +30,10 @@ class AuthService {
       'settings.userRoles': [roles.role],
       authentication: { password: hashPassword, activationLink },
     });
-    await mailService.sendActivaionLink(
-      email,
-      `${process.env.CLIENT_URL}/auth/activate/${activationLink}`,
-    );
+    // await mailService.sendActivaionLink(
+    //   email,
+    //   `${process.env.CLIENT_URL}/auth/activate/${activationLink}`,
+    // );
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto._id, tokens.refreshToken);

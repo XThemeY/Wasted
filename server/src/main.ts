@@ -17,6 +17,7 @@ import favicon from 'serve-favicon';
 import path from 'path';
 import __dirname from '#utils/__dirname.js';
 import { errors } from 'celebrate';
+import { Role } from '#database/models';
 
 const PORT = process.env.PORT || 8010;
 const appLogger = logger(logNames.app);
@@ -66,7 +67,25 @@ const connectDB = async (): Promise<void> => {
   }
 };
 
+const createRoles = async (): Promise<void> => {
+  try {
+    await Role.findOneAndUpdate(
+      { role: 'User' },
+      { role: 'User' },
+      { upsert: true },
+    );
+    await Role.findOneAndUpdate(
+      { role: 'Admin' },
+      { role: 'Admin' },
+      { upsert: true },
+    );
+  } catch (error) {
+    appLogger.error('Roles creating failed with error:', error);
+  }
+};
+
 app.listen(PORT, () => {
   appLogger.info(`Server started on port ${PORT}`);
   connectDB();
+  createRoles();
 });

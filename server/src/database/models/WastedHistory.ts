@@ -32,6 +32,7 @@ const wastedHistory = new Schema(
         watchedEpisodes: [
           {
             itemId: Number,
+            seasonNumber: Number,
             watchedAt: { type: Date, default: Date.now },
             watchCount: { type: Number, default: 1 },
           },

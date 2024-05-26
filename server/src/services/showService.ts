@@ -22,6 +22,7 @@ class TVShowService {
         },
       })
       .exec();
+    if (!show) throw ApiError.BadRequest(`Шоу с таким id:${id} не существует`);
     return show;
   }
 
@@ -33,6 +34,7 @@ class TVShowService {
     )
       .populate(showPopFields)
       .exec();
+    if (!show) throw ApiError.BadRequest(`Шоу с таким id:${id} не существует`);
     return show;
   }
 

@@ -183,7 +183,7 @@ async function addPeople(
 
     fieldsLogger.info(
       { peopleId: newPeople.id },
-      `${logs.type}: ${logs.index} из ${logs.length - 1} был добавлен`,
+      `${logs.type}: ${logs.index + 1} из ${logs.length} был добавлен`,
     );
   }
 
@@ -331,12 +331,36 @@ export async function getSeasons(
         seasons[i].poster_path,
       );
       fieldsLogger.info(
-        { showId: newSeason.show_id, seasonId: newSeason.id },
-        `Season: ${i} из ${seasons.length - 1} шоу с id:${id} добавлен`,
+        {
+          showId: newSeason.show_id,
+          seasonId: newSeason.id,
+          tmdbID,
+          season: newSeason.season_number,
+        },
+        `Season: ${i + 1} из ${seasons.length} шоу с id:${id} добавлен`,
+      );
+    } else {
+      fieldsLogger.info(
+        {
+          showId: newSeason.show_id,
+          seasonId: newSeason.id,
+          tmdbID,
+          season: newSeason.season_number,
+        },
+        `Season: ${i + 1} из ${seasons.length} шоу с id:${id} уже существует`,
       );
     }
     newSeason.episodes = await getEpisodes(id, tmdbID, newSeason.season_number);
     await newSeason.save();
+    fieldsLogger.info(
+      {
+        showId: newSeason.show_id,
+        seasonId: newSeason.id,
+        tmdbID,
+        season: newSeason.season_number,
+      },
+      `Эпизоды сезона: ${i + 1} сохранены`,
+    );
     newSeasons.push(newSeason._id);
   }
   return newSeasons;
@@ -386,7 +410,24 @@ async function getEpisodes(
         );
         await newEpisode.save();
         fieldsLogger.info(
-          `Episode c id:${newEpisode.id}: № ${i} из ${episodes.length - 1} шоу с id:${id} добавлен`,
+          {
+            showId: id,
+            episodeId: newEpisode.id,
+            season: newEpisode.season_number,
+            episode: newEpisode.episode_number,
+          },
+          `Episode c id:${newEpisode.id}: № ${i + 1} из ${episodes.length} шоу с id:${id} добавлен`,
+        );
+      } else {
+        fieldsLogger.info(
+          {
+            showId: id,
+            episodeId: newEpisode.id,
+            tmdbID,
+            season: newEpisode.season_number,
+            episode: newEpisode.episode_number,
+          },
+          `Эпизод c id:${newEpisode.id}: № ${i + 1} из ${episodes.length} шоу с id:${id} уже существует`,
         );
       }
       newEpisodes.push(newEpisode._id);

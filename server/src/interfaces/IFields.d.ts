@@ -1,9 +1,15 @@
 import type { Types } from 'mongoose';
 import type { JwtPayload } from 'jsonwebtoken';
 import type { IPeopleModel } from './IModel';
-import type { Rating, Ratings, Reaction, Reactions } from '#types/types';
+import type {
+  Rating,
+  Ratings,
+  Reaction,
+  Reactions,
+  WastedRating,
+} from '#types/types';
 export interface IRatings extends Ratings {
-  wasted: Rating;
+  wasted: WastedRating;
   tmdb: Rating;
   imdb: Rating;
   kinopoisk: Rating;

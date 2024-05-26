@@ -4,37 +4,25 @@ import { Episode, Movie, TVShow, WastedHistory } from '#db/models/index.js';
 import { movieService, showService, episodeService } from '#services/index.js';
 import ApiError from '#utils/apiError.js';
 import { UserWastedHistory } from '#utils/dtos/index.js';
+import type { Types } from 'mongoose';
 
 class WastedHistoryService {
   async setMediaWasted(
     username: string,
     mediaId: number,
     status: string,
-    mediaType: 'movie' | 'show' | 'episode',
+    mediaType: 'movie' | 'show',
   ): Promise<IWastedResponse> {
-    let isExists, service, mediaKey, showId, isWastedQuery, showQuery;
+    let isExists: { _id: Types.ObjectId },
+      service: typeof showService | typeof movieService,
+      mediaKey: string,
+      isWastedQuery;
 
     const validMovieStatuses = ['watched', 'willWatch', 'notWatched'];
-    const validShowStatuses = [
-      'watched',
-      'willWatch',
-      'dropped',
-      'notWatched',
-      'watching',
-    ];
-    const validEpisodeStatuses = ['watched', 'notWatched'];
 
     if (mediaType === 'movie') {
       if (!validMovieStatuses.includes(status)) {
         throw ApiError.BadRequest(`Invalid status for movie: ${status}`);
-      }
-    } else if (mediaType === 'show') {
-      if (!validShowStatuses.includes(status)) {
-        throw ApiError.BadRequest(`Invalid status for show: ${status}`);
-      }
-    } else if (mediaType === 'episode') {
-      if (!validEpisodeStatuses.includes(status)) {
-        throw ApiError.BadRequest(`Invalid status for episode: ${status}`);
       }
     }
 
@@ -51,20 +39,6 @@ class WastedHistoryService {
         mediaKey = 'tvShows';
         isWastedQuery = { username, 'tvShows.itemId': mediaId };
         break;
-      case 'episode':
-        isExists = await Episode.exists({ id: mediaId });
-        if (isExists) {
-          const episode = await Episode.findOne({ id: mediaId });
-          showId = episode?.show_id;
-        }
-        service = episodeService;
-        mediaKey = 'tvShows';
-        isWastedQuery = {
-          username,
-          'tvShows.watchedEpisodes.itemId': mediaId,
-        };
-        showQuery = { username, 'tvShows.itemId': showId };
-        break;
       default:
         throw ApiError.BadRequest('Invalid media type');
     }
@@ -76,51 +50,19 @@ class WastedHistoryService {
     }
 
     const isWasted = await WastedHistory.findOne(isWastedQuery, {
-      [`${mediaKey}.$`]: mediaId,
+      [`${mediaKey}.$`]: 1,
     }).exec();
 
     if (!isWasted) {
-      if (mediaType === 'episode') {
-        const isShowExists = await WastedHistory.exists(showQuery);
-        if (!isShowExists) {
-          await WastedHistory.updateOne(
-            { username },
-            {
-              tvShows: {
-                itemId: showId,
-                status: 'watching',
-              },
-            },
-            { upsert: true, runValidators: true },
-          );
-        }
-        status = 'watched';
-        await WastedHistory.updateOne(
-          showQuery,
-          {
-            $push: {
-              'tvShows.$.watchedEpisodes': [{ itemId: mediaId }],
-            },
+      await WastedHistory.updateOne(
+        { username },
+        {
+          $push: {
+            [mediaKey]: [{ itemId: mediaId, status }],
           },
-          { runValidators: true },
-        );
-      } else {
-        console.log('index2');
-        await WastedHistory.updateOne(
-          { username },
-          {
-            $push: {
-              [mediaKey]: [{ itemId: mediaId, status }],
-            },
-          },
-          { upsert: true, runValidators: true },
-        );
-      }
-    } else if (mediaType === 'episode') {
-      status = 'notWatched';
-      await WastedHistory.updateOne(showQuery, {
-        $pull: { 'tvShows.$.watchedEpisodes': { itemId: mediaId } },
-      });
+        },
+        { upsert: true, runValidators: true },
+      );
     } else if (status === isWasted[mediaKey][0].status) {
       throw ApiError.BadRequest(`Object already has status "${status}"`);
     } else {
@@ -130,10 +72,7 @@ class WastedHistoryService {
         { runValidators: true },
       );
     }
-
     const watch_count = await service.setWatchCount(mediaId);
-    console.log('watch_count', watch_count);
-
     return { username, mediaId, status, watch_count };
   }
 
@@ -180,7 +119,9 @@ class WastedHistoryService {
         { username, 'tvShows.itemId': episode.show_id },
         {
           $push: {
-            'tvShows.$.watchedEpisodes': [{ itemId: episodeId }],
+            'tvShows.$.watchedEpisodes': [
+              { itemId: episodeId, seasonNumber: episode.season_number },
+            ],
           },
         },
         { runValidators: true },
@@ -222,7 +163,50 @@ class WastedHistoryService {
     return wastedIds;
   }
 
-  async getUserWastedHistory(username: string): Promise<IUserWastedHistory> {
+  async getUserWastedHistory(
+    username: string,
+    media_id?: number,
+    type?: 'movie' | 'show' | 'game',
+    season_number?: number,
+  ): Promise<IUserWastedHistory> {
+    if (type) {
+      let mediaKey: string;
+      if (type === 'movie') {
+        mediaKey = 'movies';
+      } else if (type === 'show') {
+        mediaKey = 'tvShows';
+      } else {
+        mediaKey = 'games';
+      }
+      console.log('media_id', media_id);
+      console.log('season_number', season_number);
+
+      if (season_number) {
+        const userHistory = await WastedHistory.findOne(
+          {
+            username,
+            tvShows: {
+              $elemMatch: {
+                itemId: media_id,
+                'watchedEpisodes.seasonNumber': season_number,
+              },
+            },
+          },
+          {
+            'tvShows.watchedEpisodes.$': 1,
+          },
+        ).exec();
+        console.log(userHistory);
+        return new UserWastedHistory(userHistory);
+      }
+      const userHistory = await WastedHistory.findOne(
+        { username, [`${mediaKey}.itemId`]: media_id },
+        { [`${mediaKey}.$`]: 1 },
+      ).exec();
+      console.log(userHistory);
+
+      return new UserWastedHistory(userHistory);
+    }
     const userHistory = await WastedHistory.findOne({ username }).exec();
     return new UserWastedHistory(userHistory);
   }
