@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { movieController } from '#api/v1/controllers/index.js';
+import {
+  favoriteController,
+  movieController,
+  wastedHistoryController,
+} from '#api/v1/controllers/index.js';
 import {
   cookieParseMiddleware,
   exploreValidMiddleware,
@@ -8,6 +12,8 @@ import {
   reactionsValidMiddleware,
   authMiddleware,
   roleMiddleware,
+  wastedValidMiddleware,
+  favValidMiddleware,
 } from '#middleware/index.js';
 import { ROLES } from '#config/index.js';
 
@@ -21,25 +27,38 @@ router.get(
   movieController.exploreMovies,
 );
 router.get(`/${idRegExp}`, movieController.getMovie);
+router.post(
+  `/setFavorite`,
+  authMiddleware,
+  favValidMiddleware(),
+  favoriteController.setMovieFav,
+);
 router.patch(
-  `/${idRegExp}`,
+  `/update`,
   authMiddleware,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
   updateValidMiddleware(),
   movieController.updateMovie,
 );
 router.post(
-  `/${idRegExp}/rating`,
+  `/setRating`,
   authMiddleware,
   ratingValidMiddleware(),
   movieController.setMovieRating,
 );
 
 router.post(
-  `/${idRegExp}/reaction`,
+  `/setReaction`,
   authMiddleware,
   reactionsValidMiddleware(),
   movieController.setMovieReaction,
+);
+
+router.post(
+  `/setWasted`,
+  authMiddleware,
+  wastedValidMiddleware(),
+  wastedHistoryController.setMediaWasted,
 );
 
 export default router;

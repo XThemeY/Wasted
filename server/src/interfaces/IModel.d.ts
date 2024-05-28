@@ -180,3 +180,10 @@ export interface IWastedHistoryModel {
   tvShows: WastedItem[];
   games: WastedItem[];
 }
+
+export interface IFavoriteModel {
+  username: string;
+  movies: [number];
+  tvShows: { shows: [number]; episodes: [number] };
+  games: [number];
+}

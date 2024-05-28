@@ -1,8 +1,15 @@
 import { Episode, Movie, TVShow, Favorites } from '#db/models/index.js';
+import type { IFavoriteModel } from '#interfaces/IModel';
 import ApiError from '#utils/apiError.js';
 
 class FavoriteService {
-  async setMovieFav(username, itemId) {
+  async setMovieFav(
+    username: string,
+    itemId: number,
+  ): Promise<{
+    status: string;
+    message: string;
+  }> {
     const isFav = await Favorites.exists({
       username,
       movies: itemId,
@@ -31,7 +38,13 @@ class FavoriteService {
     };
   }
 
-  async setShowFav(username, itemId) {
+  async setShowFav(
+    username: string,
+    itemId: number,
+  ): Promise<{
+    status: string;
+    message: string;
+  }> {
     const isFav = await Favorites.exists({
       username,
       'tvShows.shows': itemId,
@@ -63,7 +76,13 @@ class FavoriteService {
     };
   }
 
-  async setEpisodeFav(username, episodeId) {
+  async setEpisodeFav(
+    username: string,
+    episodeId: number,
+  ): Promise<{
+    status: string;
+    message: string;
+  }> {
     const isFav = await Favorites.exists({
       username,
       'tvShows.episodes': episodeId,
@@ -93,6 +112,12 @@ class FavoriteService {
       status: 'del',
       message: `Эпизод с id:${episodeId} удален из Избранного`,
     };
+  }
+
+  async getFavorites(username: string): Promise<IFavoriteModel> {
+    const favs = await Favorites.findOne({ username });
+    if (!favs) throw ApiError.BadRequest(`Список избранного пуст`);
+    return favs;
   }
 }
 

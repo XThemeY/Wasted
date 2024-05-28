@@ -9,3 +9,4 @@ export { default as userService } from './userService.js';
 export { default as wastedHistoryService } from './wastedHistoryService.js';
 export { default as seasonService } from './seasonService.js';
 export { default as commentService } from './commentService.js';
+export { default as uploadService } from './uploadService.js';

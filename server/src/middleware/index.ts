@@ -16,6 +16,10 @@ export {
   ratingValidMiddleware,
   reactionsValidMiddleware,
   wastedValidMiddleware,
+  favValidMiddleware,
+  commentsValidMiddleware,
+  editCommentValidMiddleware,
+  delResCommentValidMiddleware,
 } from './validations/validationMiddleware.js';
 export {
   fileUploadValidation,

@@ -64,8 +64,8 @@ export const exploreValidMiddleware = (): RequestHandler => {
 
 export const updateValidMiddleware = (): RequestHandler => {
   return celebrate({
-    [Segments.PARAMS]: Joi.object().keys({ id: Joi.number().required() }),
     [Segments.BODY]: Joi.object().keys({
+      id: Joi.number().min(1),
       title: Joi.string(),
       title_original: Joi.string(),
       images: Joi.object().keys({
@@ -96,23 +96,25 @@ export const updateValidMiddleware = (): RequestHandler => {
 
 export const ratingValidMiddleware = (): RequestHandler => {
   return celebrate({
-    [Segments.PARAMS]: Joi.object().keys({
-      id: Joi.number(),
-      episodeId: Joi.number(),
-    }),
     [Segments.BODY]: Joi.object().keys({
+      id: Joi.number().min(1).required(),
       rating: Joi.number().min(1).max(5).required(),
+    }),
+  });
+};
+
+export const favValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      id: Joi.number().min(1).required(),
     }),
   });
 };
 
 export const reactionsValidMiddleware = (): RequestHandler => {
   return celebrate({
-    [Segments.PARAMS]: Joi.object().keys({
-      id: Joi.number(),
-      episodeId: Joi.number(),
-    }),
     [Segments.BODY]: Joi.object().keys({
+      id: Joi.number().min(1).required(),
       reactions: Joi.array()
         .items(...Object.keys(mediaReactions))
         .unique()
@@ -124,8 +126,8 @@ export const reactionsValidMiddleware = (): RequestHandler => {
 export const wastedValidMiddleware = (): RequestHandler => {
   return celebrate({
     [Segments.BODY]: Joi.object().keys({
-      mediaId: Joi.number(),
-      mediaType: Joi.string().valid('show', 'movie', 'episode'),
+      id: Joi.number().min(1).required(),
+      mediaType: Joi.string().valid('show', 'movie'),
       status: Joi.string().valid(
         'watched',
         'willWatch',
@@ -133,6 +135,39 @@ export const wastedValidMiddleware = (): RequestHandler => {
         'notWatched',
         'watching',
       ),
+    }),
+  });
+};
+
+export const commentsValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      comment_id: Joi.number().min(1),
+      comment_body: Joi.string(),
+      images_url: Joi.array().items(Joi.string()),
+      type: Joi.string()
+        .valid('movie', 'tvshow', 'season', 'episode')
+        .required(),
+      media_id: Joi.number().min(1).required(),
+      parent_comments_id: Joi.number().min(1),
+    }),
+  });
+};
+
+export const editCommentValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      comment_id: Joi.number().min(1).required(),
+      comment_body: Joi.string().required(),
+      images_url: Joi.array().items(Joi.string()),
+    }),
+  });
+};
+
+export const delResCommentValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().min(1).required(),
     }),
   });
 };

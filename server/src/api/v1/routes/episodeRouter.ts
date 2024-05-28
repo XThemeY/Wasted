@@ -1,11 +1,15 @@
 import { Router } from 'express';
-import { episodeController } from '#api/v1/controllers/index.js';
+import {
+  episodeController,
+  wastedHistoryController,
+} from '#api/v1/controllers/index.js';
 import {
   authMiddleware,
   ratingValidMiddleware,
   reactionsValidMiddleware,
   roleMiddleware,
   updateValidMiddleware,
+  wastedValidMiddleware,
 } from '#middleware/index.js';
 import { ROLES } from '#config';
 
@@ -14,22 +18,29 @@ const idRegExp = ':id(\\d+)';
 
 router.get(`/${idRegExp}`, episodeController.getEpisode);
 router.patch(
-  `/${idRegExp}`,
+  `/update`,
   authMiddleware,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
   updateValidMiddleware(),
   episodeController.updateEpisode,
 );
 router.post(
-  `/${idRegExp}/rating`,
+  `/setRating`,
   authMiddleware,
   ratingValidMiddleware(),
   episodeController.setEpisodeRating,
 );
 router.post(
-  `/${idRegExp}/reaction`,
+  `/setReaction`,
   authMiddleware,
   reactionsValidMiddleware(),
   episodeController.setEpisodeReaction,
+);
+
+router.post(
+  `/setWasted`,
+  authMiddleware,
+  wastedValidMiddleware(),
+  wastedHistoryController.setEpisodeWasted,
 );
 export default router;

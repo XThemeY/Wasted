@@ -1,3 +1,4 @@
+import type { IFavoriteModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const favorites = new Schema(
@@ -17,6 +18,6 @@ const favorites = new Schema(
   },
 );
 
-const Favorites = model('Favorites', favorites);
+const Favorites = model<IFavoriteModel>('Favorites', favorites);
 
 export default Favorites;

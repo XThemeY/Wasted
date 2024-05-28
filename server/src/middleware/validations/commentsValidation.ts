@@ -9,6 +9,7 @@ import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
 import __dirname from '#utils/__dirname.js';
+import type { NextFunction, Request, Response } from 'express';
 
 const Counters = mongoose.connection.collection('counters');
 const urlPath = 'public/uploads/';
@@ -19,41 +20,43 @@ if (!fs.existsSync(uploadPath)) {
 }
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (req, file, cb) => {
     cb(null, urlPath);
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
     const ext = mime.extension(file.mimetype);
     cb(null, `${file.fieldname}--${nanoid()}.${ext}`);
   },
 });
 
-const fileFilter = async (req, file, cb) => {
+const fileFilter = async (
+  req: Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback,
+): Promise<void> => {
   const { type, media_id } = req.body;
-  const ext = mime.extension(file.mimetype);
-  if (req.method === 'PATCH') {
-    if (!ext.match(/(jpg|jpeg|png|gif|webp)$/)) {
-      return cb(ApiError.BadRequest('Only images are allowed'), false);
+  const ext = mime.extension(file.mimetype) as string;
+
+  if (!RegExp(/(jpg|jpeg|png|gif|webp)$/).exec(ext)) {
+    return cb(ApiError.BadRequest('Only images are allowed'));
+  }
+
+  if (req.method !== 'PATCH') {
+    if (!commentMediaTypes.includes(type)) {
+      return cb(
+        ApiError.BadRequest(
+          `Поле "type" должно иметь одно из значений: ${commentMediaTypes}`,
+        ),
+      );
     }
-    req.fieldsIsValid = true;
-    return cb(null, true);
+    const counter = await Counters.findOne({ _id: `${type}id` });
+    if (media_id > counter.seq) {
+      return cb(
+        ApiError.BadRequest(`Объекта из "${type}" с таким id не существует.`),
+      );
+    }
   }
-  if (!commentMediaTypes.includes(type)) {
-    return cb(
-      ApiError.BadRequest(
-        `Поле "type" должно иметь одно из значений: ${commentMediaTypes}`,
-      ),
-    );
-  }
-  const counter = await Counters.findOne({ _id: `${type}id` });
-  if (media_id > counter.seq) {
-    return cb(
-      ApiError.BadRequest(`Объекта из "${type}" с таким id не существует.`),
-    );
-  }
-  if (!ext.match(/(jpg|jpeg|png|gif|webp)$/)) {
-    return cb(ApiError.BadRequest('Only images are allowed'), false);
-  }
+
   req.fieldsIsValid = true;
   cb(null, true);
 };
@@ -64,41 +67,53 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * serverSettings.maxImgFileSize },
 }).array('images', 5);
 
-export const fileUploadValidation = async (req, res, next) => {
+export const fileUploadValidation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   upload(req, res, (err) => {
+    if (err) {
+      return next(ApiError.BadRequest('Не удалось загрузить файл', err));
+    }
     try {
       const { files } = req;
-      req.files = files?.map((item) => {
-        const ext = mime.extension(item.mimetype);
-        if (ext.match(/(gif)$/)) {
-          return item;
-        }
-        const newFilePath = path.join(
-          uploadPath,
-          item.fieldname + '--' + nanoid() + `.${ext}`,
-        );
-        sharp(item.path)
-          .jpeg({ quality: 40 })
-          .webp({ quality: 40 })
-          .png({ quality: 40 })
-          .toFile(newFilePath)
-          .then(() => {
-            fs.unlinkSync(item.path);
-          });
+      if (files) {
+        req.files = files.map((item) => {
+          const ext = mime.extension(item.mimetype) as string;
+          if (!RegExp(/(gif)$/).exec(ext)) {
+            const newFilePath = path.join(
+              uploadPath,
+              item.fieldname + '--' + nanoid() + `.${ext}`,
+            );
+            sharp(item.path)
+              .jpeg({ quality: 40 })
+              .webp({ quality: 40 })
+              .png({ quality: 40 })
+              .toFile(newFilePath)
+              .then(() => {
+                fs.unlinkSync(item.path);
+              });
+            item.path = newFilePath;
+          }
 
-        item.path = newFilePath;
-        return item;
-      });
+          return item;
+        });
+      }
       next();
     } catch (e) {
-      return next(ApiError.BadRequest('Не удалось загрузить файл', e));
+      next(ApiError.BadRequest('Не удалось обработать файл', e));
     }
   });
 };
 
-export const isCommentOwner = async (req, res, next) => {
+export const isCommentOwner = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const commentId = req.params.id;
+    const commentId = req.body.comment_id;
     const currentUserName = req.user.username;
     const roles = req.user.userRoles;
 
@@ -106,9 +121,10 @@ export const isCommentOwner = async (req, res, next) => {
       return next(ApiError.Forbidden());
     }
 
-    if (roles.includes([ROLES.ADMIN, ROLES.MODERATOR])) {
+    if (roles.includes(ROLES.ADMIN) || roles.includes(ROLES.MODERATOR)) {
       return next();
     }
+
     await commentService.getComment(commentId, currentUserName);
     next();
   } catch (e) {
@@ -116,34 +132,38 @@ export const isCommentOwner = async (req, res, next) => {
   }
 };
 
-export const commentsFormValidation = async (req, res, next) => {
+export const commentsFormValidation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { type, media_id, comment_body } = req.body;
-    const isCommentEmpty = comment_body?.trim() !== '';
-    if (req.method === 'PATCH') {
-      return !isCommentEmpty
-        ? next(ApiError.BadRequest('Комментарий не должен быть пустым'))
-        : next();
+
+    if (!comment_body?.trim()) {
+      return next(ApiError.BadRequest('Комментарий не должен быть пустым'));
     }
 
-    if (!req.fieldsIsValid) {
-      if (!isCommentEmpty) {
-        return next(ApiError.BadRequest('Комментарий не должен быть пустым'));
-      }
-      if (!commentMediaTypes.includes(type)) {
-        return next(
-          ApiError.BadRequest(
-            `Поле "type" должно иметь одно из значений: ${commentMediaTypes}`,
-          ),
-        );
-      }
-      const counter = await Counters.findOne({ _id: `${type}id` });
-      if (media_id > counter.seq) {
-        return next(
-          ApiError.BadRequest(`Объекта из "${type}" с таким id не существует.`),
-        );
+    if (req.method !== 'PATCH') {
+      if (!req.fieldsIsValid) {
+        if (!commentMediaTypes.includes(type)) {
+          return next(
+            ApiError.BadRequest(
+              `Поле "type" должно иметь одно из значений: ${commentMediaTypes}`,
+            ),
+          );
+        }
+        const counter = await Counters.findOne({ _id: `${type}id` });
+        if (media_id > counter.seq) {
+          return next(
+            ApiError.BadRequest(
+              `Объекта из "${type}" с таким id не существует.`,
+            ),
+          );
+        }
       }
     }
+
     next();
   } catch (e) {
     return next(ApiError.BadRequest(`Ошибка запроса.`));

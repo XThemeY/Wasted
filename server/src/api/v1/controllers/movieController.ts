@@ -43,9 +43,9 @@ class MovieController {
     next: NextFunction,
   ): Promise<Response<Movie> | void> {
     try {
-      const { id } = req.params;
-      const options = req.body as IMovieUpdate;
-      const movie = await movieService.updateMovie(+id, options);
+      const id = +req.body.id;
+      const options = req.body.options as IMovieUpdate;
+      const movie = await movieService.updateMovie(id, options);
       const response = new Movie(movie);
       return res.json(response);
     } catch (e) {
@@ -109,9 +109,9 @@ class MovieController {
     next: NextFunction,
   ): Promise<Response<RatingRes> | void> {
     try {
-      const id = +req.params.id;
+      const id = +req.body.id;
       const username = req.user.username;
-      const rating = getRatingOptions(req.body.rating);
+      const rating = await getRatingOptions(req.body.rating);
       const userRating = await movieService.setRating(username, id, rating);
       const totalRating = await movieService.setTotalRating(id);
       const response = {
@@ -130,7 +130,7 @@ class MovieController {
     next: NextFunction,
   ): Promise<Response<ReactionRes> | void> {
     try {
-      const id = +req.params.id;
+      const id = +req.body.id;
       const username = req.user.username;
       const reactions = req.body.reactions as string[];
       const userReactions = await movieService.setMovieReactions(

@@ -167,7 +167,6 @@ class WastedHistoryService {
     username: string,
     media_id?: number,
     type?: 'movie' | 'show' | 'game',
-    season_number?: number,
   ): Promise<IUserWastedHistory> {
     if (type) {
       let mediaKey: string;
@@ -179,26 +178,7 @@ class WastedHistoryService {
         mediaKey = 'games';
       }
       console.log('media_id', media_id);
-      console.log('season_number', season_number);
 
-      if (season_number) {
-        const userHistory = await WastedHistory.findOne(
-          {
-            username,
-            tvShows: {
-              $elemMatch: {
-                itemId: media_id,
-                'watchedEpisodes.seasonNumber': season_number,
-              },
-            },
-          },
-          {
-            'tvShows.watchedEpisodes.$': 1,
-          },
-        ).exec();
-        console.log(userHistory);
-        return new UserWastedHistory(userHistory);
-      }
       const userHistory = await WastedHistory.findOne(
         { username, [`${mediaKey}.itemId`]: media_id },
         { [`${mediaKey}.$`]: 1 },

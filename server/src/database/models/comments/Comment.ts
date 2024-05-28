@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { Counter } from '#db/models/index.js';
+import type { ICommentModel } from '#interfaces/IModel';
 
 const commentSchema = new Schema(
   {
@@ -89,6 +90,6 @@ commentSchema.pre('save', async function (next) {
   next();
 });
 
-const Comment = model('Comment', commentSchema);
+const Comment = model<ICommentModel>('Comment', commentSchema);
 
 export default Comment;

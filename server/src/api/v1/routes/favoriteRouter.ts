@@ -4,8 +4,6 @@ import { favoriteController } from '#api/v1/controllers/index.js';
 const router = Router();
 // const idRegExp = ':id(\\d+)';
 
-router.post(`/movies`, favoriteController.setMovieFav);
-router.post(`/shows`, favoriteController.setShowFav);
-router.post(`/episodes`, favoriteController.setEpisodeFav);
+router.get(`/`, favoriteController.getFavorites);
 
 export default router;

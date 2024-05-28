@@ -1,33 +1,60 @@
 import { favoriteService } from '#services/index.js';
+import type { Request, Response, NextFunction } from 'express';
 
 class FavoritesController {
-  async setMovieFav(req, res, next) {
+  async setMovieFav(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
     try {
-      const { movieId } = req.body;
+      const id = +req.body.id;
       const username = req.user.username;
-      const response = await favoriteService.setMovieFav(username, movieId);
+      const response = await favoriteService.setMovieFav(username, id);
       return res.json(response);
     } catch (e) {
       next(e);
     }
   }
 
-  async setShowFav(req, res, next) {
+  async setShowFav(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
     try {
-      const { showId } = req.body;
+      const id = +req.body.id;
       const username = req.user.username;
-      const response = await favoriteService.setShowFav(username, showId);
+      const response = await favoriteService.setShowFav(username, id);
       return res.json(response);
     } catch (e) {
       next(e);
     }
   }
 
-  async setEpisodeFav(req, res, next) {
+  async setEpisodeFav(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
     try {
-      const { episodeId } = req.body;
+      const id = +req.body.id;
       const username = req.user.username;
-      const response = await favoriteService.setEpisodeFav(username, episodeId);
+      const response = await favoriteService.setEpisodeFav(username, id);
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getFavorites(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const username = req.user.username;
+      const response = await favoriteService.getFavorites(username);
       return res.json(response);
     } catch (e) {
       next(e);

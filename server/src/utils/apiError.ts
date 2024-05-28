@@ -25,8 +25,8 @@ export default class ApiError extends Error {
   public static Forbidden(): ApiError {
     return new ApiError(403, 'Access forbidden');
   }
-  public static NotFound(): ApiError {
-    return new ApiError(404, 'Invalid path');
+  public static NotFound(message: string = 'Not Found'): ApiError {
+    return new ApiError(404, message);
   }
   public static InternalServerError(): ApiError {
     return new ApiError(500, 'Internal Server Error');

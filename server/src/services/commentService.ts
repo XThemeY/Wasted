@@ -6,190 +6,153 @@ import {
   CommentsEpisode,
 } from '#db/models/index.js';
 import ApiError from '#utils/apiError.js';
-import { commentMediaTypes } from '#config/index.js';
 import { CommentDto } from '#utils/dtos/index.js';
+import type { ICommentModel, ICommentsMediaModel } from '#interfaces/IModel';
+import type { FilterQuery } from 'mongoose';
+import type { IAddCommentBody } from '#interfaces/IApp';
 
 class CommentService {
-  async getComment(commentId, username) {
-    let comment = {};
-    if (!username) {
-      comment = await Comment.findOne({
-        id: commentId,
-      });
-      if (!comment) {
-        throw ApiError.BadRequest(
-          `Комментарий с таким id:${commentId} не существует`,
-        );
-      }
-      const commentDto = new CommentDto(comment);
-      return commentDto;
+  commentModels = {
+    movie: CommentsMovie,
+    tvshow: CommentsShow,
+    season: CommentsSeason,
+    episode: CommentsEpisode,
+  };
+
+  commentMediaTypes = Object.keys(this.commentModels);
+
+  async getComment(
+    commentId: number,
+    username?: string,
+  ): Promise<ICommentModel> {
+    const query: FilterQuery<ICommentModel> = { id: commentId };
+    if (username) {
+      query.username = username;
     }
-    comment = await Comment.findOne({
-      id: commentId,
-      username,
-    });
+    const comment: ICommentModel | null = await Comment.findOne(query);
     if (!comment) {
-      throw ApiError.BadRequest(
-        `Комментарий с таким id:${commentId} у пользователя: ${username} не существует`,
-      );
+      const errorMessage = username
+        ? `Комментария с таким id:${commentId} у пользователя: ${username} не существует`
+        : `Комментария с таким id:${commentId} не существует`;
+      throw ApiError.BadRequest(errorMessage);
     }
-    const commentDto = new CommentDto(comment);
-    return commentDto;
+    return comment;
   }
 
-  async getUserComments(username) {
+  async getUserComments(username: string): Promise<ICommentModel[]> {
     const comments = await Comment.find({ username });
-    if (!comments) {
+    if (!comments.length) {
       throw ApiError.BadRequest(
-        `Комментарии пользователя с id:${username} не найдены`,
+        `Комментарии пользователя:${username} не найдены`,
       );
     }
     return comments;
   }
 
-  async getComments(media_id, type) {
-    let comments = [];
-    switch (type) {
-      case 'movie':
-        comments = await CommentsMovie.findOne({ media_id });
-        return comments;
-      case 'tvshow':
-        comments = await CommentsShow.findOne({ media_id });
-        return comments;
-      case 'season':
-        comments = await CommentsSeason.findOne({ media_id });
-        return comments;
-      case 'episode':
-        comments = await CommentsEpisode.findOne({ media_id });
-        return comments;
-      default:
-        throw ApiError.BadRequest(
-          `Ошибка запроса. Поле "type" должно иметь одно из значений: [${commentMediaTypes}]`,
-        );
+  async getMediaComments(
+    media_id: number,
+    type: string,
+  ): Promise<ICommentsMediaModel> {
+    const model = this.commentModels[type];
+    if (!model) {
+      throw ApiError.BadRequest(
+        `Ошибка запроса. Поле "type" должно иметь одно из значений: [${this.commentMediaTypes.join(', ')}]`,
+      );
     }
+    const comments = await model.findOne({ media_id }).populate('comments');
+    if (!comments) {
+      throw ApiError.NotFound(
+        `Комментарии для media_id: ${media_id} не найдены`,
+      );
+    }
+    return comments;
   }
 
-  async addComment(body, files, username) {
-    const { type, comment_body, parent_comments_id, media_id } = body;
-    const images_url = files?.map((item) => item.destination + item.filename);
+  async addComment(
+    body: IAddCommentBody,
+    username: string,
+  ): Promise<ICommentModel> {
+    const { type, comment_body, parent_comments_id, media_id, images_url } =
+      body;
 
     if (parent_comments_id) {
-      const isExist = await Comment.exists({
+      const parentCommentExists = await Comment.exists({
         media_id,
         id: parent_comments_id,
       });
-      if (!isExist) {
+      if (!parentCommentExists) {
         throw ApiError.BadRequest('Родительский комментарий не существует');
       }
     }
-    if (type === 'movie') {
-      const comment = await Comment.create({
-        username,
-        media_id,
-        comment_body: comment_body,
-        parent_comments_id: parent_comments_id,
-        images_url: images_url,
-      });
-      await CommentsMovie.findOneAndUpdate(
-        { media_id: media_id },
-        { $push: { comments: comment._id } },
-        { upsert: true },
+    const model = this.commentModels[type];
+    if (!model) {
+      throw ApiError.BadRequest(
+        `Ошибка запроса. Поле "type" должно иметь одно из значений: [${this.commentMediaTypes.join(', ')}]`,
       );
-      const commentDto = new CommentDto(comment);
-      return commentDto;
     }
-    if (type === 'tvshow') {
-      const comment = await Comment.create({
-        username,
-        media_id,
-        comment_body: comment_body,
-        parent_comments_id: parent_comments_id,
-        images_url: images_url,
-      });
-      await CommentsShow.findOneAndUpdate(
-        { media_id: media_id },
-        { $push: { comments: comment._id } },
-        { upsert: true },
-      );
-      const commentDto = new CommentDto(comment);
-      return commentDto;
+
+    const mediaExists = await model.exists({ media_id });
+    if (!mediaExists) {
+      throw ApiError.BadRequest(`Media с id: ${media_id} не существует`);
     }
-    if (type === 'season') {
-      const comment = await Comment.create({
-        username,
-        media_id,
-        comment_body: comment_body,
-        parent_comments_id: parent_comments_id,
-        images_url: images_url,
-      });
-      await CommentsSeason.findOneAndUpdate(
-        { media_id: media_id },
-        { $push: { comments: comment._id } },
-        { upsert: true },
-      );
-      const commentDto = new CommentDto(comment);
-      return commentDto;
-    }
-    if (type === 'episode') {
-      const comment = await Comment.create({
-        username,
-        media_id,
-        comment_body: comment_body,
-        parent_comments_id: parent_comments_id,
-        images_url: images_url,
-      });
-      await CommentsEpisode.findOneAndUpdate(
-        { media_id: media_id },
-        { $push: { comments: comment._id } },
-        { upsert: true },
-      );
-      const commentDto = new CommentDto(comment);
-      return commentDto;
-    }
-    throw ApiError.BadRequest('Не удалось добавить комментарий');
+
+    const comment = await Comment.create({
+      username,
+      media_id,
+      comment_body,
+      parent_comments_id,
+      images_url,
+    });
+
+    await model.updateOne({ media_id }, { $push: { comments: comment._id } });
+
+    return comment;
   }
 
-  async editComment(commentId, comment_body, img_urls, files) {
-    const comment = await Comment.findOne({ id: commentId });
-    if (!comment || comment.isDeleted) {
+  async editComment(
+    commentId: number,
+    comment_body: string,
+    images_url: string[],
+  ): Promise<ICommentModel> {
+    const updatedComment = await Comment.findOneAndUpdate(
+      { id: commentId, isDeleted: { $ne: true } },
+      { comment_body, images_url },
+      { new: true },
+    );
+    if (!updatedComment) {
       throw ApiError.BadRequest(
-        `Комментарий с таким id:${commentId} не существует или удален`,
+        `Комментарий с id:${commentId} не существует или он удален`,
       );
     }
-    comment.comment_body = comment_body;
-    comment.images_url =
-      (files?.length
-        ? img_urls.concat(files.map((item) => item.destination + item.filename))
-        : img_urls) || [];
-    await comment.save();
-    const commentDto = new CommentDto(comment);
-    return commentDto;
+    return updatedComment;
   }
 
-  async delComment(commentId) {
-    const comment = await Comment.findOne({ id: commentId });
-    if (!comment || comment.isDeleted) {
+  async delComment(commentId: number): Promise<ICommentModel> {
+    const delComment = await Comment.findOneAndUpdate(
+      { id: commentId, isDeleted: { $ne: true } },
+      { isDeleted: true },
+      { new: true },
+    );
+    if (!delComment) {
       throw ApiError.BadRequest(
-        `Комментарий с таким id:${commentId} уже удален или не существует`,
+        `Комментария с id:${commentId} не существует или он уже удален`,
       );
     }
-    comment.isDeleted = true;
-    await comment.save();
-    const commentDto = new CommentDto(comment);
-    return commentDto;
+    return delComment;
   }
 
-  async restoreComment(commentId) {
-    const comment = await Comment.findOne({ id: commentId });
-    if (!comment) {
+  async restoreComment(commentId: number): Promise<ICommentModel> {
+    const restoredComment = await Comment.findOneAndUpdate(
+      { id: commentId, isDeleted: true },
+      { isDeleted: false },
+      { new: true },
+    );
+    if (!restoredComment) {
       throw ApiError.BadRequest(
-        `Комментарий с таким id:${commentId}не существует`,
+        `Комментария с id:${commentId} не существует или он не удалён`,
       );
     }
-    comment.isDeleted = false;
-    await comment.save();
-    const commentDto = new CommentDto(comment);
-    return commentDto;
+    return restoredComment;
   }
 
   async setReactionComment() {

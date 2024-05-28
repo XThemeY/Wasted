@@ -27,9 +27,9 @@ class ShowController {
     next: NextFunction,
   ): Promise<Response<EpisodeFull> | void> {
     try {
-      const { id } = req.params;
+      const id = +req.body.id;
       const options = req.body as IEpisodeUpdate;
-      const episode = await episodeService.updateEpisode(+id, options);
+      const episode = await episodeService.updateEpisode(id, options);
       const response = new EpisodeFull(episode);
       return res.json(response);
     } catch (e) {
@@ -43,9 +43,9 @@ class ShowController {
     next: NextFunction,
   ): Promise<Response<RatingRes> | void> {
     try {
-      const id = +req.params.id;
+      const id = +req.body.id;
       const username = req.user.username;
-      const rating = getRatingOptions(req.body.rating);
+      const rating = await getRatingOptions(req.body.rating);
       const userRating = await episodeService.setRating(username, id, rating);
       const episodeRating = await episodeService.setTotalRating(
         userRating.episodeId,
@@ -69,7 +69,7 @@ class ShowController {
     next: NextFunction,
   ): Promise<Response<ReactionRes> | void> {
     try {
-      const id = +req.params.id;
+      const id = +req.body.id;
       const username = req.user.username;
       const reactions = req.body.reactions as string[];
       const userReactions = await episodeService.setEpisodeReactions(

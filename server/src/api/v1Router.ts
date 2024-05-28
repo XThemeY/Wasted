@@ -15,7 +15,6 @@ import {
   authMiddleware,
   isOwner,
   cookieParseMiddleware,
-  wastedValidMiddleware,
 } from '#middleware/index.js';
 
 const router = Router();
@@ -23,19 +22,13 @@ const router = Router();
 router.use('/auth', authRouter);
 router.use('/movies', movieRouter);
 router.use('/shows', tvshowRouter);
-router.use('/comments', cookieParseMiddleware, commentRouter);
 router.use(`/seasons`, seasonRouter);
 router.use(`/episodes`, episodeRouter);
+router.use('/comments', cookieParseMiddleware, commentRouter);
 // router.use('/games', gameRouter);
 router.get('/search', searchController.search);
 router.use('/', userRouter);
 router.use('/:username/favorites', authMiddleware, isOwner, favoriteRouter);
-router.use(
-  '/:username',
-  wastedValidMiddleware(),
-  authMiddleware,
-  isOwner,
-  wastedHistoryRouter,
-);
+router.use('/:username/wasted', authMiddleware, isOwner, wastedHistoryRouter);
 
 export default router;

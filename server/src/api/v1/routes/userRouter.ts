@@ -1,11 +1,19 @@
 import { Router } from 'express';
-import { userController } from '#api/v1/controllers/index.js';
+import {
+  commentController,
+  userController,
+} from '#api/v1/controllers/index.js';
 import { authMiddleware, isOwner } from '#middleware/index.js';
 
 const router = Router();
 
 router.get('/users/', userController.getAllUsers);
 router.get('/:username', userController.getUser);
+router.get(
+  '/:username/comments',
+  authMiddleware,
+  commentController.getUserComments,
+);
 //UserSettings
 router.get(
   `/:username/settings`,

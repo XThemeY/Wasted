@@ -1,5 +1,6 @@
-import { wastedHistoryService } from '#services/index.js';
-import { NextFunction, Request, Response } from 'express';
+import type { IUserWastedHistory } from '#interfaces/IApp';
+import { seasonService, wastedHistoryService } from '#services/index.js';
+import type { NextFunction, Request, Response } from 'express';
 
 class WastedHistoryController {
   async getUserWastedHistory(
@@ -22,13 +23,55 @@ class WastedHistoryController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const { mediaId, status, mediaType } = req.body;
+      const { id, status, mediaType } = req.body;
       const { username } = req.user;
       const response = await wastedHistoryService.setMediaWasted(
         username,
-        mediaId,
+        id,
         status,
         mediaType,
+      );
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async setEpisodeWasted(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<IUserWastedHistory> | void> {
+    try {
+      const id = +req.body.id;
+      const { username } = req.user;
+      const response = await wastedHistoryService.setEpisodeWasted(
+        username,
+        id,
+      );
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async setSeasonWasted(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<IUserWastedHistory> | void> {
+    try {
+      const id = +req.body.id;
+      const { username } = req.user;
+      const season = await seasonService.getSeason(id);
+
+      for (const episode of season.episodes) {
+        await wastedHistoryService.setEpisodeWasted(username, episode.id);
+      }
+      const response = await wastedHistoryService.getUserWastedHistory(
+        username,
+        season.show_id,
+        'show',
       );
       return res.json(response);
     } catch (e) {

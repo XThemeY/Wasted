@@ -5,6 +5,8 @@ declare global {
     interface Request {
       user?: IJwtPayload;
       headers: IHeaders;
+      files: { [fieldname: string]: File[] } | File[];
+      fieldsIsValid: boolean;
     }
   }
 }

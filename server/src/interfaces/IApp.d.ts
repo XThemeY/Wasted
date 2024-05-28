@@ -231,3 +231,11 @@ export interface ISearchResult {
   total_pages: number;
   total_items: number;
 }
+
+export interface IAddCommentBody {
+  type: string;
+  comment_body: string;
+  parent_comments_id?: number;
+  media_id: number;
+  images_url: string[];
+}

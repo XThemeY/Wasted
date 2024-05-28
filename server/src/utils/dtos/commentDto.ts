@@ -2,7 +2,6 @@ import { IReactions } from '#interfaces/IFields';
 import { Types } from 'mongoose';
 
 export class CommentDto {
-  media_id: number;
   id: number;
   username: string;
   parent_comments_id: number;

@@ -40,7 +40,7 @@ class ShowController {
     next: NextFunction,
   ): Promise<Response<Show> | void> {
     try {
-      const { id } = req.params;
+      const id = +req.body.id;
       const options = req.body as IShowUpdate;
       const season = await showService.updateShow(+id, options);
       const response = new Show(season);

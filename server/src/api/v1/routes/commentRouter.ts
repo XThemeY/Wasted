@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { commentController } from '#api/v1/controllers/index.js';
 import {
-  fileUploadValidation,
+  commentsValidMiddleware,
+  delResCommentValidMiddleware,
+  editCommentValidMiddleware,
   isCommentOwner,
-  commentsFormValidation,
   roleMiddleware,
 } from '#middleware/index.js';
 import { ROLES } from '#config/index.js';
@@ -11,23 +12,24 @@ import { ROLES } from '#config/index.js';
 const router = Router();
 const idRegExp = ':id(\\d+)';
 
-router.get(`/`, commentController.getComments);
+router.get(`/`, commentController.getMediaComments);
 router.post(
-  `/`,
-  fileUploadValidation,
-  commentsFormValidation,
+  `/add`,
+  //fileUploadValidation,
+  commentsValidMiddleware(),
   commentController.addComment,
 );
 router.patch(
-  `/${idRegExp}`,
+  `/update`,
+  editCommentValidMiddleware(),
   isCommentOwner,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR, ROLES.USER]),
-  fileUploadValidation,
-  commentsFormValidation,
+  //fileUploadValidation,
   commentController.editComment,
 );
 router.delete(
   `/${idRegExp}`,
+  delResCommentValidMiddleware(),
   isCommentOwner,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR, ROLES.USER]),
   commentController.delComment,
@@ -35,6 +37,7 @@ router.delete(
 
 router.patch(
   `/restore/${idRegExp}`,
+  delResCommentValidMiddleware(),
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
   commentController.restoreComment,
 );
