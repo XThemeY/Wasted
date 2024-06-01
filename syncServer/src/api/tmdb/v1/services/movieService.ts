@@ -38,27 +38,27 @@ class MovieService {
     const oldMovie = await Movie.findOne({ 'external_ids.tmdb': model.id });
     if (!oldMovie) {
       const movie = await Movie.create({
-        title: model.title,
-        title_original: model.original_title,
-        release_date: model.release_date,
-        description: model.overview,
-        description_original: modelENG.overview,
+        title: model?.title,
+        title_original: model?.original_title,
+        release_date: model?.release_date,
+        description: model?.overview,
+        description_original: modelENG?.overview,
         duration: model.runtime,
-        rating: model.vote_average,
+        rating: model?.vote_average,
         ratings: {
           tmdb: {
-            rating: model.vote_average,
-            vote_count: model.vote_count,
+            rating: model?.vote_average,
+            vote_count: model?.vote_count,
           },
           //imdb: { type: Number, default: 0 },
           //kinopoisk: { type: Number, default: 0 },
         },
         external_ids: {
-          tmdb: model.id,
-          imdb: model.imdb_id,
+          tmdb: model?.id,
+          imdb: model?.imdb_id,
           //kinopoisk: { type: String },
         },
-        popularity: model.popularity,
+        popularity: model?.popularity,
       });
 
       await Movie.updateOne(
@@ -112,12 +112,12 @@ class MovieService {
       { 'external_ids.tmdb': model.id },
       {
         $set: {
-          title: model.title,
-          title_original: model.original_title,
-          release_date: model.release_date,
-          description: model.overview,
-          description_original: modelENG.overview,
-          duration: model.runtime,
+          title: model?.title,
+          title_original: model?.original_title,
+          release_date: model?.release_date,
+          description: model?.overview,
+          description_original: modelENG?.overview,
+          duration: model?.runtime,
           updatedAt: new Date(),
         },
       },

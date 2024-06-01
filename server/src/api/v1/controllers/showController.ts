@@ -25,8 +25,8 @@ class ShowController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { id } = req.params;
-      const tvShow = await showService.getShow(+id);
+      const id = +req.params.id;
+      const tvShow = await showService.getShow(id);
       const response = new Show(tvShow);
       res.json(response);
     } catch (e) {
@@ -40,9 +40,9 @@ class ShowController {
     next: NextFunction,
   ): Promise<Response<Show> | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const options = req.body as IShowUpdate;
-      const season = await showService.updateShow(+id, options);
+      const season = await showService.updateShow(id, options);
       const response = new Show(season);
       return res.json(response);
     } catch (e) {

@@ -5,17 +5,11 @@ import {
   movieRouter,
   tvshowRouter,
   seasonRouter,
-  wastedHistoryRouter,
-  favoriteRouter,
   episodeRouter,
   commentRouter,
 } from '#api/v1/routes/index.js';
 import { searchController } from '#api/v1/controllers/index.js';
-import {
-  authMiddleware,
-  isOwner,
-  cookieParseMiddleware,
-} from '#middleware/index.js';
+import { cookieParseMiddleware } from '#middleware/index.js';
 
 const router = Router();
 
@@ -28,7 +22,5 @@ router.use('/comments', cookieParseMiddleware, commentRouter);
 // router.use('/games', gameRouter);
 router.get('/search', searchController.search);
 router.use('/', userRouter);
-router.use('/:username/favorites', authMiddleware, isOwner, favoriteRouter);
-router.use('/:username/wasted', authMiddleware, isOwner, wastedHistoryRouter);
 
 export default router;

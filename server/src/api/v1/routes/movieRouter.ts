@@ -20,42 +20,42 @@ import { ROLES } from '#config/index.js';
 const router = Router();
 const idRegExp = ':id(\\d+)';
 
+router.get(`/${idRegExp}`, movieController.getMovie);
+router.patch(
+  `/${idRegExp}`,
+  authMiddleware,
+  roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
+  updateValidMiddleware(),
+  movieController.updateMovie,
+);
 router.get(
   '/explore',
   exploreValidMiddleware(),
   cookieParseMiddleware,
   movieController.exploreMovies,
 );
-router.get(`/${idRegExp}`, movieController.getMovie);
 router.post(
-  `/setFavorite`,
+  `/${idRegExp}/favorites`,
   authMiddleware,
   favValidMiddleware(),
   favoriteController.setMovieFav,
 );
-router.patch(
-  `/update`,
-  authMiddleware,
-  roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
-  updateValidMiddleware(),
-  movieController.updateMovie,
-);
 router.post(
-  `/setRating`,
+  `/${idRegExp}/ratings`,
   authMiddleware,
   ratingValidMiddleware(),
   movieController.setMovieRating,
 );
 
 router.post(
-  `/setReaction`,
+  `/${idRegExp}/reactions`,
   authMiddleware,
   reactionsValidMiddleware(),
   movieController.setMovieReaction,
 );
 
 router.post(
-  `/setWasted`,
+  `/${idRegExp}/wasted`,
   authMiddleware,
   wastedValidMiddleware(),
   wastedHistoryController.setMediaWasted,

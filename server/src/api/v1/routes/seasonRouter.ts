@@ -16,14 +16,14 @@ const idRegExp = ':id(\\d+)';
 
 router.get(`/${idRegExp}`, seasonController.getSeason);
 router.patch(
-  `/update`,
+  `/${idRegExp}`,
   authMiddleware,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
   updateValidMiddleware(),
   seasonController.updateSeason,
 );
 router.post(
-  `/setWasted`,
+  `/${idRegExp}/wasted`,
   authMiddleware,
   wastedValidMiddleware(),
   wastedHistoryController.setSeasonWasted,

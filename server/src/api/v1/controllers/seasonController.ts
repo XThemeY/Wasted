@@ -25,7 +25,7 @@ class ShowController {
     next: NextFunction,
   ): Promise<Response<SeasonFull> | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const options = req.body as ISeasonUpdate;
       const season = await seasonService.updateSeason(+id, options);
       const response = new SeasonFull(season);

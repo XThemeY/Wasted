@@ -1,3 +1,5 @@
+import { IComment, IDelComment } from '#interfaces/IApp';
+
 export type RatingTuple = [string, number];
 
 export type ResponseMsg = {
@@ -14,6 +16,8 @@ export type Rating = {
   vote_count: number;
 };
 
+export type Comments = (IComment | IDelComment)[];
+
 export type WastedRating = {
   beer: number;
   favorite: number;
@@ -25,7 +29,7 @@ export type WastedRating = {
 
 export type Ratings = { [key: string]: Rating | WastedRating };
 
-export type Reaction = { value: number; vote_count: number };
+export type Reaction = { value?: number; vote_count: number };
 
 export type ReactionsConfig = { [key: string]: string };
 

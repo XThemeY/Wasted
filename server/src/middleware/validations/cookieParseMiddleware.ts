@@ -1,4 +1,3 @@
-import type { IJwtPayload } from '#interfaces/IFields';
 import { tokenService } from '#services/index.js';
 import type { NextFunction, Response, Request } from 'express';
 
@@ -9,9 +8,7 @@ export async function cookieParseMiddleware(
 ): Promise<void> {
   try {
     const accessToken = req.headers.authorization.split(' ')[1];
-    const userData = tokenService.validateAccessToken(
-      accessToken,
-    ) as IJwtPayload;
+    const userData = tokenService.validateAccessToken(accessToken);
     req.user = userData;
     next();
   } catch (e) {

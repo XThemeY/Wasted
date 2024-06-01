@@ -315,14 +315,14 @@ export async function getSeasons(
     if (!newSeason) {
       newSeason = await Season.create({
         show_id: id,
-        title: seasons[i].name,
-        title_original: seasonsENG[i].name,
-        season_number: seasons[i].season_number,
-        episode_count: seasons[i].episode_count,
-        description: seasons[i].overview,
-        description_original: seasonsENG[i].overview,
-        air_date: seasons[i].air_date,
-        rating: seasons[i].vote_average,
+        title: seasons[i]?.name,
+        title_original: seasonsENG[i]?.name,
+        season_number: seasons[i]?.season_number,
+        episode_count: seasons[i]?.episode_count,
+        description: seasons[i]?.overview,
+        description_original: seasonsENG[i]?.overview,
+        air_date: seasons[i]?.air_date,
+        rating: seasons[i]?.vote_average,
       });
 
       newSeason.poster_url = await createImgUrl(
@@ -382,6 +382,7 @@ async function getEpisodes(
 
     const episodes = response.data.episodes;
     const episodesENG = responseENG.data.episodes;
+
     for (let i = 0; i < episodes.length; i++) {
       let newEpisode = await Episode.findOne({
         show_id: id,
@@ -392,16 +393,16 @@ async function getEpisodes(
       if (!newEpisode) {
         newEpisode = await Episode.create({
           show_id: id,
-          title: episodes[i].name,
-          title_original: episodesENG[i].name,
-          season_number: episodes[i].season_number,
-          episode_number: episodes[i].episode_number,
-          description: episodes[i].overview,
-          description_original: episodesENG[i].overview,
-          air_date: episodes[i].air_date,
-          rating: episodes[i].vote_average,
-          duration: episodes[i].runtime,
-          episode_type: episodes[i].episode_type,
+          title: episodes[i]?.name,
+          title_original: episodesENG[i]?.name,
+          season_number: episodes[i]?.season_number,
+          episode_number: episodes[i]?.episode_number,
+          description: episodes[i]?.overview,
+          description_original: episodesENG[i]?.overview,
+          air_date: episodes[i]?.air_date,
+          rating: episodes[i]?.vote_average,
+          duration: episodes[i]?.runtime,
+          episode_type: episodes[i]?.episode_type,
         });
         newEpisode.poster_url = await createImgUrl(
           newEpisode.id,

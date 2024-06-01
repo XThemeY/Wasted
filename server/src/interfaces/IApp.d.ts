@@ -1,5 +1,6 @@
 import type { SortOrder, Types } from 'mongoose';
 import type {
+  ICommentReactions,
   IExternalIds,
   IImages,
   IPerson,
@@ -15,7 +16,7 @@ import type {
   ICommentsMediaModel,
 } from './IModel';
 import type { EpisodeShort } from '#utils/dtos/episodeDto';
-import { WastedItem } from '#types/types';
+import type { Comments, WastedItem } from '#types/types';
 
 interface IGeneralUpdate {
   title: string;
@@ -238,4 +239,28 @@ export interface IAddCommentBody {
   parent_comments_id?: number;
   media_id: number;
   images_url: string[];
+}
+
+export interface IComment {
+  id: number;
+  username: string;
+  parent_comments_id: number;
+  comment_body: string;
+  images_url: string[];
+  reactions: ICommentReactions;
+  isDeleted: boolean;
+  isHidden: boolean;
+  isChanged: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IDelComment {
+  id: number;
+  isDeleted: boolean;
+}
+
+export interface ICommentsMedia {
+  media_id: number;
+  comments: Comments;
 }

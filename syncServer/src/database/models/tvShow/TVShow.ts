@@ -5,7 +5,7 @@ import type { IShow } from '#interfaces/IModel.d.ts';
 const tvShowSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
-    title: { type: String, required: true, index: true },
+    title: { type: String, required: true, default: '', index: true },
     title_original: { type: String, default: '', index: true },
     images: {
       poster_url: {
@@ -116,9 +116,9 @@ const tvShowSchema = new Schema(
     },
     comments: { type: Schema.Types.ObjectId, ref: 'CommentsShow' },
     external_ids: {
-      tmdb: { type: String },
+      tmdb: { type: Number },
       imdb: { type: String },
-      kinopoisk: { type: String },
+      kinopoisk: { type: Number },
     },
     type: { type: String, enum: ['movie', 'show', 'game'], default: 'show' },
     popularity: { type: Number, default: 0, index: true },

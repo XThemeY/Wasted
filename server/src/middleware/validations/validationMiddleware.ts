@@ -2,9 +2,10 @@ import {
   usernameExceptions,
   sortOptions,
   mediaReactions,
+  commentReactions,
 } from '#config/index.js';
 import { celebrate, Segments, Joi } from 'celebrate';
-import { RequestHandler } from 'express';
+import type { RequestHandler } from 'express';
 
 export const registerValidMiddleware = (): RequestHandler => {
   return celebrate({
@@ -64,8 +65,10 @@ export const exploreValidMiddleware = (): RequestHandler => {
 
 export const updateValidMiddleware = (): RequestHandler => {
   return celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().min(1).required(),
+    }),
     [Segments.BODY]: Joi.object().keys({
-      id: Joi.number().min(1),
       title: Joi.string(),
       title_original: Joi.string(),
       images: Joi.object().keys({
@@ -96,8 +99,10 @@ export const updateValidMiddleware = (): RequestHandler => {
 
 export const ratingValidMiddleware = (): RequestHandler => {
   return celebrate({
-    [Segments.BODY]: Joi.object().keys({
+    [Segments.PARAMS]: Joi.object().keys({
       id: Joi.number().min(1).required(),
+    }),
+    [Segments.BODY]: Joi.object().keys({
       rating: Joi.number().min(1).max(5).required(),
     }),
   });
@@ -105,7 +110,7 @@ export const ratingValidMiddleware = (): RequestHandler => {
 
 export const favValidMiddleware = (): RequestHandler => {
   return celebrate({
-    [Segments.BODY]: Joi.object().keys({
+    [Segments.PARAMS]: Joi.object().keys({
       id: Joi.number().min(1).required(),
     }),
   });
@@ -113,8 +118,10 @@ export const favValidMiddleware = (): RequestHandler => {
 
 export const reactionsValidMiddleware = (): RequestHandler => {
   return celebrate({
-    [Segments.BODY]: Joi.object().keys({
+    [Segments.PARAMS]: Joi.object().keys({
       id: Joi.number().min(1).required(),
+    }),
+    [Segments.BODY]: Joi.object().keys({
       reactions: Joi.array()
         .items(...Object.keys(mediaReactions))
         .unique()
@@ -125,8 +132,10 @@ export const reactionsValidMiddleware = (): RequestHandler => {
 
 export const wastedValidMiddleware = (): RequestHandler => {
   return celebrate({
-    [Segments.BODY]: Joi.object().keys({
+    [Segments.PARAMS]: Joi.object().keys({
       id: Joi.number().min(1).required(),
+    }),
+    [Segments.BODY]: Joi.object().keys({
       mediaType: Joi.string().valid('show', 'movie'),
       status: Joi.string().valid(
         'watched',
@@ -135,6 +144,17 @@ export const wastedValidMiddleware = (): RequestHandler => {
         'notWatched',
         'watching',
       ),
+    }),
+  });
+};
+
+export const allCommentsValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.QUERY]: Joi.object().keys({
+      media_id: Joi.number().min(1).required(),
+      type: Joi.string()
+        .valid('movie', 'tvshow', 'season', 'episode')
+        .required(),
     }),
   });
 };
@@ -156,8 +176,10 @@ export const commentsValidMiddleware = (): RequestHandler => {
 
 export const editCommentValidMiddleware = (): RequestHandler => {
   return celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().min(1).required(),
+    }),
     [Segments.BODY]: Joi.object().keys({
-      comment_id: Joi.number().min(1).required(),
       comment_body: Joi.string().required(),
       images_url: Joi.array().items(Joi.string()),
     }),
@@ -168,6 +190,20 @@ export const delResCommentValidMiddleware = (): RequestHandler => {
   return celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       id: Joi.number().min(1).required(),
+    }),
+  });
+};
+
+export const commentReactionsValidMiddleware = (): RequestHandler => {
+  return celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().min(1).required(),
+    }),
+    [Segments.BODY]: Joi.object().keys({
+      reactions: Joi.array()
+        .items(...commentReactions)
+        .unique()
+        .required(),
     }),
   });
 };

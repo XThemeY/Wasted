@@ -8,7 +8,7 @@ class FavoritesController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const username = req.user.username;
       const response = await favoriteService.setMovieFav(username, id);
       return res.json(response);
@@ -23,7 +23,7 @@ class FavoritesController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const username = req.user.username;
       const response = await favoriteService.setShowFav(username, id);
       return res.json(response);
@@ -38,7 +38,7 @@ class FavoritesController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const username = req.user.username;
       const response = await favoriteService.setEpisodeFav(username, id);
       return res.json(response);

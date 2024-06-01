@@ -5,7 +5,7 @@ const seasonSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
     show_id: { type: Number, required: true },
-    title: { type: String },
+    title: { type: String, default: '' },
     title_original: { type: String, default: '' },
     poster_url: { type: String, default: '' },
     season_number: { type: Number },

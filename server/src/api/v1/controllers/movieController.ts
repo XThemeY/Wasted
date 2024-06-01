@@ -27,8 +27,8 @@ class MovieController {
     next: NextFunction,
   ): Promise<Response<Movie> | void> {
     try {
-      const { id } = req.params;
-      const movie = await movieService.getMovie(+id);
+      const id = +req.params.id;
+      const movie = await movieService.getMovie(id);
       syncMedia(movie.external_ids.tmdb, MediaType.movie, movie.updatedAt);
       const response = new Movie(movie);
       return res.json(response);
@@ -43,7 +43,7 @@ class MovieController {
     next: NextFunction,
   ): Promise<Response<Movie> | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const options = req.body.options as IMovieUpdate;
       const movie = await movieService.updateMovie(id, options);
       const response = new Movie(movie);
@@ -109,7 +109,7 @@ class MovieController {
     next: NextFunction,
   ): Promise<Response<RatingRes> | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const username = req.user.username;
       const rating = await getRatingOptions(req.body.rating);
       const userRating = await movieService.setRating(username, id, rating);
@@ -130,7 +130,7 @@ class MovieController {
     next: NextFunction,
   ): Promise<Response<ReactionRes> | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const username = req.user.username;
       const reactions = req.body.reactions as string[];
       const userReactions = await movieService.setMovieReactions(

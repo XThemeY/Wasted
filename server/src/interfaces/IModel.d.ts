@@ -104,7 +104,6 @@ export interface IPeopleModel {
 }
 export interface ICommentModel {
   id: number;
-  media_id: number;
   username: string;
   parent_comments_id: number;
   comment_body: string;
@@ -113,6 +112,8 @@ export interface ICommentModel {
   isDeleted: boolean;
   isHidden: boolean;
   isChanged: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ICommentsMediaModel {
@@ -186,4 +187,9 @@ export interface IFavoriteModel {
   movies: [number];
   tvShows: { shows: [number]; episodes: [number] };
   games: [number];
+}
+
+export interface IUserCommentReactionsModel {
+  username: string;
+  comments: [{ commentId: number; reactions: [string] }];
 }

@@ -23,7 +23,8 @@ class WastedHistoryController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const { id, status, mediaType } = req.body;
+      const id = +req.params.id;
+      const { status, mediaType } = req.body;
       const { username } = req.user;
       const response = await wastedHistoryService.setMediaWasted(
         username,
@@ -43,7 +44,7 @@ class WastedHistoryController {
     next: NextFunction,
   ): Promise<Response<IUserWastedHistory> | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const { username } = req.user;
       const response = await wastedHistoryService.setEpisodeWasted(
         username,
@@ -61,7 +62,7 @@ class WastedHistoryController {
     next: NextFunction,
   ): Promise<Response<IUserWastedHistory> | void> {
     try {
-      const id = +req.body.id;
+      const id = +req.params.id;
       const { username } = req.user;
       const season = await seasonService.getSeason(id);
 

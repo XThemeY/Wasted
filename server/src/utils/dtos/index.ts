@@ -5,5 +5,5 @@ export { ShowShort } from './showDto.js';
 export { UserDto } from './userDto.js';
 export { UserSettingsDto } from './userSettingsDto.js';
 export { UserWastedHistory } from './wastedHistoryDto.js';
-export { CommentDto } from './commentDto.js';
+export { CommentDto, CommentMediaDto } from './commentDto.js';
 export { Person } from './personDto.js';

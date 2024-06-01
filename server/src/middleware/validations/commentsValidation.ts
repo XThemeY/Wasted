@@ -113,7 +113,7 @@ export const isCommentOwner = async (
   next: NextFunction,
 ) => {
   try {
-    const commentId = req.body.comment_id;
+    const id = +req.params.id;
     const currentUserName = req.user.username;
     const roles = req.user.userRoles;
 
@@ -125,7 +125,7 @@ export const isCommentOwner = async (
       return next();
     }
 
-    await commentService.getComment(commentId, currentUserName);
+    await commentService.getComment(id, currentUserName);
     next();
   } catch (e) {
     return next(ApiError.Forbidden());

@@ -4,23 +4,32 @@ import {
   commentsValidMiddleware,
   delResCommentValidMiddleware,
   editCommentValidMiddleware,
+  allCommentsValidMiddleware,
+  commentReactionsValidMiddleware,
   isCommentOwner,
   roleMiddleware,
+  authMiddleware,
 } from '#middleware/index.js';
 import { ROLES } from '#config/index.js';
 
 const router = Router();
 const idRegExp = ':id(\\d+)';
 
-router.get(`/`, commentController.getMediaComments);
+router.get(
+  `/`,
+  allCommentsValidMiddleware(),
+  commentController.getMediaComments,
+);
 router.post(
-  `/add`,
+  `/`,
   //fileUploadValidation,
+  authMiddleware,
   commentsValidMiddleware(),
   commentController.addComment,
 );
 router.patch(
-  `/update`,
+  `/${idRegExp}`,
+  authMiddleware,
   editCommentValidMiddleware(),
   isCommentOwner,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR, ROLES.USER]),
@@ -29,6 +38,7 @@ router.patch(
 );
 router.delete(
   `/${idRegExp}`,
+  authMiddleware,
   delResCommentValidMiddleware(),
   isCommentOwner,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR, ROLES.USER]),
@@ -36,12 +46,18 @@ router.delete(
 );
 
 router.patch(
-  `/restore/${idRegExp}`,
+  `/${idRegExp}/restore`,
+  authMiddleware,
   delResCommentValidMiddleware(),
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
   commentController.restoreComment,
 );
 
-router.post(`/${idRegExp}/reaction`, commentController.setReactionComment);
+router.post(
+  `/${idRegExp}/reactions`,
+  authMiddleware,
+  commentReactionsValidMiddleware(),
+  commentController.setReactionComment,
+);
 
 export default router;

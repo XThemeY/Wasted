@@ -54,13 +54,14 @@ class CommentController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const { comment_id, comment_body, images_url } = req.body;
+      const id = +req.params.id;
+      const { comment_body, images_url } = req.body;
 
       if (!comment_body && !images_url?.length) {
         return next(ApiError.BadRequest('Комментарий не должен быть пустым'));
       }
       const response = await commentService.editComment(
-        comment_id,
+        id,
         comment_body,
         images_url,
       );
@@ -104,7 +105,15 @@ class CommentController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      return res.json();
+      const id = +req.params.id;
+      const reactions = req.body.reactions as [string];
+      const username = req.user.username;
+      const newReactions = await commentService.setReactionComment(
+        username,
+        id,
+        reactions,
+      );
+      return res.json({ id, reactions: newReactions });
     } catch (e) {
       next(e);
     }

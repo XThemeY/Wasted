@@ -145,7 +145,7 @@ class MovieService {
         username,
         'movies.itemId': itemId,
       },
-      { 'movies.$': itemId },
+      { 'movies.$': 1 },
     );
 
     const [ratingName, ratingValue] = ratingTuple;
@@ -170,8 +170,10 @@ class MovieService {
       return { movieId: itemId, rating: movie.ratings.wasted };
     }
 
+    const existingRating = isRated.movies[0];
+
     //Delete rating
-    if (ratingValue === isRated.movies[0].rating) {
+    if (ratingValue === existingRating.rating) {
       await UserRatings.updateOne(
         {
           username,
@@ -205,8 +207,7 @@ class MovieService {
       { runValidators: true },
     );
     movie.ratings.wasted[ratingName] += ratingValue;
-    movie.ratings.wasted[isRated.movies[0].ratingName] -=
-      isRated.movies[0].rating;
+    movie.ratings.wasted[existingRating.ratingName] -= existingRating.rating;
     await movie.save();
     return { movieId: itemId, rating: movie.ratings.wasted };
   }

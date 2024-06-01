@@ -18,30 +18,28 @@ import { ROLES } from '#config';
 const router = Router();
 const idRegExp = ':id(\\d+)';
 
+router.get(`/${idRegExp}`, tvShowController.getShow);
+router.patch(
+  `/${idRegExp}`,
+  authMiddleware,
+  roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
+  updateValidMiddleware(),
+  tvShowController.updateShow,
+);
 router.get(
   '/explore',
   exploreValidMiddleware(),
   cookieParseMiddleware,
   tvShowController.exploreShows,
 );
-router.get(`/${idRegExp}`, tvShowController.getShow);
-
 router.post(
-  `/setFavorite`,
+  `/${idRegExp}/favorites`,
   authMiddleware,
   favValidMiddleware(),
   favoriteController.setShowFav,
 );
-
-router.patch(
-  `/update`,
-  authMiddleware,
-  roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
-  updateValidMiddleware(),
-  tvShowController.updateShow,
-);
 router.post(
-  `/setWasted`,
+  `/${idRegExp}/wasted`,
   authMiddleware,
   wastedValidMiddleware(),
   wastedHistoryController.setMediaWasted,

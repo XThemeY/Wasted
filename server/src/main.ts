@@ -57,13 +57,13 @@ const connectDB = async (): Promise<void> => {
   try {
     await mongoose.connect(
       process.env.NODE_ENV === 'production'
-        ? process.env.DB_URL_TMDBMain
-        : process.env.DB_URL_TEST,
+        ? process.env.DB_URL_TMDBMains
+        : process.env.DB_URL_REPLICA_LOCAL,
+      { replicaSet: 'dbrs' },
     );
     appLogger.info('Connected to MongoDB');
   } catch (error) {
-    appLogger.error('MongoDB connection error:', error);
-    process.exit(1); // Exit process with failure
+    appLogger.error(`MongoDB connection error: ${error?.message}`);
   }
 };
 
@@ -80,12 +80,12 @@ const createRoles = async (): Promise<void> => {
       { upsert: true },
     );
   } catch (error) {
-    appLogger.error('Roles creating failed with error:', error);
+    appLogger.error(`Roles creating failed with error: ${error?.message}`);
   }
 };
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   appLogger.info(`Server started on port ${PORT}`);
-  connectDB();
-  createRoles();
+  await connectDB();
+  await createRoles();
 });

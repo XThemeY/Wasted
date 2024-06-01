@@ -18,27 +18,27 @@ const idRegExp = ':id(\\d+)';
 
 router.get(`/${idRegExp}`, episodeController.getEpisode);
 router.patch(
-  `/update`,
+  `/${idRegExp}`,
   authMiddleware,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
   updateValidMiddleware(),
   episodeController.updateEpisode,
 );
 router.post(
-  `/setRating`,
+  `/${idRegExp}/ratings`,
   authMiddleware,
   ratingValidMiddleware(),
   episodeController.setEpisodeRating,
 );
 router.post(
-  `/setReaction`,
+  `/${idRegExp}/reactions`,
   authMiddleware,
   reactionsValidMiddleware(),
   episodeController.setEpisodeReaction,
 );
 
 router.post(
-  `/setWasted`,
+  `/${idRegExp}/wasted`,
   authMiddleware,
   wastedValidMiddleware(),
   wastedHistoryController.setEpisodeWasted,

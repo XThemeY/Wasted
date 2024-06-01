@@ -1,0 +1,16 @@
+export const commentReactions = [
+  'broken_heart',
+  'clown_face',
+  'dislike',
+  'dizzy_face',
+  'face_vomiting',
+  'fire',
+  'grin',
+  'heart_eyes',
+  'heart',
+  'joy',
+  'like',
+  'muscle',
+  'neutral_face',
+  'rude_face',
+];

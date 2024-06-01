@@ -20,6 +20,8 @@ export {
   commentsValidMiddleware,
   editCommentValidMiddleware,
   delResCommentValidMiddleware,
+  allCommentsValidMiddleware,
+  commentReactionsValidMiddleware,
 } from './validations/validationMiddleware.js';
 export {
   fileUploadValidation,

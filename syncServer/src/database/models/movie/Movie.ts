@@ -5,7 +5,7 @@ import type { IMovie } from '#interfaces/IModel.d.ts';
 const movieSchema = new Schema(
   {
     id: { type: Number, unique: true, immutable: true },
-    title: { type: String, required: true, index: true },
+    title: { type: String, required: true, default: '', index: true },
     title_original: { type: String, default: '', index: true },
     images: {
       poster_url: {

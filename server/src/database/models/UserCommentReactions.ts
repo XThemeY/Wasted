@@ -1,3 +1,4 @@
+import type { IUserCommentReactionsModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
 const userCommentReactionsSchema = new Schema(
@@ -8,14 +9,14 @@ const userCommentReactionsSchema = new Schema(
       immutable: true,
       required: true,
     },
-    comments: [{ commentId: Number, reactions: [] }],
+    comments: [{ commentId: Number, reactions: [String] }],
   },
   {
     timestamps: true,
   },
 );
 
-const UserCommentReactions = model(
+const UserCommentReactions = model<IUserCommentReactionsModel>(
   'UserCommentReactions',
   userCommentReactionsSchema,
 );

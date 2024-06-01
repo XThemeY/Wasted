@@ -6,7 +6,7 @@ const episodeSchema = new Schema(
     id: { type: Number, unique: true, immutable: true },
     show_id: { type: Number, required: true },
     poster_url: { type: String, default: '' },
-    title: { type: String, required: true },
+    title: { type: String, default: '' },
     title_original: { type: String, default: '' },
     episode_type: { type: String },
     season_number: { type: Number },
