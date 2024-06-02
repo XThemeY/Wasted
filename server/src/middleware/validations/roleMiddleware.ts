@@ -1,8 +1,10 @@
 import type { IJwtPayload } from '#interfaces/IFields';
+import ApiError from '#utils/apiError';
+import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-export function roleMiddleware(roles) {
-  return function (req, res, next) {
+export function roleMiddleware(roles: string[]) {
+  return function (req: Request, res: Response, next: NextFunction): void {
     if (req.method === 'OPTIONS') {
       next();
     }
@@ -10,9 +12,7 @@ export function roleMiddleware(roles) {
       const token = req.headers.authorization.split(' ')[1];
 
       if (!token) {
-        return res.status(403).json({
-          message: `Пользователь не авторизован`,
-        });
+        return next(ApiError.Forbidden());
       }
       const { userRoles } = jwt.verify(
         token,
@@ -25,15 +25,11 @@ export function roleMiddleware(roles) {
         }
       });
       if (!hasRole) {
-        return res.status(403).json({
-          message: `У вас нет доступа`,
-        });
+        return next(ApiError.Forbidden());
       }
-      next();
+      return next();
     } catch (e) {
-      return res.status(403).json({
-        message: `Пользователь не авторизован`,
-      });
+      return next(ApiError.Forbidden());
     }
   };
 }

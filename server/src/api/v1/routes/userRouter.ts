@@ -5,10 +5,10 @@ import {
 } from '#api/v1/controllers/index.js';
 import { authMiddleware, isOwner } from '#middleware/index.js';
 import {
-  settingsRouter,
   favoriteRouter,
+  settingsRouter,
   wastedHistoryRouter,
-} from './index.js';
+} from '#api/v1/routes/index.js';
 
 const router = Router();
 const username = `:username`;
@@ -20,7 +20,6 @@ router.get(
   authMiddleware,
   commentController.getUserComments,
 );
-
 router.use(`/${username}/settings`, authMiddleware, isOwner, settingsRouter);
 router.use(`/${username}/favorites`, authMiddleware, isOwner, favoriteRouter);
 router.use(`/${username}/wasted`, authMiddleware, isOwner, wastedHistoryRouter);

@@ -1,5 +1,3 @@
-import { ValidationError } from 'express-validator';
-
 export default class ApiError extends Error {
   public message: string;
   public status: number;
@@ -14,21 +12,23 @@ export default class ApiError extends Error {
   }
 
   public static BadRequest(
-    message: string,
-    errors: Error[] | ValidationError[] | [] = [],
+    message = 'Bad Request',
+    errors: Error[] | [] = [],
   ): ApiError {
     return new ApiError(400, message, errors);
   }
-  public static NotAuthorized(): ApiError {
-    return new ApiError(401, 'Not athorized');
+  public static NotAuthorized(message = 'Not athorized'): ApiError {
+    return new ApiError(401, message);
   }
-  public static Forbidden(): ApiError {
-    return new ApiError(403, 'Access forbidden');
+  public static Forbidden(message = 'Access forbidden'): ApiError {
+    return new ApiError(403, message);
   }
-  public static NotFound(message: string = 'Not Found'): ApiError {
+  public static NotFound(message = 'Not Found'): ApiError {
     return new ApiError(404, message);
   }
-  public static InternalServerError(): ApiError {
-    return new ApiError(500, 'Internal Server Error');
+  public static InternalServerError(
+    message = 'Internal Server Error',
+  ): ApiError {
+    return new ApiError(500, message);
   }
 }

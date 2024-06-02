@@ -2,10 +2,13 @@ import type { SortOrder, Types } from 'mongoose';
 import type {
   ICommentReactions,
   IExternalIds,
+  IGameProfiles,
   IImages,
   IPerson,
   IRatings,
   IReactions,
+  ISettings,
+  ISocialProfiles,
 } from './IFields';
 import type {
   IGenreModel,
@@ -14,6 +17,11 @@ import type {
   IProdCompanyModel,
   ITVPlatformModel,
   ICommentsMediaModel,
+  IFavoriteModel,
+  IUserCommentReactionsModel,
+  IUserRatingsModel,
+  IUserReactionsModel,
+  IWastedHistoryModel,
 } from './IModel';
 import type { EpisodeShort } from '#utils/dtos/episodeDto';
 import type { Comments, WastedItem } from '#types/types';
@@ -74,6 +82,28 @@ interface IGeneralMedia {
   comments: Types.ObjectId | ICommentsMediaModel;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface IUser {
+  id: number;
+  username: string;
+  favorites: IFavoriteModel;
+  ratings: IUserRatingsModel;
+  reactions: IUserReactionsModel;
+  wastedHistory: IWastedHistoryModel;
+  commentReactions: IUserCommentReactionsModel;
+  socialProfiles: ISocialProfiles;
+  gameProfiles: IGameProfiles;
+}
+
+export interface IUserPrivate extends IUser {
+  email: string;
+  authentication?: {
+    password: string;
+    activationLink: string;
+    isActivated: boolean;
+  };
+  settings: ISettings;
 }
 
 interface IMedia extends IGeneralMedia {

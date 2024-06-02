@@ -1,22 +1,29 @@
 import { userService } from '#services/index.js';
 import ApiError from '#utils/apiError.js';
+import { UserDto } from '#utils/dtos';
+import type { Request, Response, NextFunction } from 'express';
 
 class UserController {
-  async getUser(req, res, next) {
+  async getUser(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<UserDto> | void> {
     try {
       const username = req.params.username;
       const user = await userService.getUser(username);
 
-      if (!user) {
-        return next(ApiError.BadRequest('Пользователя не существует'));
-      }
-      res.json(user);
+      return res.json(new UserDto(user));
     } catch (e) {
       next(e);
     }
   }
 
-  async getAllUsers(req, res, next) {
+  async getAllUsers(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<UserDto> | void> {
     try {
       const users = await userService.getAllUsers();
       return res.json(users);
@@ -25,7 +32,11 @@ class UserController {
     }
   }
 
-  async getUserSettings(req, res, next) {
+  async getUserSettings(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<UserDto> | void> {
     try {
       const nickname = req.params.username;
       const options = await userService.getUserSettings(nickname);
@@ -35,13 +46,17 @@ class UserController {
     }
   }
 
-  async setUserSettings(req, res, next) {
+  async setUserSettings(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<UserDto> | void> {
     try {
       const username = req.params.username;
       const body = req.body;
 
       if (!body) {
-        return next(ApiError.BadRequest('Ошибка запроса'));
+        return next(ApiError.BadRequest());
       }
       const settings = await userService.setUserSettings(username, body);
       return res.json(settings);

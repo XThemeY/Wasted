@@ -96,11 +96,11 @@ export class MovieShort implements IMovieSearchResult {
     this.id = model.id;
     this.title = model.title;
     this.title_original = model.title_original;
-    this.countries = getCountries(model.countriesId);
+    //this.countries = getCountries(model.countriesId);
     this.images = model.images;
     this.release_date = format(new Date(model.release_date), 'dd.MM.yyyy');
     this.director = getPeoples(model.director);
-    this.genres = getGenres(model.genresId);
+    // this.genres = getGenres(model.genresId);
     this.description = model.description;
     this.description_original = model.description_original;
     this.duration = model.duration;

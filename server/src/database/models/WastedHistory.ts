@@ -1,7 +1,7 @@
 import type { IWastedHistoryModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
-const wastedHistory = new Schema(
+const wastedHistorySchema = new Schema(
   {
     username: {
       type: String,
@@ -59,9 +59,27 @@ const wastedHistory = new Schema(
   },
 );
 
+wastedHistorySchema.virtual('wastedhistory.movies', {
+  ref: 'Movie',
+  localField: 'movies.itemId',
+  foreignField: 'id',
+});
+
+wastedHistorySchema.virtual('wastedhistory.tvShows', {
+  ref: 'TVShow',
+  localField: 'tvShows.itemId',
+  foreignField: 'id',
+});
+
+wastedHistorySchema.virtual('wastedhistory.tvShows.watchedEpisodes', {
+  ref: 'Episode',
+  localField: 'tvShows.watchedEpisodes.itemId',
+  foreignField: 'id',
+});
+
 const WastedHistory = model<IWastedHistoryModel>(
   'WastedHistory',
-  wastedHistory,
+  wastedHistorySchema,
 );
 
 export default WastedHistory;

@@ -15,6 +15,7 @@ import type { ICommentReactions } from '#interfaces/IFields';
 import { CommentDelDto } from '#utils/dtos/commentDto';
 import type { Comments } from '#types/types';
 import mongoose from 'mongoose';
+import { maxTransRetries } from '#config';
 
 class CommentService {
   commentModels = {
@@ -166,45 +167,25 @@ class CommentService {
     comment_id: number,
     reactions: [string],
   ): Promise<ICommentReactions> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-      const comment = await Comment.findOne({ id: comment_id })
-        .session(session)
-        .exec();
-      if (!comment || comment.isDeleted) {
-        throw ApiError.BadRequest(
-          `Комментарий с id:${comment_id} не существует или удален`,
-        );
-      }
+    let retries = 0;
+    do {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        //Поиск комментария в бд по ID
+        const comment = await Comment.findOne({ id: comment_id })
+          .session(session)
+          .exec();
 
-      const userReactions = await UserCommentReactions.exists({
-        username,
-        'comments.commentId': comment_id,
-      });
-      if (!userReactions) {
-        await UserCommentReactions.updateOne(
-          {
-            username,
-          },
-          {
-            $push: {
-              comments: [
-                {
-                  commentId: comment_id,
-                  reactions,
-                },
-              ],
-            },
-          },
-          { runValidators: true },
-        ).exec();
-        reactions.forEach((reaction) => {
-          comment.reactions[reaction].vote_count += 1;
-        });
-        await comment.save({ session });
-      } else {
-        const oldReactions = await UserCommentReactions.findOneAndUpdate(
+        // Проверка на существование комментария в бд
+        if (!comment || comment.isDeleted) {
+          throw ApiError.BadRequest(
+            `Комментарий с id:${comment_id} не существует или удален`,
+          );
+        }
+
+        // Обновление реакций пользователя в бд
+        const userReactions = await UserCommentReactions.findOneAndUpdate(
           {
             username,
             'comments.commentId': comment_id,
@@ -219,22 +200,62 @@ class CommentService {
           .select('comments.$')
           .session(session)
           .exec();
-        oldReactions.comments[0].reactions.forEach((reaction) => {
-          comment.reactions[reaction].vote_count -= 1;
-        });
-        reactions.forEach((reaction) => {
-          comment.reactions[reaction].vote_count += 1;
-        });
+
+        // Если комментарий не существует, добавляем его
+        if (!userReactions) {
+          await UserCommentReactions.updateOne(
+            {
+              username,
+            },
+            {
+              $push: {
+                comments: [
+                  {
+                    commentId: comment_id,
+                    reactions,
+                  },
+                ],
+              },
+            },
+            { runValidators: true },
+          ).exec();
+
+          // Увеличиваем количество голосов каждой реакции
+          reactions.forEach((reaction) => {
+            comment.reactions[reaction].vote_count += 1;
+          });
+        } else {
+          const oldReactions = userReactions.comments[0].reactions;
+          //Уменьшаем количество голосов каждой реакции из массива реакций пользователя
+          oldReactions.forEach((reaction) => {
+            comment.reactions[reaction].vote_count -= 1;
+          });
+          //Увеличиваем количество голосов реакций из массива запроса
+          reactions.forEach((reaction) => {
+            comment.reactions[reaction].vote_count += 1;
+          });
+        }
+
         await comment.save({ session });
+        await session.commitTransaction();
+        return comment.reactions;
+      } catch (err) {
+        await session.abortTransaction();
+        if (err.code === 112) {
+          retries += 1;
+          if (retries > maxTransRetries) {
+            throw ApiError.InternalServerError(
+              'Operation failed after maximum retries',
+            );
+          }
+        } else {
+          throw err;
+        }
+      } finally {
+        session.endSession();
       }
-      await session.commitTransaction();
-      session.endSession();
-      return comment.reactions;
-    } catch (err) {
-      await session.abortTransaction();
-      session.endSession();
-      return err;
-    }
+    } while (retries < maxTransRetries);
+    throw ApiError.BadRequest('Operation failed after maximum retries');
   }
 }
 export default new CommentService();

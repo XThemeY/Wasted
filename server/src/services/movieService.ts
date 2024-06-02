@@ -15,7 +15,8 @@ import {
 } from '#db/models/index.js';
 import { MovieShort } from '#utils/dtos/index.js';
 import ApiError from '#utils/apiError.js';
-import { moviePopFields } from '#config/index.js';
+import { maxTransRetries, moviePopFields } from '#config/index.js';
+import mongoose from 'mongoose';
 
 class MovieService {
   async getMovie(id: number): Promise<IMovieModel> {
@@ -131,104 +132,152 @@ class MovieService {
     itemId: number,
     ratingTuple: RatingTuple,
   ): Promise<UserRating> {
-    const movie = await Movie.findOne(
-      {
-        id: itemId,
-      },
-      'ratings.wasted',
-    ).exec();
-    if (!movie) {
-      throw ApiError.BadRequest(`Фильма с id:${itemId} не существует`);
-    }
-    const isRated = await UserRatings.findOne(
-      {
-        username,
-        'movies.itemId': itemId,
-      },
-      { 'movies.$': 1 },
-    );
-
-    const [ratingName, ratingValue] = ratingTuple;
-
-    //Add rating
-    if (!isRated) {
-      await UserRatings.updateOne(
-        {
-          username,
-        },
-        {
-          $push: {
-            movies: [{ itemId, rating: ratingValue, ratingName }],
+    let retries = 0;
+    do {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const movie = await Movie.findOne(
+          {
+            id: itemId,
           },
-        },
-        { upsert: true, runValidators: true },
-      );
-
-      movie.ratings.wasted[ratingName] += ratingValue;
-      movie.ratings.wasted.vote_count += 1;
-      await movie.save();
-      return { movieId: itemId, rating: movie.ratings.wasted };
-    }
-
-    const existingRating = isRated.movies[0];
-
-    //Delete rating
-    if (ratingValue === existingRating.rating) {
-      await UserRatings.updateOne(
-        {
-          username,
-          'movies.itemId': itemId,
-        },
-        {
-          $pull: { movies: { itemId } },
-        },
-      );
-      movie.ratings.wasted[ratingName] -= ratingValue;
-      movie.ratings.wasted.vote_count -= 1;
-      await movie.save();
-      return { movieId: itemId, rating: movie.ratings.wasted };
-    }
-
-    //Update rating
-    await UserRatings.updateOne(
-      {
-        username,
-        'movies.itemId': itemId,
-      },
-      {
-        $set: {
-          'movies.$': {
-            itemId,
-            rating: ratingValue,
-            ratingName: ratingName,
+          'ratings.wasted',
+        )
+          .session(session)
+          .exec();
+        if (!movie) {
+          throw ApiError.BadRequest(`Фильма с id:${itemId} не существует`);
+        }
+        const isRated = await UserRatings.findOne(
+          {
+            username,
+            'movies.itemId': itemId,
           },
-        },
-      },
-      { runValidators: true },
-    );
-    movie.ratings.wasted[ratingName] += ratingValue;
-    movie.ratings.wasted[existingRating.ratingName] -= existingRating.rating;
-    await movie.save();
-    return { movieId: itemId, rating: movie.ratings.wasted };
+          { 'movies.$': 1 },
+        )
+          .session(session)
+          .exec();
+
+        const [ratingName, ratingValue] = ratingTuple;
+
+        //Add rating
+        if (!isRated) {
+          await UserRatings.updateOne(
+            {
+              username,
+            },
+            {
+              $push: {
+                movies: [{ itemId, rating: ratingValue, ratingName }],
+              },
+            },
+            { upsert: true, runValidators: true },
+          );
+          movie.ratings.wasted[ratingName] += ratingValue;
+          movie.ratings.wasted.vote_count += 1;
+          //Delete rating
+        } else {
+          const existingRating = isRated.movies[0];
+          if (ratingValue === existingRating.rating) {
+            await UserRatings.updateOne(
+              {
+                username,
+                'movies.itemId': itemId,
+              },
+              {
+                $pull: { movies: { itemId } },
+              },
+            );
+            movie.ratings.wasted[ratingName] -= ratingValue;
+            movie.ratings.wasted.vote_count -= 1;
+          } else {
+            //Update rating
+            await UserRatings.updateOne(
+              {
+                username,
+                'movies.itemId': itemId,
+              },
+              {
+                $set: {
+                  'movies.$': {
+                    itemId,
+                    rating: ratingValue,
+                    ratingName: ratingName,
+                  },
+                },
+              },
+              { runValidators: true },
+            );
+            movie.ratings.wasted[ratingName] += ratingValue;
+            movie.ratings.wasted[existingRating.ratingName] -=
+              existingRating.rating;
+          }
+        }
+
+        await movie.save({ session });
+        await session.commitTransaction();
+        return { movieId: itemId, rating: movie.ratings.wasted };
+      } catch (err) {
+        await session.abortTransaction();
+        if (err.code === 112) {
+          retries += 1;
+          if (retries > maxTransRetries) {
+            throw ApiError.InternalServerError(
+              'Operation failed after maximum retries',
+            );
+          }
+        } else {
+          throw err;
+        }
+      } finally {
+        session.endSession();
+      }
+    } while (retries < maxTransRetries);
+    throw ApiError.BadRequest('Operation failed after maximum retries');
   }
 
   async setTotalRating(id: number): Promise<number> {
-    const movie = await Movie.findOne({ id }, 'rating ratings.wasted').exec();
-    const ratingArr = Object.values(movie.ratings.wasted)
-      .slice(0, -1)
-      .filter((el) => el !== 0);
+    let retries = 0;
+    do {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const movie = await Movie.findOne({ id }, 'rating ratings.wasted')
+          .session(session)
+          .exec();
+        const ratingArr = Object.values(movie.ratings.wasted)
+          .slice(0, -1)
+          .filter((el) => el !== 0);
 
-    if (!ratingArr.length) {
-      movie.rating = 0;
-      await movie.save();
-      return movie.rating;
-    }
-    const rating =
-      ratingArr.reduce((sum, value) => sum + value, 0) /
-      movie.ratings.wasted.vote_count;
-    movie.rating = rating % 1 === 0 ? rating : +rating.toFixed(2);
-    await movie.save();
-    return movie.rating;
+        if (!ratingArr.length) {
+          movie.rating = 0;
+          await movie.save();
+          return movie.rating;
+        }
+        const rating =
+          ratingArr.reduce((sum, value) => sum + value, 0) /
+          movie.ratings.wasted.vote_count;
+        movie.rating = rating % 1 === 0 ? rating : +rating.toFixed(2);
+        await movie.save({ session });
+        await session.commitTransaction();
+        return movie.rating;
+      } catch (err) {
+        await session.abortTransaction();
+        if (err.code === 112) {
+          retries += 1;
+          if (retries > maxTransRetries) {
+            throw ApiError.InternalServerError(
+              'Operation failed after maximum retries',
+            );
+          }
+        } else {
+          throw err;
+        }
+      } finally {
+        session.endSession();
+      }
+    } while (retries < maxTransRetries);
+    throw ApiError.BadRequest('Operation failed after maximum retries');
   }
 
   async setMovieReactions(
@@ -236,93 +285,142 @@ class MovieService {
     itemId: number,
     reactions: string[],
   ): Promise<UserReaction> {
-    const movie = await Movie.findOne(
-      {
-        id: itemId,
-      },
-      'reactions',
-    ).exec();
-    if (!movie) {
-      throw ApiError.BadRequest(`Фильма с таким id:${itemId} не существует`);
-    }
-    const isReacted = await UserReactions.findOne(
-      {
-        username,
-        'movies.itemId': itemId,
-      },
-      { 'movies.$': itemId },
-    );
-
-    if (!isReacted) {
-      await UserReactions.findOneAndUpdate(
-        {
-          username,
-        },
-        {
-          $push: {
-            movies: [{ itemId, reactions }],
+    let retries = 0;
+    do {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const movie = await Movie.findOne(
+          {
+            id: itemId,
           },
-        },
-        { upsert: true, runValidators: true },
-      );
-
-      reactions.forEach((el) => {
-        movie.reactions[el].vote_count += 1;
-      });
-      await movie.save();
-      return { movieId: itemId, reactions };
-    }
-
-    isReacted.movies[0].reactions.forEach((el) => {
-      movie.reactions[el].vote_count -= 1;
-    });
-
-    await UserReactions.updateOne(
-      {
-        username,
-        'movies.itemId': itemId,
-      },
-      {
-        $set: {
-          'movies.$': {
-            itemId,
-            reactions,
+          'reactions',
+        )
+          .session(session)
+          .exec();
+        if (!movie) {
+          throw ApiError.BadRequest(
+            `Фильма с таким id:${itemId} не существует`,
+          );
+        }
+        const isReacted = await UserReactions.findOne(
+          {
+            username,
+            'movies.itemId': itemId,
           },
-        },
-      },
-      { runValidators: true },
-    );
-    reactions.forEach((el) => {
-      movie.reactions[el].vote_count += 1;
-    });
-    await movie.save();
-    return { movieId: itemId, reactions };
+          { 'movies.$': itemId },
+        )
+          .session(session)
+          .exec();
+
+        if (!isReacted) {
+          await UserReactions.findOneAndUpdate(
+            {
+              username,
+            },
+            {
+              $push: {
+                movies: [{ itemId, reactions }],
+              },
+            },
+            { upsert: true, runValidators: true },
+          );
+
+          reactions.forEach((el) => {
+            movie.reactions[el].vote_count += 1;
+          });
+        } else {
+          isReacted.movies[0].reactions.forEach((el) => {
+            movie.reactions[el].vote_count -= 1;
+          });
+
+          await UserReactions.updateOne(
+            {
+              username,
+              'movies.itemId': itemId,
+            },
+            {
+              $set: {
+                'movies.$': {
+                  itemId,
+                  reactions,
+                },
+              },
+            },
+            { runValidators: true },
+          );
+          reactions.forEach((el) => {
+            movie.reactions[el].vote_count += 1;
+          });
+        }
+        await movie.save({ session });
+        await session.commitTransaction();
+        return { movieId: itemId, reactions };
+      } catch (err) {
+        await session.abortTransaction();
+        if (err.code === 112) {
+          retries += 1;
+          if (retries > maxTransRetries) {
+            throw ApiError.InternalServerError(
+              'Operation failed after maximum retries',
+            );
+          }
+        } else {
+          throw err;
+        }
+      } finally {
+        session.endSession();
+      }
+    } while (retries < maxTransRetries);
+    throw ApiError.BadRequest('Operation failed after maximum retries');
   }
 
   async setTotalReactions(id: number): Promise<IReactions> {
-    const movie = await Movie.findOne({ id }, 'reactions').exec();
-    let total_votes = 0;
-    const reactions = Object.keys(movie.reactions);
-
-    reactions.forEach((key) => {
-      total_votes += movie.reactions[key].vote_count;
-    });
-
-    if (!total_votes) {
-      reactions.forEach((key) => {
-        movie.reactions[key].value = 0;
-      });
-      await movie.save();
-      return movie.reactions;
-    }
-    reactions.forEach((key) => {
-      movie.reactions[key].value = +(
-        (100 * movie.reactions[key].vote_count) /
-        total_votes
-      ).toFixed(0);
-    });
-    await movie.save();
-    return movie.reactions;
+    let retries = 0;
+    do {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const movie = await Movie.findOne({ id }, 'reactions')
+          .session(session)
+          .exec();
+        let total_votes = 0;
+        const reactions = Object.keys(movie.reactions);
+        reactions.forEach((key) => {
+          total_votes += movie.reactions[key].vote_count;
+        });
+        if (!total_votes) {
+          reactions.forEach((key) => {
+            movie.reactions[key].value = 0;
+          });
+        } else {
+          reactions.forEach((key) => {
+            movie.reactions[key].value = +(
+              (100 * movie.reactions[key].vote_count) /
+              total_votes
+            ).toFixed(0);
+          });
+        }
+        await movie.save({ session });
+        await session.commitTransaction();
+        return movie.reactions;
+      } catch (err) {
+        await session.abortTransaction();
+        if (err.code === 112) {
+          retries += 1;
+          if (retries > maxTransRetries) {
+            throw ApiError.InternalServerError(
+              'Operation failed after maximum retries',
+            );
+          }
+        } else {
+          throw err;
+        }
+      } finally {
+        session.endSession();
+      }
+    } while (retries < maxTransRetries);
+    throw ApiError.BadRequest('Operation failed after maximum retries');
   }
 
   async setWatchCount(id: number): Promise<number> {

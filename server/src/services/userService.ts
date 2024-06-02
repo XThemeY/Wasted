@@ -1,5 +1,7 @@
 import { User } from '#db/models/index.js';
+import ApiError from '#utils/apiError';
 import { UserSettingsDto } from '#utils/dtos/index.js';
+import { model } from 'mongoose';
 
 class UserService {
   async getAllUsers(params = {}) {
@@ -15,11 +17,19 @@ class UserService {
     return response;
   }
 
-  async getUser(username) {
+  async getUser(username: string) {
     const user = await User.findOne({ username }, '-authentication')
-      .populate('roles')
-      .populate('favorites.movies')
+      .populate({
+        path: 'favorites',
+        populate: {
+          path: 'favoriteMovies favoriteShows',
+        },
+      })
       .exec();
+    if (!user)
+      throw ApiError.BadRequest(
+        `Пользователь с таким username:${username} не существует`,
+      );
     return user;
   }
 

@@ -8,6 +8,7 @@ import {
   UserCommentReactions,
   Counter,
 } from '#db/models/index.js';
+import type { IUserModel } from '#interfaces/IModel';
 
 const timezones = moment.tz.names();
 const userSchema = new Schema(
@@ -89,7 +90,6 @@ const userSchema = new Schema(
         },
         shareWastedHistory: { type: Boolean, default: true },
       },
-
       notifications: { type: Boolean, default: true },
     },
   },
@@ -97,39 +97,6 @@ const userSchema = new Schema(
     timestamps: true,
   },
 );
-
-userSchema.set('toObject', { virtuals: true });
-userSchema.set('toJSON', { virtuals: true });
-
-userSchema.virtual('favoriteMovies', {
-  ref: 'Movie',
-  localField: 'favorites.movies',
-  foreignField: 'id',
-});
-
-userSchema.virtual('favoriteShows', {
-  ref: 'TVShow',
-  localField: 'favorites.tvShows',
-  foreignField: 'id',
-});
-
-userSchema.virtual('wastedhistory.movies', {
-  ref: 'Movie',
-  localField: 'wastedHistory.movies.itemId',
-  foreignField: 'id',
-});
-
-userSchema.virtual('wastedhistory.tvShows', {
-  ref: 'TVShow',
-  localField: 'wastedHistory.tvShows.showId',
-  foreignField: 'id',
-});
-
-userSchema.virtual('wastedhistory.tvShows.watchedEpisodes', {
-  ref: 'Episode',
-  localField: 'wastedHistory.tvShows.watchedEpisodes.episodeId',
-  foreignField: 'id',
-});
 
 userSchema.pre('save', async function (next) {
   if (this.isNew) {
@@ -155,6 +122,6 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-const User = model('User', userSchema);
+const User = model<IUserModel>('User', userSchema);
 
 export default User;

@@ -1,7 +1,7 @@
 import type { IFavoriteModel } from '#interfaces/IModel';
 import { Schema, model } from 'mongoose';
 
-const favorites = new Schema(
+const favoritesSchema = new Schema(
   {
     username: {
       type: String,
@@ -18,6 +18,20 @@ const favorites = new Schema(
   },
 );
 
-const Favorites = model<IFavoriteModel>('Favorites', favorites);
+favoritesSchema.set('toObject', { virtuals: true });
+favoritesSchema.set('toJSON', { virtuals: true });
+favoritesSchema.virtual('favoriteMovies', {
+  ref: 'Movie',
+  localField: 'movies',
+  foreignField: 'id',
+});
+
+favoritesSchema.virtual('favoriteShows', {
+  ref: 'TVShow',
+  localField: 'tvShows',
+  foreignField: 'id',
+});
+
+const Favorites = model<IFavoriteModel>('Favorites', favoritesSchema);
 
 export default Favorites;

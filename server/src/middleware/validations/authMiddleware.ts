@@ -28,7 +28,11 @@ export async function authMiddleware(
   }
 }
 
-export async function isOwner(req, res, next) {
+export async function isOwner(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const { username } = req.params;
     const currentUserName = req.user.username;
@@ -36,7 +40,7 @@ export async function isOwner(req, res, next) {
     if (!currentUserName) {
       return next(ApiError.Forbidden());
     }
-    if (roles.includes([ROLES.ADMIN, ROLES.MODERATOR])) {
+    if ([ROLES.ADMIN, ROLES.MODERATOR].some((role) => roles.includes(role))) {
       return next();
     }
     if (currentUserName !== username) {

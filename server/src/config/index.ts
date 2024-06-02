@@ -16,7 +16,7 @@ export {
 export { ROLES } from './rolesOptions.js';
 export { mediaReactions } from './mediaReactions.js';
 export { commentReactions } from './commentReactions.js';
-export { serverSettings } from './serverConfig.js';
 export { commentMediaTypes } from './commentMediaTypes.js';
 export { limiter } from './rateLimit.js';
+export { maxTransRetries, serverSettings } from './appConfig.js';
 export { moviePopFields, showPopFields } from './populatedFieldsConfig.js';

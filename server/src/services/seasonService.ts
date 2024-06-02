@@ -3,6 +3,8 @@ import type { IEpisodeModel, ISeasonModel } from '#interfaces/IModel';
 import type { IReactions } from '#interfaces/IFields';
 import type { ISeasonUpdate } from '#interfaces/IApp';
 import ApiError from '#utils/apiError';
+import mongoose from 'mongoose';
+import { maxTransRetries } from '#config';
 
 class SeasonService {
   async getSeason(id: number): Promise<ISeasonModel> {
@@ -60,44 +62,66 @@ class SeasonService {
     showId: number,
     seasonNumber: number,
   ): Promise<IReactions> {
-    const season = await Season.findOne(
-      { show_id: showId, season_number: seasonNumber },
-      'reactions',
-    )
-      .populate('episodes', 'reactions')
-      .exec();
+    let retries = 0;
+    do {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const season = await Season.findOne(
+          { show_id: showId, season_number: seasonNumber },
+          'reactions',
+        )
+          .populate('episodes', 'reactions')
+          .exec();
 
-    const reactionsKeys = Object.keys(season.reactions);
-    reactionsKeys.forEach((key) => {
-      season.reactions[key].vote_count = 0;
-    });
+        const reactionsKeys = Object.keys(season.reactions);
+        reactionsKeys.forEach((key) => {
+          season.reactions[key].vote_count = 0;
+        });
 
-    season.episodes.forEach((el) => {
-      Object.keys(el.reactions).forEach((key) => {
-        season.reactions[key].vote_count += el.reactions[key].vote_count;
-      });
-    });
+        season.episodes.forEach((el) => {
+          Object.keys(el.reactions).forEach((key) => {
+            season.reactions[key].vote_count += el.reactions[key].vote_count;
+          });
+        });
 
-    const total_votes = reactionsKeys.reduce(
-      (acc, key) => acc + season.reactions[key].vote_count,
-      0,
-    );
+        const total_votes = reactionsKeys.reduce(
+          (acc, key) => acc + season.reactions[key].vote_count,
+          0,
+        );
 
-    if (!total_votes) {
-      reactionsKeys.forEach((key) => {
-        season.reactions[key].value = 0;
-      });
-      await season.save();
-      return season.reactions;
-    }
-    reactionsKeys.forEach((key) => {
-      season.reactions[key].value = +(
-        (100 * season.reactions[key].vote_count) /
-        total_votes
-      ).toFixed(0);
-    });
-    await season.save();
-    return season.reactions;
+        if (!total_votes) {
+          reactionsKeys.forEach((key) => {
+            season.reactions[key].value = 0;
+          });
+          await season.save();
+          return season.reactions;
+        }
+        reactionsKeys.forEach((key) => {
+          season.reactions[key].value = +(
+            (100 * season.reactions[key].vote_count) /
+            total_votes
+          ).toFixed(0);
+        });
+        await season.save();
+        return season.reactions;
+      } catch (err) {
+        await session.abortTransaction();
+        if (err.code === 112) {
+          retries += 1;
+          if (retries > maxTransRetries) {
+            throw ApiError.InternalServerError(
+              'Operation failed after maximum retries',
+            );
+          }
+        } else {
+          throw err;
+        }
+      } finally {
+        session.endSession();
+      }
+    } while (retries < maxTransRetries);
+    throw ApiError.BadRequest('Operation failed after maximum retries');
   }
 }
 export default new SeasonService();

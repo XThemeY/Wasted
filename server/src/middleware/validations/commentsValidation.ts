@@ -111,7 +111,7 @@ export const isCommentOwner = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   try {
     const id = +req.params.id;
     const currentUserName = req.user.username;
@@ -121,14 +121,17 @@ export const isCommentOwner = async (
       return next(ApiError.Forbidden());
     }
 
-    if (roles.includes(ROLES.ADMIN) || roles.includes(ROLES.MODERATOR)) {
+    if ([ROLES.ADMIN, ROLES.MODERATOR].some((role) => roles.includes(role))) {
       return next();
     }
 
-    await commentService.getComment(id, currentUserName);
+    const isExist = await commentService.getComment(id, currentUserName);
+    if (!isExist) {
+      return next(ApiError.Forbidden());
+    }
     next();
   } catch (e) {
-    return next(ApiError.Forbidden());
+    return next(e);
   }
 };
 

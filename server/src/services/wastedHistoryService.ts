@@ -177,13 +177,10 @@ class WastedHistoryService {
       } else {
         mediaKey = 'games';
       }
-      console.log('media_id', media_id);
-
       const userHistory = await WastedHistory.findOne(
         { username, [`${mediaKey}.itemId`]: media_id },
         { [`${mediaKey}.$`]: 1 },
       ).exec();
-      console.log(userHistory);
 
       return new UserWastedHistory(userHistory);
     }

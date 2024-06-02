@@ -14,7 +14,7 @@ class FavoriteService {
       username,
       movies: itemId,
     });
-    const isMovieExists = await Movie.exists({
+    const isMovieExists = await Movie.findOne({
       id: itemId,
     });
     if (!isMovieExists) {

@@ -6,8 +6,30 @@ import type {
   IPersonJob,
   IReactions,
   IPerson,
+  ISocialProfiles,
+  IGameProfiles,
+  ISettings,
 } from './IFields.d.ts';
 import type { ItemRating, UserReaction, WastedItem } from '#types/types.js';
+
+export interface IUserModel extends Document {
+  id: number;
+  username: string;
+  email: string;
+  authentication?: {
+    password: string;
+    activationLink: string;
+    isActivated: boolean;
+  };
+  favorites: Types.ObjectId | IFavoriteModel;
+  ratings: Types.ObjectId | IUserRatingsModel;
+  reactions: Types.ObjectId | IUserReactionsModel;
+  wastedHistory: Types.ObjectId | IWastedHistoryModel;
+  commentReactions: Types.ObjectId | IUserCommentReactionsModel;
+  socialProfiles: ISocialProfiles;
+  gameProfiles: IGameProfiles;
+  settings: ISettings;
+}
 
 interface IGeneralMediaModel extends Document {
   id: number;

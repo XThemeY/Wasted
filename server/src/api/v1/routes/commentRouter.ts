@@ -49,6 +49,7 @@ router.patch(
   `/${idRegExp}/restore`,
   authMiddleware,
   delResCommentValidMiddleware(),
+  isCommentOwner,
   roleMiddleware([ROLES.ADMIN, ROLES.MODERATOR]),
   commentController.restoreComment,
 );

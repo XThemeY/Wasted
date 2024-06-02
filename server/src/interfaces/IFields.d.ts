@@ -89,7 +89,39 @@ export interface ICookies {
 export interface IJwtPayload extends JwtPayload {
   _id: Types.ObjectId;
   username: string;
+  userRoles: string[];
 }
 interface IHeaders extends Headers {
   authorization: string;
+}
+
+export interface ISocialProfiles {
+  facebook: string;
+  twitter: string;
+  instagram: string;
+  vk: string;
+  discord: string;
+}
+
+export interface IGameProfiles {
+  psn: string;
+  xbox: string;
+  steam: string;
+  nintendo: string;
+}
+
+export interface ISettings {
+  birthdate: Date;
+  avatarUrl: string;
+  userRoles: [string];
+  gender: 'male' | 'female' | 'unknown';
+  theme: 'light' | 'dark';
+  country: string;
+  language: 'Russian' | 'English';
+  timeZone: string;
+  privacy: {
+    showProfileTo: 'everyone' | 'friends' | 'no_one';
+    shareWastedHistory: boolean;
+  };
+  notifications: boolean;
 }
