@@ -71,3 +71,28 @@ export class EpisodeShort implements IEpisodeShort {
     this.commentsCount = model.commentsCount;
   }
 }
+
+export class EpisodeSuperShort {
+  show_id: number;
+  id: number;
+  show_title: string;
+  episode_title: string;
+  season_number: number;
+  episode_number: number;
+  episode_image: string;
+  image_url: string;
+  constructor(model: IEpisodeModel) {
+    this.show_id = model.show_id;
+    this.id = model.id;
+    this.show_title = model.show.title;
+    this.episode_title = model.title_original;
+    this.season_number = model.season_number;
+    this.episode_number = model.episode_number;
+    this.episode_image = model.poster_url;
+    this.image_url =
+      model.poster_url ||
+      model.show.images.backdrop_url ||
+      model.show.images.poster_url.ru ||
+      model.show.images.poster_url.en;
+  }
+}

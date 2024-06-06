@@ -7,4 +7,5 @@ export const usernameExceptions = [
   'games',
   'episodes',
   'seasons',
+  'upload',
 ];

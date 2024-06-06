@@ -10,7 +10,13 @@ import type {
   IGameProfiles,
   ISettings,
 } from './IFields.d.ts';
-import type { ItemRating, UserReaction, WastedItem } from '#types/types.js';
+import type {
+  ItemRating,
+  MergeEpisode,
+  MergeMovie,
+  UserReaction,
+  WastedItem,
+} from '#types/types.js';
 
 export interface IUserModel extends Document {
   id: number;
@@ -21,14 +27,15 @@ export interface IUserModel extends Document {
     activationLink: string;
     isActivated: boolean;
   };
-  favorites: Types.ObjectId | IFavoriteModel;
-  ratings: Types.ObjectId | IUserRatingsModel;
+  favorites: IFavoriteModel;
+  ratings: IUserRatingsModel;
   reactions: Types.ObjectId | IUserReactionsModel;
   wastedHistory: Types.ObjectId | IWastedHistoryModel;
   commentReactions: Types.ObjectId | IUserCommentReactionsModel;
   socialProfiles: ISocialProfiles;
   gameProfiles: IGameProfiles;
   settings: ISettings;
+  createdAt: Date;
 }
 
 interface IGeneralMediaModel extends Document {
@@ -99,8 +106,10 @@ export interface ISeasonModel extends IGeneralMediaModel {
 }
 
 export interface IEpisodeModel extends IGeneralMediaModel {
+  show?: IShowModel;
   show_id: number;
   poster_url: string;
+  duration: number;
   episode_type: string;
   season_number: number;
   episode_number: number;
@@ -190,6 +199,10 @@ export interface IUserReactionsModel {
 
 export interface IUserRatingsModel {
   username: string;
+  ratingsShows?: { tvShows: { episodes: IEpisodeModel[] } };
+  ratingsMovies?: IMovieModel[];
+  mergeMovies?: MergeMovie[];
+  mergeEpisodes?: MergeEpisode[];
   movies: ItemRating[];
   tvShows: { episodes: ItemRating[] };
   games: ItemRating[];
@@ -206,8 +219,10 @@ export interface IWastedHistoryModel {
 
 export interface IFavoriteModel {
   username: string;
-  movies: [number];
-  tvShows: { shows: [number]; episodes: [number] };
+  movies?: [number];
+  tvShows?: { shows: [number]; episodes: [number] };
+  favoriteMovies: IMovieModel[];
+  favoriteShows: { shows: IShowModel[]; episodes: IEpisodeModel[] };
   games: [number];
 }
 

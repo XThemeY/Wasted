@@ -17,14 +17,15 @@ import type {
   IProdCompanyModel,
   ITVPlatformModel,
   ICommentsMediaModel,
-  IFavoriteModel,
   IUserCommentReactionsModel,
-  IUserRatingsModel,
   IUserReactionsModel,
   IWastedHistoryModel,
 } from './IModel';
-import type { EpisodeShort } from '#utils/dtos/episodeDto';
+import type { EpisodeShort, EpisodeSuperShort } from '#utils/dtos/episodeDto';
 import type { Comments, WastedItem } from '#types/types';
+import type { MovieSuperShort } from '#utils/dtos/movieDto';
+import type { ShowSuperShort } from '#utils/dtos/showDto';
+import { EpisodeRatingDto, MovieRatingDto } from '#utils/dtos/userRatingDto';
 
 interface IGeneralUpdate {
   title: string;
@@ -87,13 +88,14 @@ interface IGeneralMedia {
 export interface IUser {
   id: number;
   username: string;
-  favorites: IFavoriteModel;
-  ratings: IUserRatingsModel;
+  favorites: IProfileFavorite;
+  ratings: IProfileRatings;
   reactions: IUserReactionsModel;
   wastedHistory: IWastedHistoryModel;
   commentReactions: IUserCommentReactionsModel;
   socialProfiles: ISocialProfiles;
   gameProfiles: IGameProfiles;
+  createdAt: string;
 }
 
 export interface IUserPrivate extends IUser {
@@ -293,4 +295,16 @@ export interface IDelComment {
 export interface ICommentsMedia {
   media_id: number;
   comments: Comments;
+}
+
+export interface IProfileFavorite {
+  movies: MovieSuperShort[];
+  tvShows: { shows: ShowSuperShort[]; episodes: EpisodeSuperShort[] };
+  // games: GameSuperShort[];
+}
+
+export interface IProfileRatings {
+  movies: MovieRatingDto[];
+  tvShows: { episodes: EpisodeRatingDto[] };
+  // games: GameSuperShort[];
 }

@@ -7,6 +7,7 @@ declare global {
       headers: IHeaders;
       files: { [fieldname: string]: File[] } | File[];
       fieldsIsValid: boolean;
+      isProfileOwner: boolean;
     }
   }
 }

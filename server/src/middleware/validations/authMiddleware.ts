@@ -19,12 +19,12 @@ export async function authMiddleware(
     }
     const userData = tokenService.validateAccessToken(accessToken);
     if (!userData) {
-      return next(ApiError.NotAuthorized());
+      return next(ApiError.Forbidden());
     }
     req.user = userData;
     next();
   } catch (e) {
-    return next(ApiError.NotAuthorized());
+    return next(e);
   }
 }
 
@@ -38,7 +38,7 @@ export async function isOwner(
     const currentUserName = req.user.username;
     const roles = req.user.userRoles;
     if (!currentUserName) {
-      return next(ApiError.Forbidden());
+      return next(ApiError.NotAuthorized());
     }
     if ([ROLES.ADMIN, ROLES.MODERATOR].some((role) => roles.includes(role))) {
       return next();
@@ -49,6 +49,27 @@ export async function isOwner(
 
     next();
   } catch (e) {
-    return next(ApiError.Forbidden());
+    return next(e);
+  }
+}
+
+export async function isProfileOwner(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { username } = req.params;
+    const currentUserName = req.user?.username;
+
+    if (currentUserName !== username) {
+      req.isProfileOwner = false;
+    } else {
+      req.isProfileOwner = true;
+    }
+
+    next();
+  } catch (e) {
+    return next(e);
   }
 }

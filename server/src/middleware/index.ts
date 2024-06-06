@@ -4,7 +4,11 @@ export {
   invalidPathHandler,
   errorResponder,
 } from '#middleware/errorHandler.js';
-export { authMiddleware, isOwner } from './validations/authMiddleware.js';
+export {
+  authMiddleware,
+  isOwner,
+  isProfileOwner,
+} from './validations/authMiddleware.js';
 export { roleMiddleware } from './validations/roleMiddleware.js';
 export { cookieParseMiddleware } from './validations/cookieParseMiddleware.js';
 export {

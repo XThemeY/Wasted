@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import {
   episodeController,
+  favoriteController,
   wastedHistoryController,
 } from '#api/v1/controllers/index.js';
 import {
   authMiddleware,
+  favValidMiddleware,
+  isOwner,
   ratingValidMiddleware,
   reactionsValidMiddleware,
   roleMiddleware,
@@ -36,11 +39,23 @@ router.post(
   reactionsValidMiddleware(),
   episodeController.setEpisodeReaction,
 );
-
 router.post(
   `/${idRegExp}/wasted`,
   authMiddleware,
   wastedValidMiddleware(),
   wastedHistoryController.setEpisodeWasted,
+);
+router.post(
+  `/${idRegExp}/favorites`,
+  authMiddleware,
+  favValidMiddleware(),
+  favoriteController.setEpisodeFav,
+);
+router.delete(
+  `/${idRegExp}/favorites`,
+  authMiddleware,
+  isOwner,
+  favValidMiddleware(),
+  favoriteController.delEpisodeFav,
 );
 export default router;

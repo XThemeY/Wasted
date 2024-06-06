@@ -13,6 +13,12 @@ class UserController {
       const username = req.params.username;
       const user = await userService.getUser(username);
 
+      // if (req.isProfileOwner) {
+      //   return res.json(new UserPrivateDto(user));
+      // } else {
+      //   return res.json(new UserDto(user));
+      // }
+
       return res.json(new UserDto(user));
     } catch (e) {
       next(e);

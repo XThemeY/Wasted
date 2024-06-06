@@ -77,6 +77,16 @@ const episodeSchema = new Schema(
   },
 );
 
+episodeSchema.set('toObject', { virtuals: true });
+episodeSchema.set('toJSON', { virtuals: true });
+
+episodeSchema.virtual('show', {
+  ref: 'TVShow',
+  localField: 'show_id',
+  foreignField: 'id',
+  justOne: true,
+});
+
 const Episode = model<IEpisodeModel>('Episode', episodeSchema);
 
 export default Episode;

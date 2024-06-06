@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { wastedHistoryController } from '#api/v1/controllers/index.js';
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get(`/`, wastedHistoryController.getWastedHistory);
 

@@ -135,5 +135,34 @@ export class ShowShort implements IShowSearchResult {
     this.description = model.description;
     this.description_original = model.description_original;
     this.rating = model.rating;
+    this.popularity = model.popularity;
+  }
+}
+
+export class ShowSuperShort {
+  id: number;
+  title: string;
+  title_original: string;
+  status: string;
+  total_episodes_time: number;
+  episode_duration: number;
+  number_of_seasons: number;
+  number_of_episodes: number;
+  image_url: string;
+  rating: number;
+  constructor(model: IShowModel) {
+    this.id = model.id;
+    this.title = model.title;
+    this.title_original = model.title_original;
+    this.status = model.status;
+    this.image_url =
+      model.images.backdrop_url ||
+      model.images.poster_url.ru ||
+      model.images.poster_url.en;
+    this.total_episodes_time = model.total_episodes_time;
+    this.episode_duration = model.episode_duration;
+    this.number_of_seasons = model.number_of_seasons;
+    this.number_of_episodes = model.number_of_episodes;
+    this.rating = model.rating;
   }
 }

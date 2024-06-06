@@ -96,11 +96,11 @@ export class MovieShort implements IMovieSearchResult {
     this.id = model.id;
     this.title = model.title;
     this.title_original = model.title_original;
-    //this.countries = getCountries(model.countriesId);
+    this.countries = getCountries(model.countriesId);
     this.images = model.images;
     this.release_date = format(new Date(model.release_date), 'dd.MM.yyyy');
     this.director = getPeoples(model.director);
-    // this.genres = getGenres(model.genresId);
+    this.genres = getGenres(model.genresId);
     this.description = model.description;
     this.description_original = model.description_original;
     this.duration = model.duration;
@@ -109,5 +109,22 @@ export class MovieShort implements IMovieSearchResult {
     this.watch_count = model.watch_count;
     this.popularity = model.popularity;
     this.commentsCount = model.commentsCount;
+  }
+}
+
+export class MovieSuperShort {
+  id: number;
+  title: string;
+  title_original: string;
+  duration: number;
+  image_url: string;
+  rating: number;
+  constructor(model: IMovieModel) {
+    this.id = model.id;
+    this.title = model.title;
+    this.title_original = model.title_original;
+    this.image_url = model.images.backdrop_url;
+    this.duration = model.duration;
+    this.rating = model.rating;
   }
 }

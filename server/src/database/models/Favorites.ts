@@ -26,9 +26,15 @@ favoritesSchema.virtual('favoriteMovies', {
   foreignField: 'id',
 });
 
-favoritesSchema.virtual('favoriteShows', {
+favoritesSchema.virtual('favoriteShows.shows', {
   ref: 'TVShow',
-  localField: 'tvShows',
+  localField: 'tvShows.shows',
+  foreignField: 'id',
+});
+
+favoritesSchema.virtual('favoriteShows.episodes', {
+  ref: 'Episode',
+  localField: 'tvShows.episodes',
   foreignField: 'id',
 });
 

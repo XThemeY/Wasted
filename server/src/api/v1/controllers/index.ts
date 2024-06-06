@@ -9,3 +9,4 @@ export { default as wastedHistoryController } from './wastedHistoryController.js
 export { default as episodeController } from './episodeController.js';
 export { default as commentController } from './commentController.js';
 export { default as seasonController } from './seasonController.js';
+export { default as uploadController } from './uploadController.js';

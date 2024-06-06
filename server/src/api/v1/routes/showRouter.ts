@@ -38,6 +38,12 @@ router.post(
   favValidMiddleware(),
   favoriteController.setShowFav,
 );
+router.delete(
+  `/${idRegExp}/favorites`,
+  authMiddleware,
+  favValidMiddleware(),
+  favoriteController.delShowFav,
+);
 router.post(
   `/${idRegExp}/wasted`,
   authMiddleware,

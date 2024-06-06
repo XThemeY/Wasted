@@ -1,4 +1,5 @@
-import { IComment, IDelComment } from '#interfaces/IApp';
+import type { IComment, IDelComment } from '#interfaces/IApp';
+import type { IEpisodeModel, IMovieModel } from '#interfaces/IModel';
 
 export type RatingTuple = [string, number];
 
@@ -70,7 +71,7 @@ export type ItemRating = {
 };
 
 export type WastedItem = {
-  itemId: number;
+  id: number;
   status?: string;
   watch_count: number;
   seasonNumber?: number;
@@ -78,4 +79,18 @@ export type WastedItem = {
   playedAt?: Date;
   playedCount?: number;
   watchedEpisodes?: WastedItem[];
+};
+
+export type MergeMovie = {
+  id: number;
+  rating: number;
+  ratingName: string;
+  movieDetails: IMovieModel;
+};
+
+export type MergeEpisode = {
+  id: number;
+  rating: number;
+  ratingName: string;
+  episodeDetails: IEpisodeModel;
 };

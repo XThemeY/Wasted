@@ -86,9 +86,12 @@ class WastedHistoryController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const { username } = req.user;
+      const { username } = req.params;
       const response =
         await wastedHistoryService.getUserWastedHistory(username);
+
+      console.log(response);
+
       return res.json(response);
     } catch (e) {
       next(e);

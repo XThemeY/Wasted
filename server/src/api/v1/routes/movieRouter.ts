@@ -34,12 +34,20 @@ router.get(
   cookieParseMiddleware,
   movieController.exploreMovies,
 );
+
 router.post(
   `/${idRegExp}/favorites`,
   authMiddleware,
   favValidMiddleware(),
   favoriteController.setMovieFav,
 );
+router.delete(
+  `/${idRegExp}/favorites`,
+  authMiddleware,
+  favValidMiddleware(),
+  favoriteController.delMovieFav,
+);
+
 router.post(
   `/${idRegExp}/ratings`,
   authMiddleware,

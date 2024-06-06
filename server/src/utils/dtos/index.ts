@@ -1,7 +1,7 @@
-export { Movie, MovieShort } from './movieDto.js';
-export { EpisodeShort, EpisodeFull } from './episodeDto.js';
+export { Movie, MovieShort, MovieSuperShort } from './movieDto.js';
+export { EpisodeShort, EpisodeFull, EpisodeSuperShort } from './episodeDto.js';
 export { SeasonFull, SeasonShort } from './seasonDto.js';
-export { ShowShort } from './showDto.js';
+export { ShowShort, ShowSuperShort } from './showDto.js';
 export { UserDto } from './userDto.js';
 export { UserSettingsDto } from './userSettingsDto.js';
 export { UserWastedHistory } from './wastedHistoryDto.js';

@@ -26,7 +26,7 @@ const userSchema = new Schema(
       isActivated: { type: Boolean, default: false },
     },
     favorites: { type: Schema.Types.ObjectId, ref: 'Favorites', unique: true },
-    ratings: { type: Schema.Types.ObjectId, ref: 'UserRating', unique: true },
+    ratings: { type: Schema.Types.ObjectId, ref: 'UserRatings', unique: true },
     reactions: {
       type: Schema.Types.ObjectId,
       ref: 'UserReactions',

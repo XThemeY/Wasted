@@ -184,7 +184,9 @@ class WastedHistoryService {
 
       return new UserWastedHistory(userHistory);
     }
+
     const userHistory = await WastedHistory.findOne({ username }).exec();
+
     return new UserWastedHistory(userHistory);
   }
 

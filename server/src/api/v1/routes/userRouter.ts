@@ -3,7 +3,7 @@ import {
   commentController,
   userController,
 } from '#api/v1/controllers/index.js';
-import { authMiddleware, isOwner } from '#middleware/index.js';
+import { authMiddleware, isProfileOwner } from '#middleware/index.js';
 import {
   favoriteRouter,
   settingsRouter,
@@ -13,15 +13,30 @@ import {
 const router = Router();
 const username = `:username`;
 
-router.get('/users/', userController.getAllUsers);
-router.get(`/${username}`, userController.getUser);
+router.get('/users/', isProfileOwner, userController.getAllUsers);
+router.get(`/${username}`, isProfileOwner, userController.getUser);
 router.get(
   `/${username}/comments`,
-  authMiddleware,
+  isProfileOwner,
   commentController.getUserComments,
 );
-router.use(`/${username}/settings`, authMiddleware, isOwner, settingsRouter);
-router.use(`/${username}/favorites`, authMiddleware, isOwner, favoriteRouter);
-router.use(`/${username}/wasted`, authMiddleware, isOwner, wastedHistoryRouter);
+router.use(
+  `/${username}/settings`,
+  authMiddleware,
+  isProfileOwner,
+  settingsRouter,
+);
+router.use(
+  `/${username}/favorites`,
+  authMiddleware,
+  isProfileOwner,
+  favoriteRouter,
+);
+router.use(
+  `/${username}/wasted`,
+  authMiddleware,
+  isProfileOwner,
+  wastedHistoryRouter,
+);
 
 export default router;

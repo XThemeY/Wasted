@@ -20,6 +20,21 @@ const userRatingsSchema = new Schema(
   },
 );
 
+userRatingsSchema.set('toObject', { virtuals: true });
+userRatingsSchema.set('toJSON', { virtuals: true });
+
+userRatingsSchema.virtual('ratingsMovies', {
+  ref: 'Movie',
+  localField: 'movies.itemId',
+  foreignField: 'id',
+});
+
+userRatingsSchema.virtual('ratingsShows.tvShows.episodes', {
+  ref: 'Episode',
+  localField: 'tvShows.episodes.itemId',
+  foreignField: 'id',
+});
+
 const UserRatings = model<IUserRatingsModel>('UserRatings', userRatingsSchema);
 
 export default UserRatings;
