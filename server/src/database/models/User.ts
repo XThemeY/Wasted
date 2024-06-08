@@ -21,7 +21,7 @@ const userSchema = new Schema(
     username: { type: String, required: true, immutable: true },
     email: { type: String, unique: true, required: true, trim: true },
     authentication: {
-      password: { type: String, required: true },
+      passwordHash: { type: String, required: true },
       activationLink: { type: String },
       isActivated: { type: Boolean, default: false },
     },
